@@ -191,16 +191,15 @@
         <span id="toast-msg">Berhasil!</span>
     </div>
 
-    <!-- HIDDEN FILE INPUTS FOR GALLERY & FALLBACK CAMERA -->
+    <!-- HIDDEN FILE INPUTS FOR GALLERY -->
     <input type="file" id="hidden-gallery-input" accept="image/*" class="hidden" onchange="handleHiddenFileSelect(event)">
-    <input type="file" id="hidden-native-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleHiddenFileSelect(event)">
     <input type="file" id="hidden-qr-gallery-input" accept="image/*" class="hidden" onchange="handleQrGalleryFileSelect(event)">
 
     <div class="mesh-canvas">
         <div class="macos-window">
             <!-- TOP HEADER BAR -->
             <header class="w-full px-4 sm:px-6 py-3 bg-white/85 border-b border-slate-200/80 flex items-center justify-between gap-3 shrink-0 z-30">
-                <!-- BRAND SARPRASQ (LONG PRESS 1.2 DETIK UNTUK LOGIN ADMIN) -->
+                <!-- BRAND SARPRASQ (LONG-PRESS 1.2 DETIK UNTUK PORTAL ADMIN) -->
                 <div id="brand-longpress-trigger"
                      onmousedown="startBrandPress(event)"
                      onmouseup="cancelBrandPress()"
@@ -209,10 +208,10 @@
                      ontouchend="cancelBrandPress()"
                      ontouchcancel="cancelBrandPress()"
                      oncontextmenu="return false;"
-                     title="Tahan 1.2 detik untuk Portal Admin"
+                     title="Tekan 1.2 detik untuk Portal Admin"
                      class="select-none cursor-pointer flex items-center gap-1.5 py-1 px-1 rounded-lg active:scale-95 transition-transform">
                     <span class="text-[18px] sm:text-[20px] font-extrabold tracking-tight text-slate-900">Sarpras<span class="text-blue-600">Q</span></span>
-                    <span id="admin-badge-pill" class="hidden px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase tracking-wider border border-amber-300">Admin</span>
+                    <span id="admin-badge-pill" class="hidden px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300">Mode Admin</span>
                 </div>
 
                 <!-- DESKTOP NAVIGATION PILLS -->
@@ -308,27 +307,35 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT: MENU PINTASAN CEPAT SARPRASQ -->
+                        <!-- RIGHT: MENU PINTASAN CEPAT SARPRASQ (ROLE-BASED UI) -->
                         <div class="glass-card rounded-[24px] p-4 sm:p-5 flex flex-col justify-between">
                             <div class="flex items-center justify-between">
                                 <h2 class="text-[13px] sm:text-[14px] font-extrabold text-slate-900 flex items-center gap-2">
                                     <i class="fa-solid fa-bolt text-amber-500"></i> Menu Pintasan Cepat SarprasQ
                                 </h2>
-                                <span class="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">Akses Instan</span>
+                                <span id="dashboard-role-badge" class="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">Mode Pegawai</span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2.5 my-3">
-                                <button type="button" onclick="openModalTambah()" class="py-3 px-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
+                                <!-- ADMIN ONLY: REGISTRASI ASET -->
+                                <button type="button" id="btn-quick-reg" onclick="openModalTambah()" class="hidden py-3 px-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-plus"></i> Registrasi Aset
                                 </button>
+                                <!-- ALL: LAPOR KONDISI -->
                                 <button type="button" onclick="openModalMaintenance()" class="py-3 px-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-screwdriver-wrench"></i> Lapor Kondisi
                                 </button>
-                                <button type="button" onclick="openPreviewF4SheetModal()" class="py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
+                                <!-- ADMIN ONLY: LABEL F4 -->
+                                <button type="button" id="btn-quick-pdf" onclick="openPreviewF4SheetModal()" class="hidden py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-file-pdf"></i> Label F4
                                 </button>
-                                <button type="button" onclick="switchTab('inventaris')" class="py-3 px-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 font-extrabold text-[12px] shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95">
-                                    <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Data Inventaris
+                                <!-- ALL: PINJAM ALAT -->
+                                <button type="button" onclick="openModalPinjam()" class="py-3 px-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
+                                    <i class="fa-solid fa-hand-holding-hand"></i> Pinjam Alat
+                                </button>
+                                <!-- ALL: DATA INVENTARIS -->
+                                <button type="button" onclick="switchTab('inventaris')" class="col-span-2 py-2.5 px-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 font-extrabold text-[12px] shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95">
+                                    <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Buka Data Inventaris Lengkap
                                 </button>
                             </div>
 
@@ -370,7 +377,7 @@
                             <h2 class="text-[15px] font-extrabold text-slate-900">Data Inventaris & Fisik Barang</h2>
                             <p class="text-[10.5px] font-semibold text-slate-500">Ketuk kartu barang untuk melihat foto fisik terkini, QR Code, atau cetak label.</p>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div id="inventaris-admin-action-box" class="hidden flex items-center gap-2">
                             <button onclick="openModalTambah()" class="px-3.5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
                                 <i class="fa-solid fa-plus"></i> Registrasi Aset
                             </button>
@@ -384,6 +391,13 @@
                         <div class="relative flex-1">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input type="text" id="inv-search-input" oninput="renderInventaris()" placeholder="Cari nama barang, kode INV-ALK, lokasi ruangan, atau kondisi..." class="w-full search-pill rounded-full py-2.5 pl-9 pr-4 text-[11.5px] font-bold focus:outline-none">
+                        </div>
+                        <!-- FILTER PIL CEPAT -->
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                            <button onclick="setInventarisFilter('Semua')" id="filter-btn-Semua" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold shrink-0 shadow-xs">Semua</button>
+                            <button onclick="setInventarisFilter('Tersedia')" id="filter-btn-Tersedia" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[11px] font-extrabold shrink-0">Tersedia</button>
+                            <button onclick="setInventarisFilter('Dipinjam')" id="filter-btn-Dipinjam" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[11px] font-extrabold shrink-0">Dipinjam</button>
+                            <button onclick="setInventarisFilter('Perbaikan')" id="filter-btn-Perbaikan" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[11px] font-extrabold shrink-0">Perbaikan</button>
                         </div>
                     </div>
 
@@ -526,7 +540,7 @@
         </div>
     </nav>
 
-    <!-- ==================== MODAL 1: REGISTRASI ASET BARU + FOTO FISIK UP-TO-DATE ==================== -->
+    <!-- ==================== MODAL 1: REGISTRASI ASET BARU (KHUSUS ADMIN) ==================== -->
     <div id="modal-tambah" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
             <button type="button" onclick="closeModalTambah()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -615,6 +629,45 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL 1B: EDIT ASET (KHUSUS ADMIN) ==================== -->
+    <div id="modal-edit" style="display: none;" class="fixed inset-0 z-[160000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
+        <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
+            <button type="button" onclick="closeModalEdit()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-2.5 mb-3.5">
+                <div class="w-8 h-8 rounded-xl bg-purple-700 text-white flex items-center justify-center text-xs shadow">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <h3 class="text-[13.5px] font-extrabold text-slate-900">Edit Data Aset</h3>
+            </div>
+
+            <form onsubmit="simpanEditAset(event)" class="space-y-3">
+                <input type="hidden" id="edit-asset-id" value="">
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Nama Aset</label>
+                    <input type="text" id="edit-nama" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Kode Inventaris</label>
+                    <input type="text" id="edit-kode" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-mono font-bold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Kategori</label>
+                    <input type="hidden" id="edit-kategori-val" value="Elektronik">
+                    <div id="dd-wrap-edit-kategori-val" class="relative"></div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Lokasi Ruangan</label>
+                    <input type="text" id="edit-lokasi" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 mt-1.5 bg-purple-700 hover:bg-purple-800 text-white rounded-full text-[12px] font-extrabold shadow-md">
+                    Simpan Perubahan Aset
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== MODAL 2: LAPOR & UPDATE KONDISI SARPRAS (BAIK/DIPERBAIKI, RUSAK RINGAN, RUSAK BERAT) ==================== -->
     <div id="modal-maintenance" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
@@ -695,7 +748,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 3: KONFIRMASI SELESAI PERBAIKAN (OVERWRITE FOTO KEMBALI BAIK) ==================== -->
+    <!-- ==================== MODAL 3: KONFIRMASI SELESAI PERBAIKAN / KEMBALI BAIK (KHUSUS ADMIN) ==================== -->
     <div id="modal-selesai-maint" style="display: none;" class="fixed inset-0 z-[180000] bg-slate-900/50 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[24px] p-5 shadow-2xl relative max-h-[90vh] overflow-y-auto bg-white">
             <button type="button" onclick="closeModalSelesaiMaint()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -784,7 +837,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 5: DETAIL ASET & HASIL SCAN QR (FOTO TERKINI + KARTU QR) ==================== -->
+    <!-- ==================== MODAL 5: DETAIL ASET & HASIL SCAN QR (ROLE-BASED UI) ==================== -->
     <div id="modal-detail" style="display: none;" class="fixed inset-0 z-[170000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[24px] p-4 sm:p-5 shadow-2xl relative text-center flex flex-col justify-between bg-white max-h-[92vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeModalDetail()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3 right-3 font-bold z-20 text-xs">
@@ -804,7 +857,8 @@
                     <span class="text-[10px] font-extrabold text-slate-700 flex items-center gap-1.5">
                         <i class="fa-solid fa-image text-blue-600"></i> Visual Fisik Barang Terkini
                     </span>
-                    <div class="flex items-center gap-1.5">
+                    <!-- ADMIN ONLY: FOTO ULANG -->
+                    <div id="detail-admin-photo-box" class="hidden flex items-center gap-1.5">
                         <button type="button" onclick="triggerSingleAction('update_detail', 'camera')" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[9.5px] font-extrabold flex items-center gap-1 shadow-xs">
                             <i class="fa-solid fa-camera"></i> Foto Ulang
                         </button>
@@ -820,7 +874,7 @@
                             <i class="fa-solid fa-camera-retro"></i>
                         </div>
                         <p class="text-[10.5px] font-bold text-slate-300">Belum ada foto fisik barang</p>
-                        <p class="text-[9px] text-slate-400">Klik "Foto Ulang" di atas untuk memotret kondisi barang saat ini.</p>
+                        <p class="text-[9px] text-slate-400">Foto otomatis diperbarui mengikuti riwayat kondisi terakhir.</p>
                     </div>
                 </div>
                 <p id="modal-detail-photo-caption" class="text-[9px] font-semibold text-slate-500 text-center italic">Foto otomatis diperbarui mengikuti riwayat kondisi terakhir (Baik / Rusak / Selesai Perbaikan).</p>
@@ -846,17 +900,23 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 mt-3">
-                <button onclick="downloadSingleBarcodePDF()" class="py-2.5 rounded-full bg-purple-800 hover:bg-purple-900 text-white text-[11px] font-extrabold shadow flex items-center justify-center gap-1.5">
+                <!-- ADMIN ONLY: PRATINJAU & PDF -->
+                <button id="btn-detail-pdf" onclick="downloadSingleBarcodePDF()" class="hidden py-2.5 rounded-full bg-purple-800 hover:bg-purple-900 text-white text-[11px] font-extrabold shadow items-center justify-center gap-1.5">
                     <i class="fa-solid fa-file-pdf"></i> Pratinjau & PDF
                 </button>
-                <button onclick="hapusAsetTerpilih()" id="btn-hapus-aset" class="py-2.5 rounded-full glass-button text-rose-600 text-[11px] font-extrabold">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus Aset
+                <!-- ADMIN ONLY: EDIT ASET -->
+                <button id="btn-detail-edit" onclick="openModalEditFromDetail()" class="hidden py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Aset
+                </button>
+                <!-- ADMIN ONLY: HAPUS ASET -->
+                <button onclick="hapusAsetTerpilih()" id="btn-hapus-aset" class="hidden col-span-2 py-2 rounded-full glass-button text-rose-600 text-[11px] font-extrabold">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus Aset dari Database
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== MODAL 6: LIVE WEBRTC CAMERA CAPTURE (UNTUK SEMUA PERANGKAT) ==================== -->
+    <!-- ==================== MODAL 6: LIVE WEBRTC CAMERA CAPTURE ==================== -->
     <div id="modal-camera-capture" style="display: none;" class="fixed inset-0 z-[220000] bg-slate-950/90 backdrop-blur-md items-center justify-center p-3">
         <div class="w-full max-w-md rounded-[26px] bg-slate-900 border border-slate-800 p-4 text-white shadow-2xl space-y-3 relative">
             <div class="flex items-center justify-between">
@@ -892,7 +952,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 7: PRATINJAU & UNDUH PDF LABEL F4 / SATUAN ==================== -->
+    <!-- ==================== MODAL 7: PRATINJAU & UNDUH PDF LABEL F4 / SATUAN (KHUSUS ADMIN) ==================== -->
     <div id="modal-pdf-preview" style="display: none;" class="fixed inset-0 z-[210000] bg-slate-900/60 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-2xl rounded-[26px] p-4 sm:p-5 shadow-2xl bg-white max-h-[92vh] flex flex-col justify-between">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -948,10 +1008,10 @@
                 </div>
                 <div class="flex items-center justify-between gap-2 pt-1">
                     <button type="button" onclick="logoutAdminMode()" class="px-3.5 py-2 rounded-full glass-button text-rose-600 text-[10.5px] font-extrabold">
-                        Keluar Admin
+                        Keluar Mode Admin
                     </button>
                     <button type="submit" class="flex-1 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-extrabold shadow">
-                        Verifikasi & Aktifkan Admin
+                        Verifikasi & Masuk Admin
                     </button>
                 </div>
             </form>
@@ -996,8 +1056,9 @@
         ];
 
         let maintenanceData = [];
+        let currentInventarisFilter = 'Semua';
 
-        // Load saved local state so photos & updates persist seamlessly
+        // Load saved local state
         try {
             const savedAssets = localStorage.getItem('sarprasq_assets_v3');
             if (savedAssets) {
@@ -1031,13 +1092,6 @@
             }, 3200);
         };
 
-        function getTimestampWIB() {
-            const now = new Date();
-            const d = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-            const t = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
-            return `${d}, ${t} WIB`;
-        }
-
         function updateHeaderClock() {
             const now = new Date();
             const timeEl = document.getElementById('clock-time');
@@ -1051,7 +1105,7 @@
         }
         setInterval(updateHeaderClock, 10000);
 
-        // ==================== GPS LOCATION & REVERSE GEOCODING ====================
+        // ==================== GPS LOCATION ====================
         window.refreshGpsLocation = () => {
             const lbl = document.getElementById('header-gps-label');
             if (lbl) lbl.textContent = 'Mendeteksi...';
@@ -1083,7 +1137,7 @@
             clearTimeout(brandPressTimer);
             brandPressTimer = setTimeout(() => {
                 document.getElementById('modal-admin-login').style.display = 'flex';
-            }, 1100);
+            }, 1200);
         };
         window.cancelBrandPress = () => {
             clearTimeout(brandPressTimer);
@@ -1097,10 +1151,10 @@
             if (detectedCloudAdminPasswords.includes(val) || val.toLowerCase() === 'alka2026') {
                 isAdminMode = true;
                 localStorage.setItem('sarprasq_admin_unlocked', 'true');
-                updateAdminUI();
+                updateRoleBasedUI();
                 closeAdminModal();
                 document.getElementById('admin-pass-input').value = '';
-                showToast('Mode Admin SarprasQ Aktif!');
+                showToast('Mode Admin & Superadmin Aktif!');
             } else {
                 showToast('Kata sandi admin tidak sesuai!');
             }
@@ -1108,19 +1162,52 @@
         window.logoutAdminMode = () => {
             isAdminMode = false;
             localStorage.removeItem('sarprasq_admin_unlocked');
-            updateAdminUI();
+            updateRoleBasedUI();
             closeAdminModal();
-            showToast('Keluar dari Mode Admin.');
+            showToast('Kembali ke Mode Pegawai.');
         };
-        function updateAdminUI() {
+
+        function updateRoleBasedUI() {
             const badge = document.getElementById('admin-badge-pill');
-            if (badge) {
-                if (isAdminMode) badge.classList.remove('hidden');
-                else badge.classList.add('hidden');
+            const dashBadge = document.getElementById('dashboard-role-badge');
+            const quickReg = document.getElementById('btn-quick-reg');
+            const quickPdf = document.getElementById('btn-quick-pdf');
+            const invAdminBox = document.getElementById('inventaris-admin-action-box');
+            const detailPdf = document.getElementById('btn-detail-pdf');
+            const detailEdit = document.getElementById('btn-detail-edit');
+            const detailHapus = document.getElementById('btn-hapus-aset');
+            const detailPhotoBox = document.getElementById('detail-admin-photo-box');
+
+            if (isAdminMode) {
+                if (badge) badge.classList.remove('hidden');
+                if (dashBadge) {
+                    dashBadge.textContent = 'Mode Admin Aktif';
+                    dashBadge.className = 'text-[10px] font-extrabold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200';
+                }
+                if (quickReg) quickReg.classList.remove('hidden');
+                if (quickPdf) quickPdf.classList.remove('hidden');
+                if (invAdminBox) invAdminBox.classList.remove('hidden');
+                if (detailPdf) detailPdf.classList.remove('hidden');
+                if (detailEdit) detailEdit.classList.remove('hidden');
+                if (detailHapus) detailHapus.classList.remove('hidden');
+                if (detailPhotoBox) detailPhotoBox.classList.remove('hidden');
+            } else {
+                if (badge) badge.classList.add('hidden');
+                if (dashBadge) {
+                    dashBadge.textContent = 'Mode Pegawai';
+                    dashBadge.className = 'text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100';
+                }
+                if (quickReg) quickReg.classList.add('hidden');
+                if (quickPdf) quickPdf.classList.add('hidden');
+                if (invAdminBox) invAdminBox.classList.add('hidden');
+                if (detailPdf) detailPdf.classList.add('hidden');
+                if (detailEdit) detailEdit.classList.add('hidden');
+                if (detailHapus) detailHapus.classList.add('hidden');
+                if (detailPhotoBox) detailPhotoBox.classList.add('hidden');
             }
         }
 
-        // ==================== MODERN MINIMALIST SEARCHABLE DROPDOWN ENGINE ====================
+        // ==================== MODERN SEARCHABLE DROPDOWN ENGINE ====================
         const modernDropdownRegistry = {};
 
         window.initModernDropdown = (inputId, optionsList, defaultVal) => {
@@ -1240,7 +1327,7 @@
         });
 
         // ==================== CAMERA & WATERMARK ENGINE (UP-TO-DATE OVERWRITE) ====================
-        let activePhotoTargetMode = 'tambah'; // 'tambah' | 'maint' | 'selesai_maint' | 'update_detail'
+        let activePhotoTargetMode = 'tambah';
         let liveDocStream = null;
         let liveDocFacingMode = 'environment';
 
@@ -1259,10 +1346,8 @@
 
         window.openDirectLiveCamera = async () => {
             const modal = document.getElementById('modal-camera-capture');
-            const video = document.getElementById('doc-camera-video');
             const gpsOverlay = document.getElementById('live-cam-gps-overlay');
             if (gpsOverlay) gpsOverlay.textContent = `${mapsLocationState.address} (${mapsLocationState.coords})`;
-
             if (modal) modal.style.display = 'flex';
             await startDocCameraStream();
         };
@@ -1281,13 +1366,9 @@
                     await video.play();
                 }
             } catch (err) {
-                // Fallback if WebRTC is blocked: trigger native camera input
                 closeDirectLiveCamera();
-                const nativeCam = document.getElementById('hidden-native-camera-input');
-                if (nativeCam) {
-                    nativeCam.value = '';
-                    nativeCam.click();
-                }
+                const galInput = document.getElementById('hidden-gallery-input');
+                if (galInput) galInput.click();
             }
         }
 
@@ -1527,8 +1608,24 @@
         }
 
         // ==================== RENDER UI & DASHBOARD ====================
-        function refreshAllUI() {
+        window.setInventarisFilter = (filterName) => {
+            currentInventarisFilter = filterName;
+            ['Semua', 'Tersedia', 'Dipinjam', 'Perbaikan'].forEach(f => {
+                const btn = document.getElementById(`filter-btn-${f}`);
+                if (!btn) return;
+                if (f === filterName) {
+                    btn.className = 'px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold shrink-0 shadow-xs';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[11px] font-extrabold shrink-0';
+                }
+            });
+            renderInventaris();
+        };
+
+        window.refreshAllUI = () => {
             persistLocalState();
+            updateRoleBasedUI();
+
             const total = assetsData.length;
             const dipinjam = assetsData.filter(a => a.status === 'Dipinjam').length;
             const perbaikan = assetsData.filter(a => !a.kondisi.includes('Baik') || a.status === 'Perbaikan').length;
@@ -1610,12 +1707,16 @@
             const container = document.getElementById('inventaris-grouped-container');
             if (!container) return;
             const q = (document.getElementById('inv-search-input')?.value || '').toLowerCase().trim();
-            const filtered = assetsData.filter(a =>
-                a.nama.toLowerCase().includes(q) ||
-                a.kode.toLowerCase().includes(q) ||
-                a.lokasi.toLowerCase().includes(q) ||
-                a.kondisi.toLowerCase().includes(q)
-            );
+
+            const filtered = assetsData.filter(a => {
+                const matchQ = a.nama.toLowerCase().includes(q) || a.kode.toLowerCase().includes(q) || a.lokasi.toLowerCase().includes(q) || a.kondisi.toLowerCase().includes(q);
+                if (!matchQ) return false;
+                if (currentInventarisFilter === 'Semua') return true;
+                if (currentInventarisFilter === 'Tersedia') return a.status === 'Tersedia';
+                if (currentInventarisFilter === 'Dipinjam') return a.status === 'Dipinjam';
+                if (currentInventarisFilter === 'Perbaikan') return a.status === 'Perbaikan' || !a.kondisi.includes('Baik');
+                return true;
+            });
 
             const categories = ['Elektronik', 'Furnitur', 'Fasilitas'];
             let html = '';
@@ -1651,7 +1752,7 @@
                 html += `</div></div>`;
             });
 
-            container.innerHTML = html || `<div class="glass-card rounded-2xl p-6 text-center text-xs font-bold text-slate-400">Tidak ada aset yang cocok dengan pencarian.</div>`;
+            container.innerHTML = html || `<div class="glass-card rounded-2xl p-6 text-center text-xs font-bold text-slate-400">Tidak ada aset yang cocok dengan pencarian / filter.</div>`;
         };
 
         window.renderPeminjaman = () => {
@@ -1667,7 +1768,9 @@
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         ${l.status === 'Aktif'
-                            ? `<button onclick="selesaikanPinjam(${l.id})" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold shadow-xs">Kembalikan</button>`
+                            ? (isAdminMode
+                                ? `<button onclick="selesaikanPinjam(${l.id})" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold shadow-xs">Konfirmasi Kembali</button>`
+                                : `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[9.5px] font-extrabold border border-amber-200">Sedang Dipinjam</span>`)
                             : `<span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9.5px] font-extrabold">Selesai</span>`
                         }
                     </div>
@@ -1693,15 +1796,15 @@
                         <img src="${m.foto}" alt="Bukti Fisik" class="w-full h-32 object-contain mx-auto">
                         <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-black/75 text-white text-[9px] font-bold"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i>Perbesar Foto</span>
                     </div>` : ''}
-                    ${m.status !== 'Selesai' ? `
+                    ${m.status !== 'Selesai' && isAdminMode ? `
                     <button type="button" onclick="openModalSelesaiMaint(${m.id})" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-extrabold shadow-xs flex items-center justify-center gap-1.5 transition-all">
-                        <i class="fa-solid fa-camera-rotate"></i> Update Kondisi Baik / Selesai Diperbaiki
-                    </button>` : `<div class="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-center"><i class="fa-solid fa-check-double mr-1"></i>Foto & Kondisi Aset Telah Diperbarui (Baik)</div>`}
+                        <i class="fa-solid fa-camera-rotate"></i> Update Selesai Diperbaiki (Kembali Baik)
+                    </button>` : ''}
                 </div>
             `).join('') || `<div class="glass-card rounded-2xl p-5 text-center text-[11.5px] font-bold text-slate-400 md:col-span-2">Belum ada riwayat laporan kondisi & perbaikan sarpras.</div>`;
         };
 
-        // ==================== CRUD ACTIONS & OVERWRITE PHOTO WORKFLOW ====================
+        // ==================== CRUD ACTIONS & ROLE PROTECTION ====================
         window.generateAutoKode = () => {
             const rand = Math.floor(100 + Math.random() * 900);
             const el = document.getElementById('tambah-kode');
@@ -1709,6 +1812,10 @@
         };
 
         window.openModalTambah = () => {
+            if (!isAdminMode) {
+                showToast('Fitur Registrasi Aset khusus Admin & Superadmin.');
+                return;
+            }
             generateAutoKode();
             initModernDropdown('tambah-kategori-val', [
                 { value: 'Elektronik', label: 'Elektronik', sublabel: 'Proyektor, AC, Laptop, Sound System', icon: 'fa-plug' },
@@ -1748,6 +1855,44 @@
             showToast('Aset & Foto Fisik berhasil disimpan!');
         };
 
+        // Edit Aset (Admin Only)
+        window.openModalEditFromDetail = () => {
+            if (!isAdminMode || !window.currentSelectedAsset) return;
+            const a = window.currentSelectedAsset;
+            document.getElementById('edit-asset-id').value = a.id;
+            document.getElementById('edit-nama').value = a.nama;
+            document.getElementById('edit-kode').value = a.kode;
+            document.getElementById('edit-lokasi').value = a.lokasi;
+            initModernDropdown('edit-kategori-val', [
+                { value: 'Elektronik', label: 'Elektronik', sublabel: 'Proyektor, AC, Laptop', icon: 'fa-plug' },
+                { value: 'Furnitur', label: 'Furnitur', sublabel: 'Meja, Kursi, Lemari', icon: 'fa-chair' },
+                { value: 'Fasilitas', label: 'Fasilitas', sublabel: 'Papan Tulis, Instalasi', icon: 'fa-building' }
+            ], a.kategori);
+            closeModalDetail();
+            document.getElementById('modal-edit').style.display = 'flex';
+        };
+        window.closeModalEdit = () => {
+            document.getElementById('modal-edit').style.display = 'none';
+        };
+        window.simpanEditAset = (e) => {
+            e.preventDefault();
+            const id = Number(document.getElementById('edit-asset-id').value);
+            const target = assetsData.find(x => x.id === id);
+            if (target) {
+                target.nama = document.getElementById('edit-nama').value.trim();
+                target.kode = document.getElementById('edit-kode').value.trim();
+                target.lokasi = document.getElementById('edit-lokasi').value.trim();
+                target.kategori = document.getElementById('edit-kategori-val').value;
+                target.updated_at = getTimestampWIB();
+                persistLocalState();
+                syncAssetPhotoToSupabase(target);
+                refreshAllUI();
+                closeModalEdit();
+                showToast('Perubahan data aset berhasil disimpan!');
+                bukaDetailAset(id);
+            }
+        };
+
         window.openModalMaintenance = () => {
             const opts = assetsData.map(a => ({
                 value: a.nama,
@@ -1780,13 +1925,12 @@
                 targetAsset.status = isBaik ? 'Tersedia' : 'Perbaikan';
                 targetAsset.updated_at = getTimestampWIB();
                 if (fotoKondisi) {
-                    targetAsset.foto = fotoKondisi; // Overwrite foto lama dengan foto kondisi terkini (Baik/Diperbaiki maupun Rusak)
+                    targetAsset.foto = fotoKondisi;
                 }
                 syncAssetPhotoToSupabase(targetAsset);
             }
 
             if (isBaik) {
-                // Tandai laporan kerusakan sebelumnya untuk aset ini sebagai Selesai jika ada
                 maintenanceData.forEach(m => {
                     if (m.aset === asetNama && m.status !== 'Selesai') {
                         m.status = 'Selesai';
@@ -1810,16 +1954,18 @@
             closeModalMaintenance();
             e.target.reset();
             clearDamagePhoto('maint');
-            showToast(isBaik
-                ? 'Kondisi Baik / Diperbaiki & Foto terbaru berhasil disimpan!'
-                : 'Laporan kondisi rusak & Foto terbaru berhasil disimpan!');
+            showToast(isBaik ? 'Kondisi Baik / Diperbaiki & Foto terbaru berhasil disimpan!' : 'Laporan kondisi & foto berhasil disimpan!');
         };
 
         window.openModalSelesaiMaint = (maintId) => {
+            if (!isAdminMode) {
+                showToast('Hanya Admin yang dapat mengonfirmasi perbaikan.');
+                return;
+            }
             const rec = maintenanceData.find(m => m.id === maintId);
             if (!rec) return;
             document.getElementById('selesai-maint-id').value = rec.id;
-            document.getElementById('selesai-maint-subtitle').textContent = `${rec.aset} • Mengganti foto rusak menjadi kondisi Baik`;
+            document.getElementById('selesai-maint-subtitle').textContent = `${rec.aset} • Mengganti foto lama menjadi kondisi Baik`;
             document.getElementById('selesai-maint-catatan').value = '';
             clearDamagePhoto('selesai_maint');
             document.getElementById('modal-selesai-maint').style.display = 'flex';
@@ -1847,7 +1993,7 @@
                     targetAsset.status = 'Tersedia';
                     targetAsset.updated_at = getTimestampWIB();
                     if (fotoBaru) {
-                        targetAsset.foto = fotoBaru; // Overwrite foto rusak dengan foto selesai diperbaiki
+                        targetAsset.foto = fotoBaru;
                     }
                     syncAssetPhotoToSupabase(targetAsset);
                 }
@@ -1894,13 +2040,17 @@
         };
 
         window.selesaikanPinjam = (loanId) => {
+            if (!isAdminMode) {
+                showToast('Hanya Admin yang dapat mengonfirmasi pengembalian.');
+                return;
+            }
             const loan = loansData.find(l => l.id === loanId);
             if (!loan) return;
             loan.status = 'Selesai';
             const target = assetsData.find(a => a.nama === loan.aset);
             if (target && target.kondisi.includes('Baik')) target.status = 'Tersedia';
             refreshAllUI();
-            showToast('Alat telah dikembalikan!');
+            showToast('Alat telah dikonfirmasi dikembalikan!');
         };
 
         // ==================== DETAIL ASET & LIGHTBOX ====================
@@ -1948,11 +2098,15 @@
         };
 
         window.hapusAsetTerpilih = () => {
+            if (!isAdminMode) {
+                showToast('Hanya Admin yang dapat menghapus aset.');
+                return;
+            }
             if (!window.currentSelectedAsset) return;
             assetsData = assetsData.filter(a => a.id !== window.currentSelectedAsset.id);
             closeModalDetail();
             refreshAllUI();
-            showToast('Aset berhasil dihapus.');
+            showToast('Aset berhasil dihapus dari database.');
         };
 
         window.openPhotoLightbox = (src) => {
@@ -1992,7 +2146,7 @@
             }
         };
 
-        // ==================== 1:1 LIVE AUTO-SCAN QR + GALLERY QR SCANNER ====================
+        // ==================== LIVE AUTO-SCAN QR + GALLERY QR ====================
         let qrStream = null;
         let qrScanInterval = null;
         let qrFacingMode = 'environment';
@@ -2137,19 +2291,23 @@
             }
         };
 
-        // ==================== VECTOR PDF GENERATOR (F4 10 CARDS/SHEET & SINGLE) + PREVIEW MODAL ====================
+        // ==================== PDF GENERATOR (F4 10 CARDS/SHEET & SINGLE) (ADMIN ONLY) ====================
         let currentPdfPreviewList = [];
         let lastGeneratedPdfBlob = null;
         let lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
 
         window.openPreviewF4SheetModal = () => {
+            if (!isAdminMode) {
+                showToast('Pencetakan Label PDF khusus Admin.');
+                return;
+            }
             currentPdfPreviewList = [...assetsData];
             lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
             renderPdfPreviewModalUI('Pratinjau Lembar Label QR (Standar F4)', `${currentPdfPreviewList.length} Kartu Aset • 10 Kartu per Halaman F4 (210mm x 330mm)`);
         };
 
         window.downloadSingleBarcodePDF = () => {
-            if (!window.currentSelectedAsset) return;
+            if (!isAdminMode || !window.currentSelectedAsset) return;
             currentPdfPreviewList = [window.currentSelectedAsset];
             lastGeneratedPdfFilename = `Label_${window.currentSelectedAsset.kode}.pdf`;
             renderPdfPreviewModalUI(`Pratinjau Kartu Label: ${window.currentSelectedAsset.nama}`, `Kode: ${window.currentSelectedAsset.kode} • Siap Cetak / Unduh PDF`);
@@ -2215,7 +2373,6 @@
 
         async function generateVectorF4PdfDoc(items) {
             const { jsPDF } = window.jspdf;
-            // F4 paper: 210mm x 330mm
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [210, 330] });
             const cardW = 93;
             const cardH = 54;
@@ -2235,12 +2392,10 @@
                 const y = startY + row * (cardH + gapY);
                 const item = items[i];
 
-                // Outer Purple Border
                 doc.setDrawColor(91, 33, 182);
                 doc.setLineWidth(0.5);
                 doc.rect(x, y, cardW, cardH);
 
-                // Top Purple Header Banner
                 doc.setFillColor(91, 33, 182);
                 doc.rect(x + 2, y + 2, cardW - 4, 6.5, 'F');
                 doc.setTextColor(255, 255, 255);
@@ -2248,13 +2403,11 @@
                 doc.setFontSize(7.2);
                 doc.text('KARTU INVENTARIS BARANG · SDIT MUH. AL KAUTSAR', x + cardW / 2, y + 6.3, { align: 'center' });
 
-                // QR Code on Left
                 const qrDataUrl = await buildQrDataUrl(item.kode);
                 if (qrDataUrl) {
                     doc.addImage(qrDataUrl, 'PNG', x + 4, y + 11.5, 26, 26);
                 }
 
-                // Details on Right
                 const tx = x + 33;
                 doc.setTextColor(30, 41, 59);
                 doc.setFontSize(8.5);
@@ -2280,7 +2433,6 @@
                 doc.setFont('helvetica', 'normal');
                 doc.text(`Tahun: 2026   Kondisi: ${item.kondisi || 'Baik'}`, tx, y + 34);
 
-                // Divider & Footer
                 doc.setDrawColor(226, 232, 240);
                 doc.setLineWidth(0.25);
                 doc.line(x + 3, y + 43, x + cardW - 3, y + 43);
@@ -2321,7 +2473,7 @@
         // ==================== INIT ON LOAD ====================
         window.addEventListener('DOMContentLoaded', () => {
             updateHeaderClock();
-            updateAdminUI();
+            updateRoleBasedUI();
             refreshGpsLocation();
             refreshAllUI();
         });

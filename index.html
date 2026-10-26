@@ -25,10 +25,10 @@
     <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- QR Code, html5-qrcode, jsPDF, XLSX & Supabase Libraries -->
+    <!-- QR Code, html5-qrcode, jsQR, jsPDF, XLSX & Supabase Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -481,18 +481,44 @@
                 <!-- SCANNER VIEW -->
                 <div id="scanner-view" style="display: none;" class="w-full pb-8 flex flex-col items-center justify-center">
                     <div class="w-full max-w-sm flex justify-between items-center mb-3">
-                        <button onclick="showDashboard()" class="w-7 h-7 rounded-xl glass-button flex items-center justify-center">
-                            <i class="fa-solid fa-arrow-left text-[11px] text-slate-900 font-bold"></i>
+                        <button onclick="stopScannerAndBack()" class="w-8 h-8 rounded-xl glass-button flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-left text-[12px] text-slate-900 font-bold"></i>
                         </button>
-                        <h2 class="text-sm font-extrabold text-slate-900">Pindai Barcode / QR Code</h2>
-                        <div class="w-7 h-7"></div>
+                        <h2 class="text-sm font-extrabold text-slate-900">Pindai QR Code Aset</h2>
+                        <button type="button" onclick="flipQrScannerCamera()" title="Putar Kamera" class="w-8 h-8 rounded-xl glass-button flex items-center justify-center text-slate-800">
+                            <i class="fa-solid fa-camera-rotate text-[12px]"></i>
+                        </button>
                     </div>
-                    <div class="relative w-full max-w-sm bg-slate-950/90 rounded-[24px] border border-white/60 overflow-hidden shadow-xl flex flex-col items-center justify-center p-4 text-center">
-                        <div id="qr-reader-container" class="w-full h-56 rounded-xl overflow-hidden bg-black relative flex items-center justify-center"></div>
-                        <div class="mt-3 z-10 w-full space-y-2">
-                            <p id="scanner-status-text" class="text-[10px] text-white font-bold">Arahkan kamera ke QR Code atau Barcode</p>
-                            <input type="text" id="simulated-scan-code" placeholder="Ketik kode misal: INV-ALK-..." class="w-full bg-white/20 border border-white/30 text-white text-[11.5px] px-3 py-2 rounded-xl text-center focus:outline-none font-mono">
-                            <button onclick="handleSimulatedScan()" class="w-full py-2 rounded-xl bg-blue-600 text-white text-[11.5px] font-extrabold shadow">Cek Data Aset</button>
+                    <div class="relative w-full max-w-sm bg-slate-950/95 rounded-[26px] border border-white/60 overflow-hidden shadow-xl flex flex-col items-center justify-center p-4 text-center">
+                        <!-- 1:1 SQUARE CAMERA VIEWPORT -->
+                        <div id="qr-reader-container" class="w-full aspect-square max-w-[290px] mx-auto rounded-2xl overflow-hidden bg-slate-900 relative flex items-center justify-center border border-white/15">
+                            <video id="qr-video-stream" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                            <canvas id="qr-scan-canvas" class="hidden"></canvas>
+                            <!-- Bingkai Sudut QR 1:1 Selebar Ruang Kamera -->
+                            <div class="inset-4 absolute pointer-events-none flex items-center justify-center">
+                                <div class="w-full h-full relative">
+                                    <span class="absolute top-0 left-0 w-9 h-9 border-t-4 border-l-4 border-blue-400 rounded-tl-xl"></span>
+                                    <span class="absolute top-0 right-0 w-9 h-9 border-t-4 border-r-4 border-blue-400 rounded-tr-xl"></span>
+                                    <span class="absolute bottom-0 left-0 w-9 h-9 border-b-4 border-l-4 border-blue-400 rounded-bl-xl"></span>
+                                    <span class="absolute bottom-0 right-0 w-9 h-9 border-b-4 border-r-4 border-blue-400 rounded-br-xl"></span>
+                                    <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_12px_#38bdf8]"></div>
+                                </div>
+                            </div>
+                            <div id="qr-camera-fallback" style="display: none;" onclick="triggerNativeScannerCamera()" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-5 text-center gap-2.5 cursor-pointer">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-2xl shadow-lg">
+                                    <i class="fa-solid fa-camera"></i>
+                                </div>
+                                <p class="text-[12px] text-white font-extrabold">Sentuh untuk Membuka Kamera</p>
+                                <p class="text-[10px] text-slate-400">Arahkan kamera ke QR Code pada label aset</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3.5 z-10 w-full space-y-2.5">
+                            <p id="scanner-status-text" class="text-[10.5px] text-slate-300 font-semibold">Arahkan kamera ke QR Code aset (Otomatis Memindai)</p>
+                            <div class="pt-2 border-t border-white/10 flex gap-2">
+                                <input type="text" id="simulated-scan-code" placeholder="Atau ketik kode: INV-ALK-..." class="flex-1 bg-white/15 border border-white/25 text-white text-[11.5px] px-3 py-2 rounded-xl text-center focus:outline-none font-mono">
+                                <button type="button" onclick="handleSimulatedScan()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-extrabold shadow shrink-0">Cek</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -542,10 +568,10 @@
             </main>
         </div>
     </div>
-
-    <!-- INPUT KAMERA NATIVE GLOBAL -->
+    <!-- INPUT KAMERA & GALERI NATIVE GLOBAL (1 PINTU TANPA POPUP GANDA) -->
     <input type="file" id="global-native-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleDirectPhotoInput(event)">
     <input type="file" id="global-gallery-file-input" accept="image/*" class="hidden" onchange="handleDirectPhotoInput(event)">
+    <input type="file" id="global-scanner-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleScannerPhotoInput(event)">
 
     <!-- M-BANKING BOTTOM NAVIGATION BAR (MOBILE ONLY) -->
     <nav class="mbanking-bottom-dock">
@@ -644,24 +670,25 @@
                         </label>
                     </div>
                 </div>
-
-                <div id="tambah-camera-section" style="display: none;" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10.5px] font-extrabold text-rose-950 flex items-center gap-1"><i class="fa-solid fa-camera text-rose-600"></i> Kamera Dokumentasi GPS Maps</span>
-                        <span class="px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 text-[8.5px] font-extrabold">Otomatis Watermark</span>
+                <div id="tambah-camera-section" style="display: none;" class="p-3.5 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] font-extrabold text-rose-950 flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-rose-600"></i> Dokumentasi Kerusakan
+                        </span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0">Watermark GPS Otomatis</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="triggerInstantCamera('tambah')" class="py-2 px-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold shadow flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-camera"></i> Kamera HP
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button type="button" onclick="handleSingleCameraAction('tambah')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="openCameraCaptureModal('tambah')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-extrabold shadow flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-video"></i> Webcam / Galeri
+                        <button type="button" onclick="handleSingleGalleryAction('tambah')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
                     <input type="hidden" id="tambah-foto-rusak-val" value="">
-                    <div id="tambah-foto-preview-box" style="display: none;" class="relative rounded-xl overflow-hidden border bg-black">
+                    <div id="tambah-foto-preview-box" style="display: none;" class="relative rounded-xl overflow-hidden border border-rose-200 bg-black">
                         <img id="tambah-foto-preview-img" src="" alt="Preview" class="w-full h-auto max-h-48 object-contain mx-auto">
-                        <button type="button" onclick="clearDamagePhoto('tambah')" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center shadow"><i class="fa-solid fa-trash-can"></i></button>
+                        <button type="button" onclick="clearDamagePhoto('tambah')" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-rose-600 text-white text-[11px] flex items-center justify-center shadow"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
 
@@ -774,24 +801,25 @@
                         </label>
                     </div>
                 </div>
-
-                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10.5px] font-extrabold text-rose-950 flex items-center gap-1"><i class="fa-solid fa-camera text-rose-600"></i> Kamera Dokumentasi GPS Maps</span>
-                        <span class="px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 text-[8.5px] font-extrabold">Otomatis Watermark</span>
+                <div class="p-3.5 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] font-extrabold text-rose-950 flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-rose-600"></i> Dokumentasi Kerusakan
+                        </span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0">Watermark GPS Otomatis</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="triggerInstantCamera('maint')" class="py-2 px-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold shadow flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-camera"></i> Kamera HP
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button type="button" onclick="handleSingleCameraAction('maint')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="openCameraCaptureModal('maint')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-extrabold shadow flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-video"></i> Webcam / Galeri
+                        <button type="button" onclick="handleSingleGalleryAction('maint')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
                     <input type="hidden" id="maint-foto-rusak-val" value="">
-                    <div id="maint-foto-preview-box" style="display: none;" class="relative rounded-xl overflow-hidden border bg-black">
+                    <div id="maint-foto-preview-box" style="display: none;" class="relative rounded-xl overflow-hidden border border-rose-200 bg-black">
                         <img id="maint-foto-preview-img" src="" alt="Preview" class="w-full h-auto max-h-48 object-contain mx-auto">
-                        <button type="button" onclick="clearDamagePhoto('maint')" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center shadow"><i class="fa-solid fa-trash-can"></i></button>
+                        <button type="button" onclick="clearDamagePhoto('maint')" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-rose-600 text-white text-[11px] flex items-center justify-center shadow"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
 
@@ -836,46 +864,30 @@
         </div>
     </div>
 
-    <!-- MODAL KAMERA UNIVERSAL -->
+    <!-- MODAL KAMERA LANGSUNG (HP & LAPTOP) -->
     <div id="modal-camera-capture" style="display: none;" class="fixed inset-0 z-[210000] bg-slate-950/85 backdrop-blur-md items-center justify-center p-3">
-        <div class="bg-white w-full max-w-lg rounded-[24px] p-4 shadow-2xl relative flex flex-col gap-3">
+        <div class="bg-white w-full max-w-md rounded-[24px] p-4 shadow-2xl relative flex flex-col gap-3">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-xl bg-rose-600 text-white flex items-center justify-center text-[11px] shadow"><i class="fa-solid fa-camera-retro"></i></div>
+                    <div class="w-7 h-7 rounded-xl bg-rose-600 text-white flex items-center justify-center text-[11px] shadow"><i class="fa-solid fa-camera"></i></div>
                     <div>
-                        <h3 class="text-[12px] font-extrabold text-slate-900">Kamera Universal (Laptop & HP)</h3>
-                        <p class="text-[9.5px] text-slate-500 font-semibold">Watermark GPS Maps & Waktu Real-Time</p>
+                        <h3 class="text-[12px] font-extrabold text-slate-900">Ambil Foto Kamera</h3>
+                        <p class="text-[9.5px] text-slate-500 font-semibold">Watermark GPS Maps & Waktu Otomatis</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeCameraCaptureModal()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="relative w-full h-64 bg-slate-950 rounded-2xl overflow-hidden border flex flex-col items-center justify-center">
+            <div class="relative w-full aspect-square max-h-72 bg-slate-950 rounded-2xl overflow-hidden border flex items-center justify-center mx-auto">
                 <video id="webrtc-video-element" autoplay playsinline muted class="w-full h-full object-cover"></video>
-                <div id="webrtc-fallback-overlay" style="display: none;" class="absolute inset-0 bg-slate-950/95 p-4 flex flex-col items-center justify-center text-center gap-2.5">
-                    <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-base">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                    </div>
-                    <p class="text-[12px] font-extrabold text-white">Mode Kamera Perangkat</p>
-                    <p class="text-[10px] text-slate-300 max-w-xs">Gunakan tombol di bawah untuk langsung membuka kamera bawaan ponsel atau galeri.</p>
-                    <div class="flex flex-wrap justify-center gap-2 mt-1">
-                        <button type="button" onclick="triggerNativeCameraInput()" class="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
-                            <i class="fa-solid fa-camera"></i> Buka Kamera HP
-                        </button>
-                        <button type="button" onclick="triggerGalleryFileInput()" class="px-3.5 py-2 rounded-xl bg-slate-800 text-white text-[11px] font-extrabold border border-white/20 flex items-center gap-1.5">
-                            <i class="fa-solid fa-images"></i> Pilih Galeri
-                        </button>
-                    </div>
-                </div>
                 <canvas id="webrtc-canvas-element" class="hidden"></canvas>
             </div>
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <button type="button" onclick="switchCameraFacing()" class="px-3 py-2 rounded-xl bg-slate-200 text-slate-800 text-[11px] font-extrabold"><i class="fa-solid fa-camera-rotate"></i> Putar</button>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="triggerGalleryFileInput()" class="px-3 py-2 rounded-xl bg-slate-800 text-white text-[11px] font-extrabold">
-                        <i class="fa-solid fa-upload"></i> Galeri
-                    </button>
-                    <button type="button" onclick="captureWebRtcSnapshot()" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-[11px] font-extrabold shadow"><i class="fa-solid fa-camera"></i> Jepret</button>
-                </div>
+            <div class="flex items-center justify-between gap-2 pt-1">
+                <button type="button" onclick="switchCameraFacing()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11.5px] font-extrabold flex items-center gap-1.5">
+                    <i class="fa-solid fa-camera-rotate"></i> Putar
+                </button>
+                <button type="button" onclick="captureWebRtcSnapshot()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[12px] font-extrabold shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Jepret Foto
+                </button>
             </div>
         </div>
     </div>
@@ -1034,16 +1046,47 @@
 
         let activeWebRtcStream = null, currentCameraMode = 'maint', currentFacingMode = 'environment';
 
-        window.triggerInstantCamera = (mode) => {
+        // 1 TOMBOL KAMERA UNTUK SEMUA PERANGKAT (LANGSUNG BUKA KAMERA LIVE DI HP & LAPTOP)
+        window.handleSingleCameraAction = async (mode) => {
             currentCameraMode = mode;
             detectLiveMapsLocation(false);
-            const isContentProtocol = window.location.protocol === 'content:' || window.location.protocol === 'file:';
-            const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            if (isContentProtocol || isMobileDevice) {
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 triggerNativeCameraInput();
-            } else {
-                openCameraCaptureModal(mode);
+                return;
             }
+
+            try {
+                if (activeWebRtcStream) {
+                    activeWebRtcStream.getTracks().forEach(t => t.stop());
+                    activeWebRtcStream = null;
+                }
+                try {
+                    activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 960 } },
+                        audio: false
+                    });
+                } catch (errFacing) {
+                    activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    });
+                }
+                const modal = document.getElementById('modal-camera-capture');
+                const vid = document.getElementById('webrtc-video-element');
+                modal.style.display = 'flex';
+                vid.srcObject = activeWebRtcStream;
+                await vid.play();
+            } catch (e) {
+                triggerNativeCameraInput();
+            }
+        };
+
+        // 1 TOMBOL GALERI UNTUK SEMUA PERANGKAT
+        window.handleSingleGalleryAction = (mode) => {
+            currentCameraMode = mode;
+            detectLiveMapsLocation(false);
+            triggerGalleryFileInput();
         };
 
         window.triggerNativeCameraInput = () => {
@@ -1056,35 +1099,19 @@
             if (inp) { inp.value = ''; inp.click(); }
         };
 
-        window.openCameraCaptureModal = async (mode) => {
-            currentCameraMode = mode;
-            const modal = document.getElementById('modal-camera-capture');
-            const vid = document.getElementById('webrtc-video-element');
-            const fallback = document.getElementById('webrtc-fallback-overlay');
-            if (fallback) fallback.style.display = 'none';
-            modal.style.display = 'flex';
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || window.location.protocol === 'content:') {
-                if (fallback) fallback.style.display = 'flex';
-                return;
-            }
-
+        window.switchCameraFacing = async () => {
+            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
             try {
                 if (activeWebRtcStream) activeWebRtcStream.getTracks().forEach(t => t.stop());
                 activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: currentFacingMode },
                     audio: false
                 });
+                const vid = document.getElementById('webrtc-video-element');
                 vid.srcObject = activeWebRtcStream;
                 await vid.play();
-            } catch (e) {
-                if (fallback) fallback.style.display = 'flex';
-            }
-        };
-
-        window.switchCameraFacing = () => {
-            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-            openCameraCaptureModal(currentCameraMode);
+            } catch (e) {}
         };
 
         window.closeCameraCaptureModal = () => {
@@ -1099,6 +1126,7 @@
             const vid = document.getElementById('webrtc-video-element');
             const canv = document.getElementById('webrtc-canvas-element');
             if (!activeWebRtcStream || !vid.videoWidth || vid.videoWidth === 0) {
+                closeCameraCaptureModal();
                 triggerNativeCameraInput();
                 return;
             }
@@ -1297,6 +1325,7 @@
         };
 
         window.hideAllViews = () => {
+            stopQrCameraStream();
             ['dashboard-view', 'scanner-view', 'aset-view', 'peminjaman-view', 'maintenance-view', 'admin-view'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -1322,38 +1351,221 @@
         window.showMaintenanceView = () => { hideAllViews(); document.getElementById('maintenance-view').style.display = 'block'; setActiveNav('maintenance'); };
         window.showAdminView = () => { hideAllViews(); document.getElementById('admin-view').style.display = 'block'; };
 
-        let activeHtml5QrScanner = null;
-        window.startScanner = () => {
-            hideAllViews();
-            document.getElementById('scanner-view').style.display = 'flex';
-            setTimeout(() => {
-                const box = document.getElementById('qr-reader-container');
-                if (box && window.Html5Qrcode) {
-                    box.innerHTML = '';
-                    try {
-                        if (activeHtml5QrScanner) {
-                            activeHtml5QrScanner.stop().catch(() => {}).finally(() => { activeHtml5QrScanner = null; });
-                        }
-                        const scanner = new Html5Qrcode('qr-reader-container');
-                        activeHtml5QrScanner = scanner;
-                        scanner.start({ facingMode: "environment" }, { fps: 15, qrbox: 200 }, (res) => {
-                            document.getElementById('simulated-scan-code').value = res;
-                            showToast(`Scan Berhasil: ${res}`);
-                            scanner.stop().catch(() => {});
-                            activeHtml5QrScanner = null;
-                            handleSimulatedScan();
-                        }, () => {}).catch(() => {
-                            box.innerHTML = `<div class="p-3 text-center text-white/80 text-[11px] font-semibold">Kamera tidak aktif. Ketik kode manual di bawah.</div>`;
-                        });
-                    } catch (e) {}
-                }
-            }, 250);
+        let qrVideoStream = null;
+        let qrScanInterval = null;
+        let qrFacingMode = 'environment';
+
+        function stopQrCameraStream() {
+            if (qrScanInterval) {
+                clearInterval(qrScanInterval);
+                qrScanInterval = null;
+            }
+            if (qrVideoStream) {
+                qrVideoStream.getTracks().forEach(t => t.stop());
+                qrVideoStream = null;
+            }
+            const vid = document.getElementById('qr-video-stream');
+            if (vid) vid.srcObject = null;
+        }
+
+        window.stopScannerAndBack = () => {
+            stopQrCameraStream();
+            showDashboard();
         };
 
+        window.triggerNativeScannerCamera = () => {
+            const inp = document.getElementById('global-scanner-camera-input');
+            if (inp) { inp.value = ''; inp.click(); }
+        };
+
+        window.onQrCodeDetected = (decodedText) => {
+            const cleanCode = String(decodedText || '').trim();
+            if (!cleanCode) return;
+            stopQrCameraStream();
+            const inputEl = document.getElementById('simulated-scan-code');
+            if (inputEl) inputEl.value = cleanCode;
+            lookupAssetByCode(cleanCode);
+        };
+
+        // PEMINDAI FOTO KAMERA NATIVE (FALLBACK JIKA WEBRTC DITOLAK)
+        window.handleScannerPhotoInput = async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('scanner-status-text');
+            if (statusEl) statusEl.textContent = 'Memindai QR Code dari foto...';
+
+            const decodeWithJsQR = (imgFile) => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxDim = 1024;
+                        let w = img.naturalWidth || img.width;
+                        let h = img.naturalHeight || img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                            else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        if (window.jsQR) {
+                            const imageData = ctx.getImageData(0, 0, w, h);
+                            const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: "attemptBoth"
+                            });
+                            if (code && code.data) {
+                                resolve(code.data);
+                                return;
+                            }
+                        }
+                        resolve(null);
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = ev.target.result;
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(imgFile);
+            });
+
+            const jsQrResult = await decodeWithJsQR(file);
+            if (jsQrResult) {
+                if (statusEl) statusEl.textContent = `QR Terbaca: ${jsQrResult}`;
+                onQrCodeDetected(jsQrResult);
+                return;
+            }
+
+            if (statusEl) statusEl.textContent = 'QR Code tidak terdeteksi pada gambar. Arahkan lebih dekat.';
+            showToast('QR Code belum terbaca, silakan arahkan tepat pada QR.');
+        };
+
+        window.flipQrScannerCamera = () => {
+            qrFacingMode = qrFacingMode === 'environment' ? 'user' : 'environment';
+            startScanner();
+        };
+
+        window.startScanner = async () => {
+            hideAllViews();
+            document.getElementById('scanner-view').style.display = 'flex';
+            const inputEl = document.getElementById('simulated-scan-code');
+            if (inputEl) inputEl.value = '';
+
+            const vid = document.getElementById('qr-video-stream');
+            const canvas = document.getElementById('qr-scan-canvas');
+            const fallback = document.getElementById('qr-camera-fallback');
+            const statusEl = document.getElementById('scanner-status-text');
+
+            if (fallback) fallback.style.display = 'none';
+            if (statusEl) statusEl.textContent = 'Menghubungkan kamera 1:1...';
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if (fallback) fallback.style.display = 'flex';
+                if (statusEl) statusEl.textContent = 'Sentuh kotak di atas untuk memotret QR Code';
+                return;
+            }
+
+            try {
+                try {
+                    qrVideoStream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: { ideal: qrFacingMode },
+                            width: { ideal: 720 },
+                            height: { ideal: 720 }
+                        },
+                        audio: false
+                    });
+                } catch (errEnv) {
+                    qrVideoStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    });
+                }
+
+                vid.srcObject = qrVideoStream;
+                await vid.play();
+                if (statusEl) statusEl.textContent = 'Kamera aktif • Arahkan QR Code ke dalam kotak persegi';
+
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                let nativeDetector = null;
+                if ('BarcodeDetector' in window) {
+                    try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {}
+                }
+
+                qrScanInterval = setInterval(async () => {
+                    if (!vid || vid.readyState !== vid.HAVE_ENOUGH_DATA) return;
+                    const vw = vid.videoWidth;
+                    const vh = vid.videoHeight;
+                    if (!vw || !vh) return;
+
+                    // Ambil area tengah 1:1 persegi sesuai tampilan kamera
+                    const side = Math.min(vw, vh);
+                    const sx = Math.floor((vw - side) / 2);
+                    const sy = Math.floor((vh - side) / 2);
+                    const scanSize = Math.min(side, 500);
+
+                    canvas.width = scanSize;
+                    canvas.height = scanSize;
+                    ctx.drawImage(vid, sx, sy, side, side, 0, 0, scanSize, scanSize);
+
+                    // 1. Gunakan jsQR murni
+                    if (window.jsQR) {
+                        const imgData = ctx.getImageData(0, 0, scanSize, scanSize);
+                        const res = window.jsQR(imgData.data, imgData.width, imgData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+                        if (res && res.data && String(res.data).trim().length > 0) {
+                            onQrCodeDetected(res.data);
+                            return;
+                        }
+                    }
+
+                    // 2. Gunakan BarcodeDetector hardware jika tersedia
+                    if (nativeDetector) {
+                        try {
+                            const barcodes = await nativeDetector.detect(canvas);
+                            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                onQrCodeDetected(barcodes[0].rawValue);
+                                return;
+                            }
+                        } catch (e) {}
+                    }
+                }, 150);
+
+            } catch (err) {
+                if (fallback) fallback.style.display = 'flex';
+                if (statusEl) statusEl.textContent = 'Sentuh kotak di atas untuk memindai QR Code dengan kamera';
+            }
+        };
+
+        function lookupAssetByCode(rawCode) {
+            const v = String(rawCode || '').trim();
+            if (!v || v.length < 2) {
+                showToast('Masukkan atau pindai kode QR aset terlebih dahulu.');
+                return;
+            }
+            const cleanLower = v.toLowerCase();
+            const f = assetsData.find(a =>
+                a.kode.toLowerCase() === cleanLower ||
+                cleanLower.includes(a.kode.toLowerCase()) ||
+                (cleanLower.length >= 3 && a.nama.toLowerCase() === cleanLower)
+            );
+            if (f) {
+                showToast(`Ditemukan: ${f.nama} (${f.kode})`);
+                bukaDetailAset(f.id);
+            } else {
+                showToast(`Kode "${v}" tidak terdaftar di inventaris.`);
+            }
+        }
+
         window.handleSimulatedScan = () => {
-            const v = document.getElementById('simulated-scan-code').value.trim();
-            const f = assetsData.find(a => a.kode.toLowerCase() === v.toLowerCase() || a.nama.toLowerCase().includes(v.toLowerCase()));
-            if (f) { showToast(`Ketemu: ${f.nama}`); bukaDetailAset(f.id); } else { showToast('Aset tidak ditemukan.'); }
+            const v = (document.getElementById('simulated-scan-code')?.value || '').trim();
+            if (!v) {
+                showToast('Ketik kode inventaris terlebih dahulu atau arahkan kamera ke QR Code.');
+                return;
+            }
+            lookupAssetByCode(v);
         };
 
         window.openModalTambah = () => { document.getElementById('modal-tambah').style.display = 'flex'; };

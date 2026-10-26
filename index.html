@@ -490,31 +490,37 @@
                         </button>
                     </div>
                     <div class="relative w-full max-w-sm bg-slate-950/95 rounded-[26px] border border-white/60 overflow-hidden shadow-xl flex flex-col items-center justify-center p-4 text-center">
-                        <!-- 1:1 SQUARE CAMERA VIEWPORT -->
+                        <!-- 1:1 SQUARE LIVE CAMERA VIEWPORT (AUTO-SCAN) -->
                         <div id="qr-reader-container" class="w-full aspect-square max-w-[290px] mx-auto rounded-2xl overflow-hidden bg-slate-900 relative flex items-center justify-center border border-white/15">
-                            <video id="qr-video-stream" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                            <video id="qr-video-stream" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover"></video>
                             <canvas id="qr-scan-canvas" class="hidden"></canvas>
                             <!-- Bingkai Sudut QR 1:1 Selebar Ruang Kamera -->
                             <div class="inset-4 absolute pointer-events-none flex items-center justify-center">
                                 <div class="w-full h-full relative">
-                                    <span class="absolute top-0 left-0 w-9 h-9 border-t-4 border-l-4 border-blue-400 rounded-tl-xl"></span>
-                                    <span class="absolute top-0 right-0 w-9 h-9 border-t-4 border-r-4 border-blue-400 rounded-tr-xl"></span>
-                                    <span class="absolute bottom-0 left-0 w-9 h-9 border-b-4 border-l-4 border-blue-400 rounded-bl-xl"></span>
-                                    <span class="absolute bottom-0 right-0 w-9 h-9 border-b-4 border-r-4 border-blue-400 rounded-br-xl"></span>
-                                    <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_12px_#38bdf8]"></div>
+                                    <span id="qr-corner-tl" class="absolute top-0 left-0 w-9 h-9 border-t-4 border-l-4 border-blue-400 rounded-tl-xl transition-colors duration-200"></span>
+                                    <span id="qr-corner-tr" class="absolute top-0 right-0 w-9 h-9 border-t-4 border-r-4 border-blue-400 rounded-tr-xl transition-colors duration-200"></span>
+                                    <span id="qr-corner-bl" class="absolute bottom-0 left-0 w-9 h-9 border-b-4 border-l-4 border-blue-400 rounded-bl-xl transition-colors duration-200"></span>
+                                    <span id="qr-corner-br" class="absolute bottom-0 right-0 w-9 h-9 border-b-4 border-r-4 border-blue-400 rounded-br-xl transition-colors duration-200"></span>
+                                    <div id="qr-laser-line" class="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_12px_#38bdf8]"></div>
                                 </div>
                             </div>
-                            <div id="qr-camera-fallback" style="display: none;" onclick="triggerNativeScannerCamera()" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-5 text-center gap-2.5 cursor-pointer">
-                                <div class="w-14 h-14 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-2xl shadow-lg">
-                                    <i class="fa-solid fa-camera"></i>
+                            <!-- Indikator Live Auto-Scan -->
+                            <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-slate-950/75 backdrop-blur-md border border-white/15 flex items-center gap-1.5 pointer-events-none">
+                                <span id="qr-live-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span class="text-[9.5px] font-extrabold text-white tracking-wide uppercase">Auto-Scan Aktif</span>
+                            </div>
+                            <!-- Tombol Izin Kamera Live (Hanya muncul jika izin kamera belum diberikan) -->
+                            <div id="qr-camera-permission-retry" style="display: none;" onclick="startScanner()" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-5 text-center gap-2.5 cursor-pointer z-20">
+                                <div class="w-12 h-12 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-xl shadow-lg">
+                                    <i class="fa-solid fa-video"></i>
                                 </div>
-                                <p class="text-[12px] text-white font-extrabold">Sentuh untuk Membuka Kamera</p>
-                                <p class="text-[10px] text-slate-400">Arahkan kamera ke QR Code pada label aset</p>
+                                <p class="text-[11.5px] text-white font-extrabold">Izinkan Akses Kamera Live</p>
+                                <p class="text-[10px] text-slate-400">Ketuk di sini untuk mengaktifkan pemindai otomatis</p>
                             </div>
                         </div>
                         
                         <div class="mt-3.5 z-10 w-full space-y-2.5">
-                            <p id="scanner-status-text" class="text-[10.5px] text-slate-300 font-semibold">Arahkan kamera ke QR Code aset (Otomatis Memindai)</p>
+                            <p id="scanner-status-text" class="text-[10.5px] text-slate-300 font-semibold">Arahkan kamera ke QR Code SarprasQ (Otomatis Memindai)</p>
                             <div class="pt-2 border-t border-white/10 flex gap-2">
                                 <input type="text" id="simulated-scan-code" placeholder="Atau ketik kode: INV-ALK-..." class="flex-1 bg-white/15 border border-white/25 text-white text-[11.5px] px-3 py-2 rounded-xl text-center focus:outline-none font-mono">
                                 <button type="button" onclick="handleSimulatedScan()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-extrabold shadow shrink-0">Cek</button>
@@ -571,7 +577,6 @@
     <!-- INPUT KAMERA & GALERI NATIVE GLOBAL (1 PINTU TANPA POPUP GANDA) -->
     <input type="file" id="global-native-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleDirectPhotoInput(event)">
     <input type="file" id="global-gallery-file-input" accept="image/*" class="hidden" onchange="handleDirectPhotoInput(event)">
-    <input type="file" id="global-scanner-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleScannerPhotoInput(event)">
 
     <!-- M-BANKING BOTTOM NAVIGATION BAR (MOBILE ONLY) -->
     <nav class="mbanking-bottom-dock">
@@ -1354,6 +1359,40 @@
         let qrVideoStream = null;
         let qrScanInterval = null;
         let qrFacingMode = 'environment';
+        let isProcessingQrMatch = false;
+
+        function playScannerBeep() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1046.5, ctx.currentTime); // C6 beep
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.16);
+            } catch (e) {}
+        }
+
+        function setScannerCornerHighlight(detected) {
+            const ids = ['qr-corner-tl', 'qr-corner-tr', 'qr-corner-bl', 'qr-corner-br'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (detected) {
+                    el.classList.remove('border-blue-400');
+                    el.classList.add('border-emerald-400');
+                } else {
+                    el.classList.remove('border-emerald-400');
+                    el.classList.add('border-blue-400');
+                }
+            });
+        }
 
         function stopQrCameraStream() {
             if (qrScanInterval) {
@@ -1366,6 +1405,8 @@
             }
             const vid = document.getElementById('qr-video-stream');
             if (vid) vid.srcObject = null;
+            isProcessingQrMatch = false;
+            setScannerCornerHighlight(false);
         }
 
         window.stopScannerAndBack = () => {
@@ -1373,78 +1414,63 @@
             showDashboard();
         };
 
-        window.triggerNativeScannerCamera = () => {
-            const inp = document.getElementById('global-scanner-camera-input');
-            if (inp) { inp.value = ''; inp.click(); }
-        };
-
         window.onQrCodeDetected = (decodedText) => {
+            if (isProcessingQrMatch) return;
             const cleanCode = String(decodedText || '').trim();
             if (!cleanCode) return;
-            stopQrCameraStream();
+
+            isProcessingQrMatch = true;
+            setScannerCornerHighlight(true);
+            playScannerBeep();
+
+            const statusEl = document.getElementById('scanner-status-text');
+            if (statusEl) statusEl.textContent = `QR Terdeteksi: ${cleanCode}`;
             const inputEl = document.getElementById('simulated-scan-code');
             if (inputEl) inputEl.value = cleanCode;
-            lookupAssetByCode(cleanCode);
-        };
 
-        // PEMINDAI FOTO KAMERA NATIVE (FALLBACK JIKA WEBRTC DITOLAK)
-        window.handleScannerPhotoInput = async (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById('scanner-status-text');
-            if (statusEl) statusEl.textContent = 'Memindai QR Code dari foto...';
-
-            const decodeWithJsQR = (imgFile) => new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const maxDim = 1024;
-                        let w = img.naturalWidth || img.width;
-                        let h = img.naturalHeight || img.height;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
-                            else { w = Math.round((w * maxDim) / h); h = maxDim; }
-                        }
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        if (window.jsQR) {
-                            const imageData = ctx.getImageData(0, 0, w, h);
-                            const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
-                                inversionAttempts: "attemptBoth"
-                            });
-                            if (code && code.data) {
-                                resolve(code.data);
-                                return;
-                            }
-                        }
-                        resolve(null);
-                    };
-                    img.onerror = () => resolve(null);
-                    img.src = ev.target.result;
-                };
-                reader.onerror = () => resolve(null);
-                reader.readAsDataURL(imgFile);
-            });
-
-            const jsQrResult = await decodeWithJsQR(file);
-            if (jsQrResult) {
-                if (statusEl) statusEl.textContent = `QR Terbaca: ${jsQrResult}`;
-                onQrCodeDetected(jsQrResult);
-                return;
-            }
-
-            if (statusEl) statusEl.textContent = 'QR Code tidak terdeteksi pada gambar. Arahkan lebih dekat.';
-            showToast('QR Code belum terbaca, silakan arahkan tepat pada QR.');
+            setTimeout(() => {
+                stopQrCameraStream();
+                lookupAssetByCode(cleanCode);
+            }, 220);
         };
 
         window.flipQrScannerCamera = () => {
             qrFacingMode = qrFacingMode === 'environment' ? 'user' : 'environment';
             startScanner();
         };
+
+        async function acquireLiveCameraStream(preferredFacing) {
+            const attempts = [
+                { video: { facingMode: { exact: preferredFacing } }, audio: false },
+                { video: { facingMode: { ideal: preferredFacing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+                { video: { facingMode: preferredFacing }, audio: false },
+                { video: true, audio: false }
+            ];
+
+            for (const constraints of attempts) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    if (stream) return stream;
+                } catch (e) {}
+            }
+
+            if (navigator.mediaDevices.enumerateDevices) {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                    if (videoDevices.length > 0) {
+                        const targetDev = preferredFacing === 'environment'
+                            ? (videoDevices.find(d => /back|rear|belakang|environment/i.test(d.label)) || videoDevices[videoDevices.length - 1])
+                            : videoDevices[0];
+                        return await navigator.mediaDevices.getUserMedia({
+                            video: { deviceId: { exact: targetDev.deviceId } },
+                            audio: false
+                        });
+                    }
+                } catch (e) {}
+            }
+            throw new Error('Camera unavailable');
+        }
 
         window.startScanner = async () => {
             hideAllViews();
@@ -1454,62 +1480,71 @@
 
             const vid = document.getElementById('qr-video-stream');
             const canvas = document.getElementById('qr-scan-canvas');
-            const fallback = document.getElementById('qr-camera-fallback');
+            const retryOverlay = document.getElementById('qr-camera-permission-retry');
             const statusEl = document.getElementById('scanner-status-text');
 
-            if (fallback) fallback.style.display = 'none';
-            if (statusEl) statusEl.textContent = 'Menghubungkan kamera 1:1...';
+            if (retryOverlay) retryOverlay.style.display = 'none';
+            setScannerCornerHighlight(false);
+            if (statusEl) statusEl.textContent = 'Mengaktifkan kamera live...';
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (fallback) fallback.style.display = 'flex';
-                if (statusEl) statusEl.textContent = 'Sentuh kotak di atas untuk memotret QR Code';
+                if (retryOverlay) retryOverlay.style.display = 'flex';
+                if (statusEl) statusEl.textContent = 'Browser perangkat ini belum mengizinkan akses kamera live.';
                 return;
             }
 
             try {
-                try {
-                    qrVideoStream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: { ideal: qrFacingMode },
-                            width: { ideal: 720 },
-                            height: { ideal: 720 }
-                        },
-                        audio: false
-                    });
-                } catch (errEnv) {
-                    qrVideoStream = await navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: false
-                    });
-                }
-
+                qrVideoStream = await acquireLiveCameraStream(qrFacingMode);
                 vid.srcObject = qrVideoStream;
-                await vid.play();
-                if (statusEl) statusEl.textContent = 'Kamera aktif • Arahkan QR Code ke dalam kotak persegi';
+                vid.setAttribute('playsinline', 'true');
+                vid.setAttribute('webkit-playsinline', 'true');
+                vid.muted = true;
+
+                await new Promise((resolve) => {
+                    let resolved = false;
+                    const done = () => { if (!resolved) { resolved = true; resolve(); } };
+                    vid.onloadedmetadata = () => {
+                        vid.play().catch(() => {}).finally(done);
+                    };
+                    vid.play().then(done).catch(() => {});
+                    setTimeout(done, 800);
+                });
+
+                if (statusEl) statusEl.textContent = 'Kamera aktif • Arahkan ke QR Code SarprasQ (Auto-Scan)';
 
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 let nativeDetector = null;
                 if ('BarcodeDetector' in window) {
-                    try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {}
+                    try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] }); } catch (e) {}
                 }
 
                 qrScanInterval = setInterval(async () => {
-                    if (!vid || vid.readyState !== vid.HAVE_ENOUGH_DATA) return;
+                    if (isProcessingQrMatch || !vid || vid.readyState < 2) return;
                     const vw = vid.videoWidth;
                     const vh = vid.videoHeight;
                     if (!vw || !vh) return;
 
-                    // Ambil area tengah 1:1 persegi sesuai tampilan kamera
+                    // 1. Prioritaskan BarcodeDetector hardware langsung pada elemen video (sangat cepat di Android/iOS/Chrome)
+                    if (nativeDetector) {
+                        try {
+                            const barcodes = await nativeDetector.detect(vid);
+                            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                onQrCodeDetected(barcodes[0].rawValue);
+                                return;
+                            }
+                        } catch (e) {}
+                    }
+
+                    // 2. Pindai bagian persegi 1:1 tengah video dengan jsQR
                     const side = Math.min(vw, vh);
                     const sx = Math.floor((vw - side) / 2);
                     const sy = Math.floor((vh - side) / 2);
-                    const scanSize = Math.min(side, 500);
+                    const scanSize = 480;
 
                     canvas.width = scanSize;
                     canvas.height = scanSize;
                     ctx.drawImage(vid, sx, sy, side, side, 0, 0, scanSize, scanSize);
 
-                    // 1. Gunakan jsQR murni
                     if (window.jsQR) {
                         const imgData = ctx.getImageData(0, 0, scanSize, scanSize);
                         const res = window.jsQR(imgData.data, imgData.width, imgData.height, {
@@ -1520,22 +1555,11 @@
                             return;
                         }
                     }
-
-                    // 2. Gunakan BarcodeDetector hardware jika tersedia
-                    if (nativeDetector) {
-                        try {
-                            const barcodes = await nativeDetector.detect(canvas);
-                            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
-                                onQrCodeDetected(barcodes[0].rawValue);
-                                return;
-                            }
-                        } catch (e) {}
-                    }
-                }, 150);
+                }, 120);
 
             } catch (err) {
-                if (fallback) fallback.style.display = 'flex';
-                if (statusEl) statusEl.textContent = 'Sentuh kotak di atas untuk memindai QR Code dengan kamera';
+                if (retryOverlay) retryOverlay.style.display = 'flex';
+                if (statusEl) statusEl.textContent = 'Ketuk pada kotak kamera untuk mengizinkan akses kamera live';
             }
         };
 

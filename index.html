@@ -14,9 +14,6 @@
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: {
-                        macos: { blue: '#0878F9' }
                     }
                 }
             }
@@ -143,9 +140,9 @@
         }
         .installed-row:hover { background: rgba(255, 255, 255, 0.98); }
 
-        /* M-BANKING FIXED BOTTOM DOCK (MOBILE / POTRET ONLY < 768px) */
+        /* M-BANKING FIXED BOTTOM DOCK */
         .mbanking-bottom-dock {
-            display: none;
+            display: flex;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -162,10 +159,6 @@
             padding-right: 10px;
             align-items: flex-end;
             justify-content: space-between;
-        }
-        @media (max-width: 767px) {
-            .mbanking-bottom-dock { display: flex !important; }
-            .main-scroll-area { padding-bottom: 120px !important; }
         }
 
         .mbanking-nav-item {
@@ -212,10 +205,109 @@
         }
         .mbanking-qris-btn:active { transform: scale(0.92); }
 
-        .main-scroll-area { padding-bottom: 40px; }
+        .main-scroll-area { padding-bottom: 120px; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.45); border-radius: 99px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* MODERN MINIMALIST SEARCHABLE DROPDOWN */
+        .modern-dd-container { position: relative; width: 100%; }
+        .modern-dd-trigger {
+            width: 100%;
+            background: rgba(248, 250, 252, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #12325B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .modern-dd-trigger:hover, .modern-dd-container.open .modern-dd-trigger {
+            background: #FFFFFF;
+            border-color: #0878F9;
+            box-shadow: 0 0 0 3px rgba(8, 120, 249, 0.1);
+        }
+        .modern-dd-chevron {
+            font-size: 10px;
+            color: #64748B;
+            transition: transform 0.22s ease, color 0.22s ease;
+            flex-shrink: 0;
+        }
+        .modern-dd-container.open .modern-dd-chevron {
+            transform: rotate(180deg);
+            color: #0878F9;
+        }
+        .modern-dd-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 14px 34px -6px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+            padding: 8px;
+            animation: ddFadeIn 0.16s ease-out;
+        }
+        .modern-dd-container.open .modern-dd-menu { display: block; }
+        @keyframes ddFadeIn {
+            from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modern-dd-search-wrap {
+            position: relative;
+            margin-bottom: 6px;
+        }
+        .modern-dd-search-input {
+            width: 100%;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 6.5px 10px 6.5px 30px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #0F172A;
+            outline: none;
+            transition: border-color 0.18s ease, background 0.18s ease;
+        }
+        .modern-dd-search-input:focus {
+            background: #FFFFFF;
+            border-color: #0878F9;
+        }
+        .modern-dd-list {
+            max-height: 175px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .modern-dd-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 7.5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+        .modern-dd-item:hover { background: #F1F5F9; }
+        .modern-dd-item.selected {
+            background: #EFF6FF;
+            color: #0878F9;
+        }
     </style>
 </head>
 <body class="select-none">
@@ -236,13 +328,11 @@
         <!-- TOP HEADER BAR -->
         <header class="h-16 py-2 px-4 sm:px-6 shrink-0 z-40 bg-white/90 backdrop-blur-xl border-b border-white/80 flex items-center justify-between gap-3">
             
-            <!-- Left: Brand Name SarprasQ (Tekan / Long-press untuk Login Admin Mandiri) -->
+            <!-- Left: Brand Name SarprasQ (Tekan/Long-press untuk Login Admin Mandiri) -->
             <div class="flex items-center gap-2 shrink-0">
-                <div id="brand-admin-trigger" onmousedown="startBrandHoldTimer()" onmouseup="cancelBrandHoldTimer()" ontouchstart="startBrandHoldTimer()" ontouchend="cancelBrandHoldTimer()" title="Tekan tahan beberapa detik untuk Login Admin" class="cursor-pointer flex items-center gap-2 py-1.5 px-3 rounded-xl hover:bg-slate-100/80 transition-colors select-none">
-                    <div class="flex flex-col leading-tight">
-                        <div class="font-black text-[18px] sm:text-[19px] tracking-tight flex items-center">
-                            <span class="text-[#12325B]">Sarpras</span><span class="text-[#0878F9] font-black ml-0.5">Q</span>
-                        </div>
+                <div id="brand-admin-trigger" onmousedown="startBrandHoldTimer()" onmouseup="cancelBrandHoldTimer()" ontouchstart="startBrandHoldTimer()" ontouchend="cancelBrandHoldTimer()" title="Tekan tahan untuk Login Admin" class="cursor-pointer flex items-center gap-2 py-1.5 px-3 rounded-xl hover:bg-slate-100/80 transition-colors select-none">
+                    <div class="font-black text-[18px] sm:text-[19px] tracking-tight flex items-center">
+                        <span class="text-[#12325B]">Sarpras</span><span class="text-[#0878F9] font-black ml-0.5">Q</span>
                     </div>
                 </div>
             </div>
@@ -345,8 +435,8 @@
                                 </div>
                             </div>
                             <div class="relative z-10 flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-3 py-1.5">
-                                <span class="text-[10px] font-bold text-white">Cetak Label QR (F4)</span>
-                                <button type="button" onclick="event.stopPropagation(); downloadAllBarcodePDF();" class="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[10px] font-extrabold">Preview F4 →</button>
+                                <span class="text-[10px] font-bold text-white">Total Inventaris Terdaftar</span>
+                                <span class="text-white text-[11px] font-extrabold">6 Unit Aktif</span>
                             </div>
                         </div>
 
@@ -485,16 +575,20 @@
                             <i class="fa-solid fa-arrow-left text-[12px] text-slate-900 font-bold"></i>
                         </button>
                         <h2 class="text-sm font-extrabold text-slate-900">Pindai QR Code Aset</h2>
-                        <button type="button" onclick="flipQrScannerCamera()" title="Putar Kamera" class="w-8 h-8 rounded-xl glass-button flex items-center justify-center text-slate-800">
-                            <i class="fa-solid fa-camera-rotate text-[12px]"></i>
-                        </button>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="triggerScanFromGallery()" title="Pindai QR dari Galeri Foto" class="w-8 h-8 rounded-xl glass-button flex items-center justify-center text-slate-800">
+                                <i class="fa-solid fa-image text-[12px]"></i>
+                            </button>
+                            <button type="button" onclick="flipQrScannerCamera()" title="Putar Kamera" class="w-8 h-8 rounded-xl glass-button flex items-center justify-center text-slate-800">
+                                <i class="fa-solid fa-camera-rotate text-[12px]"></i>
+                            </button>
+                        </div>
                     </div>
+
                     <div class="relative w-full max-w-sm bg-slate-950/95 rounded-[26px] border border-white/60 overflow-hidden shadow-xl flex flex-col items-center justify-center p-4 text-center">
-                        <!-- 1:1 SQUARE LIVE CAMERA VIEWPORT (AUTO-SCAN) -->
                         <div id="qr-reader-container" class="w-full aspect-square max-w-[290px] mx-auto rounded-2xl overflow-hidden bg-slate-900 relative flex items-center justify-center border border-white/15">
                             <video id="qr-video-stream" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover"></video>
                             <canvas id="qr-scan-canvas" class="hidden"></canvas>
-                            <!-- Bingkai Sudut QR 1:1 Selebar Ruang Kamera -->
                             <div class="inset-4 absolute pointer-events-none flex items-center justify-center">
                                 <div class="w-full h-full relative">
                                     <span id="qr-corner-tl" class="absolute top-0 left-0 w-9 h-9 border-t-4 border-l-4 border-blue-400 rounded-tl-xl transition-colors duration-200"></span>
@@ -504,34 +598,14 @@
                                     <div id="qr-laser-line" class="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_12px_#38bdf8]"></div>
                                 </div>
                             </div>
-                            <!-- Indikator Live Auto-Scan -->
                             <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-slate-950/75 backdrop-blur-md border border-white/15 flex items-center gap-1.5 pointer-events-none">
                                 <span id="qr-live-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                                 <span class="text-[9.5px] font-extrabold text-white tracking-wide uppercase">Auto-Scan Aktif</span>
                             </div>
-                            <!-- Panel Izin Kamera Live Interaktif -->
-                            <div id="qr-camera-permission-retry" style="display: none;" class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-4 text-center gap-2 z-20">
-                                <div class="w-11 h-11 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-lg shadow-lg">
-                                    <i class="fa-solid fa-video"></i>
-                                </div>
-                                <p id="qr-perm-title" class="text-[12px] text-white font-extrabold leading-tight">Akses Kamera Diperlukan</p>
-                                <p id="qr-perm-status-msg" class="text-[10px] text-slate-300 leading-relaxed px-1">Tekan tombol di bawah lalu pilih <b>"Izinkan / Allow"</b> saat muncul pop-up browser.</p>
-                                <button type="button" onclick="requestLiveScannerPermission(event)" class="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[11px] font-extrabold shadow-md flex items-center justify-center gap-1.5 transition-all">
-                                    <i class="fa-solid fa-unlock-keyhole"></i> Minta Izin Kamera Live
-                                </button>
-                                <div id="qr-perm-extra-actions" style="display: none;" class="w-full grid grid-cols-2 gap-1.5 pt-1">
-                                    <button type="button" onclick="triggerFallbackQrCamera()" class="py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-extrabold flex items-center justify-center gap-1">
-                                        <i class="fa-solid fa-camera"></i> Kamera Sistem
-                                    </button>
-                                    <button type="button" onclick="openAppInFullTab()" class="py-1.5 px-2 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[10px] font-extrabold flex items-center justify-center gap-1">
-                                        <i class="fa-solid fa-up-right-from-square"></i> Tab Penuh
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                         
                         <div class="mt-3.5 z-10 w-full space-y-2.5">
-                            <p id="scanner-status-text" class="text-[10.5px] text-slate-300 font-semibold">Arahkan kamera ke QR Code SarprasQ (Otomatis Memindai)</p>
+                            <p id="scanner-status-text" class="text-[10.5px] text-slate-300 font-semibold">Kamera aktif • Arahkan ke QR Code SarprasQ (Auto-Scan)</p>
                             <div class="pt-2 border-t border-white/10 flex gap-2">
                                 <input type="text" id="simulated-scan-code" placeholder="Atau ketik kode: INV-ALK-..." class="flex-1 bg-white/15 border border-white/25 text-white text-[11.5px] px-3 py-2 rounded-xl text-center focus:outline-none font-mono">
                                 <button type="button" onclick="handleSimulatedScan()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-extrabold shadow shrink-0">Cek</button>
@@ -585,12 +659,15 @@
             </main>
         </div>
     </div>
-    <!-- INPUT KAMERA & GALERI NATIVE GLOBAL (1 PINTU TANPA POPUP GANDA) -->
-    <input type="file" id="global-native-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleDirectPhotoInput(event)">
-    <input type="file" id="global-gallery-file-input" accept="image/*" class="hidden" onchange="handleDirectPhotoInput(event)">
-    <input type="file" id="qr-fallback-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleFallbackQrImageScan(event)">
+    
+    <!-- GLOBAL SINGLE-CLICK CAMERA & GALLERY INPUTS (DAMAGE REPORT / REGISTRATION) -->
+    <input type="file" id="global-single-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleDirectPhotoInput(event)">
+    <input type="file" id="global-single-gallery-input" accept="image/*" class="hidden" onchange="handleDirectPhotoInput(event)">
 
-    <!-- M-BANKING BOTTOM NAVIGATION BAR (MOBILE ONLY) -->
+    <!-- GALLERY QR SCANNER INPUT -->
+    <input type="file" id="gallery-qr-file-input" accept="image/*" class="hidden" onchange="handleGalleryQrFileSelected(event)">
+
+    <!-- M-BANKING BOTTOM NAVIGATION BAR -->
     <nav class="mbanking-bottom-dock">
         <button type="button" onclick="showDashboard()" id="mbank-nav-dashboard" class="mbanking-nav-item active">
             <i class="fa-solid fa-house-chimney"></i>
@@ -662,11 +739,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                     <div>
                         <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Kategori</label>
-                        <select id="tambah-kategori-val" class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none">
-                            <option value="Elektronik">Elektronik</option>
-                            <option value="Furnitur">Furnitur</option>
-                            <option value="Fasilitas">Fasilitas</option>
-                        </select>
+                        <div class="modern-dd-container" id="dd-wrap-tambah-kategori-val">
+                            <input type="hidden" id="tambah-kategori-val" value="Elektronik">
+                            <button type="button" onclick="toggleModernDropdown('tambah-kategori-val')" class="modern-dd-trigger">
+                                <span id="dd-label-tambah-kategori-val" class="truncate">Elektronik</span>
+                                <i class="fa-solid fa-chevron-down modern-dd-chevron"></i>
+                            </button>
+                            <div class="modern-dd-menu">
+                                <div class="modern-dd-search-wrap">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-[10px]"></i>
+                                    <input type="text" id="dd-search-tambah-kategori-val" oninput="filterModernDropdown('tambah-kategori-val')" placeholder="Cari kategori..." class="modern-dd-search-input">
+                                </div>
+                                <div id="dd-list-tambah-kategori-val" class="modern-dd-list custom-scrollbar"></div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Lokasi Ruangan</label>
@@ -695,10 +781,10 @@
                         <span class="px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0">Watermark GPS Otomatis</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2.5">
-                        <button type="button" onclick="handleSingleCameraAction('tambah')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('tambah', 'camera')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="handleSingleGalleryAction('tambah')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('tambah', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
@@ -797,7 +883,20 @@
             <form onsubmit="simpanMaintenance(event)" class="space-y-3">
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Pilih Aset Bermasalah</label>
-                    <select id="maint-aset-select" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none"></select>
+                    <div class="modern-dd-container" id="dd-wrap-maint-aset-select">
+                        <input type="hidden" id="maint-aset-select" required value="">
+                        <button type="button" onclick="toggleModernDropdown('maint-aset-select')" class="modern-dd-trigger">
+                            <span id="dd-label-maint-aset-select" class="truncate">Pilih aset...</span>
+                            <i class="fa-solid fa-chevron-down modern-dd-chevron"></i>
+                        </button>
+                        <div class="modern-dd-menu">
+                            <div class="modern-dd-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="dd-search-maint-aset-select" oninput="filterModernDropdown('maint-aset-select')" placeholder="Cari nama, kode, atau lokasi aset..." class="modern-dd-search-input">
+                            </div>
+                            <div id="dd-list-maint-aset-select" class="modern-dd-list custom-scrollbar"></div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Pelapor & Lokasi</label>
@@ -826,10 +925,10 @@
                         <span class="px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0">Watermark GPS Otomatis</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2.5">
-                        <button type="button" onclick="handleSingleCameraAction('maint')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('maint', 'camera')" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="handleSingleGalleryAction('maint')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('maint', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
@@ -856,7 +955,20 @@
             <form onsubmit="simpanPinjaman(event)" class="space-y-3">
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Pilih Aset Tersedia</label>
-                    <select id="pinjam-aset-select" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none"></select>
+                    <div class="modern-dd-container" id="dd-wrap-pinjam-aset-select">
+                        <input type="hidden" id="pinjam-aset-select" required value="">
+                        <button type="button" onclick="toggleModernDropdown('pinjam-aset-select')" class="modern-dd-trigger">
+                            <span id="dd-label-pinjam-aset-select" class="truncate">Pilih aset tersedia...</span>
+                            <i class="fa-solid fa-chevron-down modern-dd-chevron"></i>
+                        </button>
+                        <div class="modern-dd-menu">
+                            <div class="modern-dd-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="dd-search-pinjam-aset-select" oninput="filterModernDropdown('pinjam-aset-select')" placeholder="Cari aset yang tersedia..." class="modern-dd-search-input">
+                            </div>
+                            <div id="dd-list-pinjam-aset-select" class="modern-dd-list custom-scrollbar"></div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Nama Peminjam & Jabatan</label>
@@ -881,34 +993,6 @@
         </div>
     </div>
 
-    <!-- MODAL KAMERA LANGSUNG (HP & LAPTOP) -->
-    <div id="modal-camera-capture" style="display: none;" class="fixed inset-0 z-[210000] bg-slate-950/85 backdrop-blur-md items-center justify-center p-3">
-        <div class="bg-white w-full max-w-md rounded-[24px] p-4 shadow-2xl relative flex flex-col gap-3">
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-xl bg-rose-600 text-white flex items-center justify-center text-[11px] shadow"><i class="fa-solid fa-camera"></i></div>
-                    <div>
-                        <h3 class="text-[12px] font-extrabold text-slate-900">Ambil Foto Kamera</h3>
-                        <p class="text-[9.5px] text-slate-500 font-semibold">Watermark GPS Maps & Waktu Otomatis</p>
-                    </div>
-                </div>
-                <button type="button" onclick="closeCameraCaptureModal()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="relative w-full aspect-square max-h-72 bg-slate-950 rounded-2xl overflow-hidden border flex items-center justify-center mx-auto">
-                <video id="webrtc-video-element" autoplay playsinline muted class="w-full h-full object-cover"></video>
-                <canvas id="webrtc-canvas-element" class="hidden"></canvas>
-            </div>
-            <div class="flex items-center justify-between gap-2 pt-1">
-                <button type="button" onclick="switchCameraFacing()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11.5px] font-extrabold flex items-center gap-1.5">
-                    <i class="fa-solid fa-camera-rotate"></i> Putar
-                </button>
-                <button type="button" onclick="captureWebRtcSnapshot()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[12px] font-extrabold shadow flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-camera"></i> Jepret Foto
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL LIGHTBOX FOTO -->
     <div id="modal-photo-lightbox" style="display: none;" onclick="this.style.display='none'" class="fixed inset-0 z-[210000] bg-slate-950/85 backdrop-blur-md items-center justify-center p-3">
         <div class="max-w-2xl w-full space-y-3" onclick="event.stopPropagation()">
@@ -916,6 +1000,35 @@
             <div class="flex justify-end">
                 <button type="button" onclick="document.getElementById('modal-photo-lightbox').style.display='none'" class="px-4 py-2 rounded-full bg-white text-slate-900 text-[11.5px] font-extrabold">Tutup</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL KAMERA LIVE LANGSUNG (DOKUMENTASI KERUSAKAN & ASET) -->
+    <div id="modal-live-camera" style="display: none;" class="fixed inset-0 z-[230000] bg-black flex-col justify-between select-none">
+        <!-- Top Bar Kamera -->
+        <div class="p-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent z-10">
+            <button type="button" onclick="closeDirectLiveCamera()" class="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center text-sm active:scale-90 transition-transform">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10.5px] font-bold text-emerald-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-location-dot text-rose-500"></i>
+                <span>Watermark GPS Otomatis</span>
+            </div>
+            <button type="button" onclick="flipDirectLiveCamera()" class="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white flex items-center justify-center text-sm active:scale-90 transition-transform">
+                <i class="fa-solid fa-camera-rotate"></i>
+            </button>
+        </div>
+
+        <!-- Area Video Kamera Live -->
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden bg-black">
+            <video id="damage-live-video" autoplay playsinline webkit-playsinline muted class="w-full h-full object-cover"></video>
+        </div>
+
+        <!-- Bottom Bar Shutter Kamera -->
+        <div class="p-6 pb-10 flex items-center justify-center bg-gradient-to-t from-black/90 via-black/60 to-transparent z-10">
+            <button type="button" onclick="captureDirectLivePhoto()" class="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center p-1.5 active:scale-90 transition-transform shadow-2xl">
+                <span class="w-full h-full rounded-full bg-white block"></span>
+            </button>
         </div>
     </div>
 
@@ -1027,7 +1140,9 @@
 
         function stampImageWatermark(img, meta) {
             const canvas = document.createElement('canvas');
-            const tw = 960, th = Math.round(((img.naturalHeight || 600) / (img.naturalWidth || 800)) * tw) || 720;
+            const srcW = img.videoWidth || img.naturalWidth || img.width || 800;
+            const srcH = img.videoHeight || img.naturalHeight || img.height || 600;
+            const tw = 960, th = Math.round((srcH / srcW) * tw) || 720;
             canvas.width = tw; canvas.height = th;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, tw, th);
@@ -1050,162 +1165,90 @@
             if (mode === 'tambah') {
                 const nama = document.getElementById('tambah-nama')?.value || 'Aset Baru';
                 const kode = document.getElementById('tambah-kode')?.value || 'INV-ALK-2026';
-                const kondisi = document.querySelector('#modal-tambah input[name="kondisi"]:checked')?.value || 'Rusak';
+                const kondisi = document.querySelector('#modal-tambah input[name="kondisi"]:checked')?.value || 'Baik';
                 return { nama, kode, kondisi };
             } else {
                 const nama = document.getElementById('maint-aset-select')?.value || 'Sarpras Sekolah';
                 const found = assetsData.find(a => a.nama === nama);
                 const kode = found ? found.kode : 'INV-ALK';
-                const kondisi = document.querySelector('#modal-maintenance input[name="tingkat_rusak"]:checked')?.value || 'Rusak';
+                const kondisi = document.querySelector('#modal-maintenance input[name="tingkat_rusak"]:checked')?.value || 'Rusak Ringan';
                 return { nama, kode, kondisi };
             }
         }
 
-        let activeWebRtcStream = null, currentCameraMode = 'maint', currentFacingMode = 'environment';
+        let currentSingleMode = 'maint', currentSingleType = 'camera';
+        let damageCameraStream = null;
+        let damageCameraFacing = 'environment';
 
-        // Buka kebijakan izin kamera pada elemen iframe induk (jika berada di dalam portal My Alka)
-        function unlockIframeCameraPolicy() {
-            try {
-                if (window.frameElement) {
-                    const curAllow = window.frameElement.getAttribute('allow') || '';
-                    if (!curAllow.includes('camera')) {
-                        window.frameElement.setAttribute('allow', (curAllow ? curAllow + '; ' : '') + 'camera *; microphone *; geolocation *');
-                    }
-                }
-            } catch (e) {}
-            try {
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'ALKA_REQUEST_CAMERA_PERMISSION' }, '*');
-                }
-            } catch (e) {}
-        }
-        unlockIframeCameraPolicy();
-
-        // Fungsi Universal pengambil stream kamera (mendukung konteks lokal, parent, dan top window)
-        async function acquireLiveCameraStream(preferredFacing = 'environment') {
-            unlockIframeCameraPolicy();
-
-            const mediaDevicesSources = [];
-            try { if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) mediaDevicesSources.push(navigator.mediaDevices); } catch (e) {}
-            try { if (window.parent && window.parent !== window && window.parent.navigator?.mediaDevices?.getUserMedia) mediaDevicesSources.push(window.parent.navigator.mediaDevices); } catch (e) {}
-            try { if (window.top && window.top !== window && window.top.navigator?.mediaDevices?.getUserMedia) mediaDevicesSources.push(window.top.navigator.mediaDevices); } catch (e) {}
-
-            // Gunakan constraint sederhana tanpa 'exact' di urutan pertama agar pop-up perizinan sistem langsung muncul
-            const attempts = [
-                { video: { facingMode: preferredFacing }, audio: false },
-                { video: { facingMode: { ideal: preferredFacing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-                { video: true, audio: false }
-            ];
-
-            let lastErr = null;
-            for (const md of mediaDevicesSources) {
-                for (const constraints of attempts) {
-                    try {
-                        const stream = await md.getUserMedia(constraints);
-                        if (stream) return stream;
-                    } catch (err) {
-                        lastErr = err;
-                        if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError')) {
-                            break; // Lanjut coba sumber mediaDevices induk (window.parent / window.top)
-                        }
-                    }
-                }
+        window.stopDamageCameraStream = () => {
+            if (damageCameraStream) {
+                damageCameraStream.getTracks().forEach(t => t.stop());
+                damageCameraStream = null;
             }
+            const vid = document.getElementById('damage-live-video');
+            if (vid) vid.srcObject = null;
+        };
 
-            // Fallback API lawas (webkitGetUserMedia / mozGetUserMedia)
-            const legacyGum = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-            if (legacyGum) {
+        window.closeDirectLiveCamera = () => {
+            stopDamageCameraStream();
+            document.getElementById('modal-live-camera').style.display = 'none';
+        };
+
+        window.flipDirectLiveCamera = () => {
+            damageCameraFacing = damageCameraFacing === 'environment' ? 'user' : 'environment';
+            openDirectLiveCamera(currentSingleMode);
+        };
+
+        window.openDirectLiveCamera = async (mode) => {
+            currentSingleMode = mode;
+            stopDamageCameraStream();
+            const modal = document.getElementById('modal-live-camera');
+            const vid = document.getElementById('damage-live-video');
+            modal.style.display = 'flex';
+
+            try {
+                let stream = null;
                 try {
-                    return await new Promise((resolve, reject) => {
-                        legacyGum.call(navigator, { video: true, audio: false }, resolve, reject);
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: damageCameraFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false
                     });
                 } catch (err) {
-                    lastErr = err;
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 }
-            }
-
-            throw lastErr || new Error('NotAllowedError');
-        }
-
-        // 1 TOMBOL KAMERA UNTUK SEMUA PERANGKAT (LANGSUNG BUKA KAMERA LIVE DI HP & LAPTOP)
-        window.handleSingleCameraAction = async (mode) => {
-            currentCameraMode = mode;
-            detectLiveMapsLocation(false);
-
-            try {
-                if (activeWebRtcStream) {
-                    activeWebRtcStream.getTracks().forEach(t => t.stop());
-                    activeWebRtcStream = null;
-                }
-                activeWebRtcStream = await acquireLiveCameraStream(currentFacingMode);
-                const modal = document.getElementById('modal-camera-capture');
-                const vid = document.getElementById('webrtc-video-element');
-                modal.style.display = 'flex';
-                vid.srcObject = activeWebRtcStream;
-                await vid.play();
+                damageCameraStream = stream;
+                vid.srcObject = stream;
+                vid.setAttribute('playsinline', 'true');
+                vid.muted = true;
+                await vid.play().catch(() => {});
             } catch (e) {
-                triggerNativeCameraInput();
+                closeDirectLiveCamera();
+                const inp = document.getElementById('global-single-camera-input');
+                if (inp) { inp.value = ''; inp.click(); }
             }
         };
 
-        // 1 TOMBOL GALERI UNTUK SEMUA PERANGKAT
-        window.handleSingleGalleryAction = (mode) => {
-            currentCameraMode = mode;
-            detectLiveMapsLocation(false);
-            triggerGalleryFileInput();
-        };
-
-        window.triggerNativeCameraInput = () => {
-            const inp = document.getElementById('global-native-camera-input');
-            if (inp) { inp.value = ''; inp.click(); }
-        };
-
-        window.triggerGalleryFileInput = () => {
-            const inp = document.getElementById('global-gallery-file-input');
-            if (inp) { inp.value = ''; inp.click(); }
-        };
-
-        window.switchCameraFacing = async () => {
-            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-            try {
-                if (activeWebRtcStream) activeWebRtcStream.getTracks().forEach(t => t.stop());
-                activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: currentFacingMode },
-                    audio: false
-                });
-                const vid = document.getElementById('webrtc-video-element');
-                vid.srcObject = activeWebRtcStream;
-                await vid.play();
-            } catch (e) {}
-        };
-
-        window.closeCameraCaptureModal = () => {
-            if (activeWebRtcStream) {
-                activeWebRtcStream.getTracks().forEach(t => t.stop());
-                activeWebRtcStream = null;
-            }
-            document.getElementById('modal-camera-capture').style.display = 'none';
-        };
-
-        window.captureWebRtcSnapshot = () => {
-            const vid = document.getElementById('webrtc-video-element');
-            const canv = document.getElementById('webrtc-canvas-element');
-            if (!activeWebRtcStream || !vid.videoWidth || vid.videoWidth === 0) {
-                closeCameraCaptureModal();
-                triggerNativeCameraInput();
+        window.captureDirectLivePhoto = () => {
+            const vid = document.getElementById('damage-live-video');
+            if (!vid || !vid.videoWidth) {
+                showToast("Kamera sedang memuat, coba sesaat lagi.");
                 return;
             }
-            canv.width = vid.videoWidth;
-            canv.height = vid.videoHeight;
-            canv.getContext('2d').drawImage(vid, 0, 0);
-            const img = new Image();
-            img.onload = () => {
-                const stamped = stampImageWatermark(img, getActiveCameraAssetMeta(currentCameraMode));
-                applyStampedPhoto(currentCameraMode, stamped);
-                closeCameraCaptureModal();
-            };
-            img.src = canv.toDataURL('image/jpeg', 0.92);
+            const stamped = stampImageWatermark(vid, getActiveCameraAssetMeta(currentSingleMode));
+            closeDirectLiveCamera();
+            applyStampedPhoto(currentSingleMode, stamped);
+        };
+
+        window.triggerSingleAction = (mode, type) => {
+            currentSingleMode = mode;
+            currentSingleType = type;
+            detectLiveMapsLocation(false);
+            if (type === 'camera') {
+                openDirectLiveCamera(mode);
+            } else {
+                const inp = document.getElementById('global-single-gallery-input');
+                if (inp) { inp.value = ''; inp.click(); }
+            }
         };
 
         window.handleDirectPhotoInput = (e) => {
@@ -1216,9 +1259,8 @@
             r.onload = (evt) => {
                 const img = new Image();
                 img.onload = () => {
-                    const stamped = stampImageWatermark(img, getActiveCameraAssetMeta(currentCameraMode));
-                    applyStampedPhoto(currentCameraMode, stamped);
-                    closeCameraCaptureModal();
+                    const stamped = stampImageWatermark(img, getActiveCameraAssetMeta(currentSingleMode));
+                    applyStampedPhoto(currentSingleMode, stamped);
                 };
                 img.src = evt.target.result;
             };
@@ -1430,7 +1472,7 @@
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(1046.5, ctx.currentTime); // C6 beep
+                osc.frequency.setValueAtTime(1046.5, ctx.currentTime);
                 gain.gain.setValueAtTime(0.15, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
                 osc.connect(gain);
@@ -1500,32 +1542,22 @@
             startScanner();
         };
 
-        window.openAppInFullTab = () => {
-            try {
-                window.open(window.location.href, '_blank');
-            } catch (e) {
-                showToast('Buka menu browser (titik tiga) lalu pilih Buka di Browser.');
-            }
-        };
-
-        window.triggerFallbackQrCamera = () => {
-            const inp = document.getElementById('qr-fallback-camera-input');
+        window.triggerScanFromGallery = () => {
+            const inp = document.getElementById('gallery-qr-file-input');
             if (inp) { inp.value = ''; inp.click(); }
         };
 
-        window.handleFallbackQrImageScan = (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById('scanner-status-text');
-            if (statusEl) statusEl.textContent = 'Memindai QR Code dari tangkapan kamera...';
-
+        window.handleGalleryQrFileSelected = (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (!f) return;
+            showToast("Memindai QR Code dari foto galeri...");
             const reader = new FileReader();
             reader.onload = (evt) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.getElementById('qr-scan-canvas');
                     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    const maxDim = 900;
+                    const maxDim = 1000;
                     const scale = Math.min(1, maxDim / Math.max(img.width || 1, img.height || 1));
                     canvas.width = Math.max(1, Math.floor(img.width * scale));
                     canvas.height = Math.max(1, Math.floor(img.height * scale));
@@ -1539,71 +1571,43 @@
                             return;
                         }
                     }
-                    showToast('QR Code belum terbaca jelas, coba arahkan lebih dekat.');
-                    if (statusEl) statusEl.textContent = 'QR belum terbaca. Coba ulangi atau ketik kode di bawah.';
+                    showToast("QR Code tidak ditemukan pada foto yang dipilih.");
                 };
                 img.src = evt.target.result;
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(f);
         };
 
-        window.requestLiveScannerPermission = async (evt) => {
-            if (evt) evt.stopPropagation();
-            const msgEl = document.getElementById('qr-perm-status-msg');
-            const titleEl = document.getElementById('qr-perm-title');
-            const extraBox = document.getElementById('qr-perm-extra-actions');
-            if (msgEl) msgEl.innerHTML = 'Meminta dialog perizinan kamera dari perangkat...';
-
-            await startScanner(true);
-        };
-
-        window.startScanner = async (fromRetryButton = false) => {
-            // Penting: Minta stream kamera SEGERA saat event klik pengguna berlangsung agar pop-up izin browser tidak diblokir
-            const streamPromise = acquireLiveCameraStream(qrFacingMode);
-
-            if (!fromRetryButton) {
-                hideAllViews();
-                document.getElementById('scanner-view').style.display = 'flex';
-                const inputEl = document.getElementById('simulated-scan-code');
-                if (inputEl) inputEl.value = '';
-            }
-
+        window.startScanner = async () => {
+            hideAllViews();
+            document.getElementById('scanner-view').style.display = 'flex';
             const vid = document.getElementById('qr-video-stream');
             const canvas = document.getElementById('qr-scan-canvas');
-            const retryOverlay = document.getElementById('qr-camera-permission-retry');
             const statusEl = document.getElementById('scanner-status-text');
-            const msgEl = document.getElementById('qr-perm-status-msg');
-            const titleEl = document.getElementById('qr-perm-title');
-            const extraBox = document.getElementById('qr-perm-extra-actions');
 
-            if (retryOverlay) retryOverlay.style.display = 'none';
             setScannerCornerHighlight(false);
             if (statusEl) statusEl.textContent = 'Mengaktifkan kamera live...';
 
             try {
-                qrVideoStream = await streamPromise;
+                let stream = null;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: qrFacingMode }, audio: false });
+                } catch (err) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
+
+                qrVideoStream = stream;
                 vid.srcObject = qrVideoStream;
                 vid.setAttribute('playsinline', 'true');
-                vid.setAttribute('webkit-playsinline', 'true');
                 vid.muted = true;
+                await vid.play().catch(() => {});
 
-                await new Promise((resolve) => {
-                    let resolved = false;
-                    const done = () => { if (!resolved) { resolved = true; resolve(); } };
-                    vid.onloadedmetadata = () => {
-                        vid.play().catch(() => {}).finally(done);
-                    };
-                    vid.play().then(done).catch(() => {});
-                    setTimeout(done, 700);
-                });
-
-                if (retryOverlay) retryOverlay.style.display = 'none';
                 if (statusEl) statusEl.textContent = 'Kamera aktif • Arahkan ke QR Code SarprasQ (Auto-Scan)';
 
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 let nativeDetector = null;
                 if ('BarcodeDetector' in window) {
-                    try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] }); } catch (e) {}
+                    try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128'] }); } catch (e) {}
                 }
 
                 if (qrScanInterval) clearInterval(qrScanInterval);
@@ -1613,7 +1617,6 @@
                     const vh = vid.videoHeight;
                     if (!vw || !vh) return;
 
-                    // 1. Prioritaskan BarcodeDetector hardware langsung pada elemen video
                     if (nativeDetector) {
                         try {
                             const barcodes = await nativeDetector.detect(vid);
@@ -1624,11 +1627,10 @@
                         } catch (e) {}
                     }
 
-                    // 2. Pindai bagian persegi 1:1 tengah video dengan jsQR
                     const side = Math.min(vw, vh);
                     const sx = Math.floor((vw - side) / 2);
                     const sy = Math.floor((vh - side) / 2);
-                    const scanSize = 480;
+                    const scanSize = 420;
 
                     canvas.width = scanSize;
                     canvas.height = scanSize;
@@ -1636,9 +1638,7 @@
 
                     if (window.jsQR) {
                         const imgData = ctx.getImageData(0, 0, scanSize, scanSize);
-                        const res = window.jsQR(imgData.data, imgData.width, imgData.height, {
-                            inversionAttempts: "attemptBoth"
-                        });
+                        const res = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: "attemptBoth" });
                         if (res && res.data && String(res.data).trim().length > 0) {
                             onQrCodeDetected(res.data);
                             return;
@@ -1647,34 +1647,18 @@
                 }, 120);
 
             } catch (err) {
-                if (retryOverlay) retryOverlay.style.display = 'flex';
-                const errName = (err && err.name) ? err.name : '';
-                if (extraBox) extraBox.style.display = 'grid';
-
-                if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError' || errName === 'SecurityError') {
-                    if (titleEl) titleEl.textContent = 'Izin Kamera Diblokir Browser / Aplikasi';
-                    if (msgEl) msgEl.innerHTML = 'Klik ikon <b>Gembok 🔒 / Pengaturan Situs</b> di bar atas browser untuk mengizinkan <b>Kamera</b>, atau gunakan tombol di bawah:';
-                    if (statusEl) statusEl.textContent = 'Izin kamera ditahan oleh browser/iframe induk. Gunakan opsi di atas.';
-                    if (fromRetryButton) showToast('Izin kamera ditahan oleh browser/iframe. Gunakan Kamera Sistem atau Tab Penuh.');
-                } else {
-                    if (titleEl) titleEl.textContent = 'Izinkan Akses Kamera Live';
-                    if (msgEl) msgEl.innerHTML = 'Tekan <b>Minta Izin Kamera Live</b> untuk memunculkan pop-up izin, atau gunakan <b>Kamera Sistem</b>.';
-                    if (statusEl) statusEl.textContent = 'Menunggu izin akses kamera perangkat...';
-                }
+                if (statusEl) statusEl.textContent = 'Izin kamera ditahan atau tidak tersedia.';
             }
         };
 
         function lookupAssetByCode(rawCode) {
             const v = String(rawCode || '').trim();
-            if (!v || v.length < 2) {
-                showToast('Masukkan atau pindai kode QR aset terlebih dahulu.');
-                return;
-            }
+            if (!v || v.length < 2) return;
             const cleanLower = v.toLowerCase();
             const f = assetsData.find(a =>
                 a.kode.toLowerCase() === cleanLower ||
                 cleanLower.includes(a.kode.toLowerCase()) ||
-                (cleanLower.length >= 3 && a.nama.toLowerCase() === cleanLower)
+                a.nama.toLowerCase().includes(cleanLower)
             );
             if (f) {
                 showToast(`Ditemukan: ${f.nama} (${f.kode})`);
@@ -1687,26 +1671,143 @@
         window.handleSimulatedScan = () => {
             const v = (document.getElementById('simulated-scan-code')?.value || '').trim();
             if (!v) {
-                showToast('Ketik kode inventaris terlebih dahulu atau arahkan kamera ke QR Code.');
+                showToast('Ketik kode inventaris terlebih dahulu.');
                 return;
             }
             lookupAssetByCode(v);
         };
 
-        window.openModalTambah = () => { document.getElementById('modal-tambah').style.display = 'flex'; };
-        window.closeModalTambah = () => { document.getElementById('modal-tambah').style.display = 'none'; };
+        // MODERN MINIMALIST SEARCHABLE DROPDOWN ENGINE
+        const modernDropdownRegistry = {};
+
+        window.initModernDropdown = (id, options, defaultVal = '') => {
+            modernDropdownRegistry[id] = options || [];
+            const selected = options.find(o => o.value === defaultVal) || options[0] || { value: '', label: 'Tidak ada data', sublabel: '' };
+            setModernDropdownValue(id, selected.value, selected.displayLabel || selected.label);
+            renderModernDropdownItems(id, '');
+        };
+
+        window.setModernDropdownValue = (id, value, displayText) => {
+            const inputEl = document.getElementById(id);
+            const labelEl = document.getElementById(`dd-label-${id}`);
+            if (inputEl) inputEl.value = value;
+            if (labelEl) labelEl.textContent = displayText || value || 'Pilih...';
+        };
+
+        window.renderModernDropdownItems = (id, query = '') => {
+            const listEl = document.getElementById(`dd-list-${id}`);
+            const inputEl = document.getElementById(id);
+            if (!listEl) return;
+
+            const allOpts = modernDropdownRegistry[id] || [];
+            const q = String(query || '').toLowerCase().trim();
+            const filtered = allOpts.filter(o =>
+                o.label.toLowerCase().includes(q) ||
+                (o.sublabel && o.sublabel.toLowerCase().includes(q)) ||
+                o.value.toLowerCase().includes(q)
+            );
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="py-3 px-2 text-center text-[10.5px] font-semibold text-slate-400">Tidak ditemukan hasil untuk "${query}"</div>`;
+                return;
+            }
+
+            const currentVal = inputEl ? inputEl.value : '';
+            listEl.innerHTML = filtered.map((o, idx) => {
+                const isSelected = o.value === currentVal;
+                return `
+                    <button type="button" onclick="selectModernDropdownOption('${id}', ${idx}, '${q.replace(/'/g, "\\'")}')" class="modern-dd-item ${isSelected ? 'selected' : ''}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            ${o.icon ? `<div class="w-6 h-6 rounded-lg ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-[10px] shrink-0"><i class="fa-solid ${o.icon}"></i></div>` : ''}
+                            <div class="min-w-0">
+                                <div class="text-[11.5px] font-bold ${isSelected ? 'text-blue-600' : 'text-slate-800'} truncate">${o.label}</div>
+                                ${o.sublabel ? `<div class="text-[9.5px] font-medium text-slate-400 truncate">${o.sublabel}</div>` : ''}
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-check text-[10.5px] ${isSelected ? 'text-blue-600 opacity-100' : 'opacity-0'} shrink-0"></i>
+                    </button>
+                `;
+            }).join('');
+        };
+
+        window.selectModernDropdownOption = (id, filteredIdx, query) => {
+            const allOpts = modernDropdownRegistry[id] || [];
+            const q = String(query || '').toLowerCase().trim();
+            const filtered = allOpts.filter(o =>
+                o.label.toLowerCase().includes(q) ||
+                (o.sublabel && o.sublabel.toLowerCase().includes(q)) ||
+                o.value.toLowerCase().includes(q)
+            );
+            const chosen = filtered[filteredIdx];
+            if (!chosen) return;
+            setModernDropdownValue(id, chosen.value, chosen.displayLabel || chosen.label);
+            closeAllModernDropdowns();
+        };
+
+        window.filterModernDropdown = (id) => {
+            const searchEl = document.getElementById(`dd-search-${id}`);
+            renderModernDropdownItems(id, searchEl ? searchEl.value : '');
+        };
+
+        window.toggleModernDropdown = (id) => {
+            const wrap = document.getElementById(`dd-wrap-${id}`);
+            if (!wrap) return;
+            const isOpen = wrap.classList.contains('open');
+            closeAllModernDropdowns();
+            if (!isOpen) {
+                wrap.classList.add('open');
+                const searchEl = document.getElementById(`dd-search-${id}`);
+                if (searchEl) {
+                    searchEl.value = '';
+                    renderModernDropdownItems(id, '');
+                    setTimeout(() => searchEl.focus(), 40);
+                }
+            }
+        };
+
+        window.closeAllModernDropdowns = () => {
+            document.querySelectorAll('.modern-dd-container.open').forEach(el => el.classList.remove('open'));
+        };
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.modern-dd-container')) {
+                closeAllModernDropdowns();
+            }
+        });
+
+        window.openModalTambah = () => {
+            initModernDropdown('tambah-kategori-val', [
+                { value: 'Elektronik', label: 'Elektronik', sublabel: 'Proyektor, AC, Laptop, Sound System', icon: 'fa-plug' },
+                { value: 'Furnitur', label: 'Furnitur', sublabel: 'Meja, Kursi, Lemari Kelas', icon: 'fa-chair' },
+                { value: 'Fasilitas', label: 'Fasilitas', sublabel: 'Papan Tulis, Instalasi Ruang', icon: 'fa-building' }
+            ], 'Elektronik');
+            document.getElementById('modal-tambah').style.display = 'flex';
+        };
+        window.closeModalTambah = () => { closeAllModernDropdowns(); document.getElementById('modal-tambah').style.display = 'none'; };
         window.openModalPinjam = () => {
-            const sel = document.getElementById('pinjam-aset-select');
-            sel.innerHTML = assetsData.filter(a => a.status === 'Tersedia').map(a => `<option value="${a.nama}">${a.nama} (${a.lokasi})</option>`).join('');
+            const opts = assetsData.filter(a => a.status === 'Tersedia').map(a => ({
+                value: a.nama,
+                label: a.nama,
+                sublabel: `${a.kode} • ${a.lokasi}`,
+                displayLabel: `${a.nama} (${a.lokasi})`,
+                icon: a.icon || 'fa-box'
+            }));
+            initModernDropdown('pinjam-aset-select', opts);
             document.getElementById('modal-pinjam').style.display = 'flex';
         };
-        window.closeModalPinjam = () => { document.getElementById('modal-pinjam').style.display = 'none'; };
+        window.closeModalPinjam = () => { closeAllModernDropdowns(); document.getElementById('modal-pinjam').style.display = 'none'; };
         window.openModalMaintenance = () => {
-            const sel = document.getElementById('maint-aset-select');
-            sel.innerHTML = assetsData.map(a => `<option value="${a.nama}">${a.nama} (${a.lokasi})</option>`).join('');
+            const opts = assetsData.map(a => ({
+                value: a.nama,
+                label: a.nama,
+                sublabel: `${a.kode} • ${a.lokasi}`,
+                displayLabel: `${a.nama} (${a.lokasi})`,
+                icon: a.icon || 'fa-screwdriver-wrench'
+            }));
+            initModernDropdown('maint-aset-select', opts);
             document.getElementById('modal-maintenance').style.display = 'flex';
         };
-        window.closeModalMaintenance = () => { document.getElementById('modal-maintenance').style.display = 'none'; };
+        window.closeModalMaintenance = () => { closeAllModernDropdowns(); document.getElementById('modal-maintenance').style.display = 'none'; };
 
         window.simpanAset = (e) => {
             e.preventDefault();

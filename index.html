@@ -261,7 +261,7 @@
                             </div>
                         </div>
                         <div class="text-left sm:text-right pl-13 sm:pl-0">
-                            <div id="clock-time" class="text-[17px] sm:text-[19px] font-extrabold text-slate-900 font-mono leading-none">08.21</div>
+                            <div id="clock-time" class="text-[17px] sm:text-[19px] font-extrabold text-slate-900 font-mono leading-none">12.05</div>
                             <div id="clock-date" class="text-[10.5px] font-semibold text-slate-500 mt-0.5">Senin, 26 Okt 2026</div>
                         </div>
                     </div>
@@ -395,7 +395,7 @@
                     <div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-2">
                         <div>
                             <h2 class="text-[15px] font-extrabold text-slate-900">Sirkulasi Peminjaman Alat</h2>
-                            <p class="text-[10.5px] font-semibold text-slate-500">Pencatatan peminjaman dan pengembalian sarpras sekolah.</p>
+                            <p class="text-[10.5px] font-semibold text-slate-500">Pencatatan peminjaman, keperluan, dan pengembalian sarpras sekolah.</p>
                         </div>
                         <button onclick="openModalPinjam()" class="px-3.5 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
                             <i class="fa-solid fa-hand-holding-hand"></i> Pinjam Alat
@@ -747,9 +747,9 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 4: PINJAM ALAT ==================== -->
+    <!-- ==================== MODAL 4: PINJAM ALAT (DENGAN KOLOM KETERANGAN) ==================== -->
     <div id="modal-pinjam" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
-        <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative bg-white">
+        <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative bg-white max-h-[92vh] overflow-y-auto custom-scrollbar">
             <button type="button" onclick="closeModalPinjam()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -772,6 +772,10 @@
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Tanggal Pinjam</label>
                     <input type="date" id="pinjam-tgl" required class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Keterangan / Keperluan Peminjaman</label>
+                    <textarea id="pinjam-keterangan" rows="2" required placeholder="Misal: Digunakan untuk kegiatan presentasi rapat guru di Aula" class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none resize-none"></textarea>
                 </div>
                 <button type="submit" class="w-full py-2.5 mt-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-full text-[12px] font-extrabold shadow-md">
                     Catat Peminjaman
@@ -988,7 +992,7 @@
         ];
 
         let loansData = [
-            { id: 201, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-26', status: 'Aktif' }
+            { id: 201, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-26', keterangan: 'Kegiatan senam pagi & baris-berbaris di halaman utama', status: 'Aktif' }
         ];
 
         let maintenanceData = [];
@@ -1578,7 +1582,7 @@
             if (actEl) {
                 const combined = [
                     ...maintenanceData.map(m => ({ type: 'maint', title: `${m.aset} - ${m.keluhan}`, sub: `Petugas/Pelapor: ${m.pelapor}`, status: m.status })),
-                    ...loansData.map(l => ({ type: 'loan', title: l.aset, sub: l.peminjam, status: l.status }))
+                    ...loansData.map(l => ({ type: 'loan', title: l.aset, sub: `${l.peminjam}${l.keterangan ? ' • ' + l.keterangan : ''}`, status: l.status }))
                 ].slice(0, 4);
 
                 actEl.innerHTML = combined.map(item => `
@@ -1655,10 +1659,11 @@
             if (!list) return;
             list.innerHTML = loansData.map(l => `
                 <div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
-                    <div class="min-w-0">
+                    <div class="min-w-0 flex-1">
                         <h4 class="font-extrabold text-[12.5px] text-slate-900 truncate">${l.aset}</h4>
                         <p class="text-[10.5px] font-bold text-slate-600 truncate">${l.peminjam}</p>
-                        <p class="text-[9.5px] text-slate-400 font-mono mt-0.5">Pinjam: ${l.tgl}</p>
+                        ${l.keterangan ? `<p class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 px-2.5 py-1 rounded-lg border border-amber-200/80 mt-1.5 line-clamp-2"><i class="fa-solid fa-clipboard-list mr-1 text-amber-600"></i>${l.keterangan}</p>` : ''}
+                        <p class="text-[9.5px] text-slate-400 font-mono mt-1">Tanggal Pinjam: ${l.tgl}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         ${l.status === 'Aktif'
@@ -1863,6 +1868,8 @@
             initModernDropdown('pinjam-aset-select', opts, opts[0] ? opts[0].value : '');
             const tglInput = document.getElementById('pinjam-tgl');
             if (tglInput) tglInput.value = new Date().toISOString().split('T')[0];
+            const ketInput = document.getElementById('pinjam-keterangan');
+            if (ketInput) ketInput.value = '';
             document.getElementById('modal-pinjam').style.display = 'flex';
         };
         window.closeModalPinjam = () => {
@@ -1874,15 +1881,16 @@
             const asetNama = document.getElementById('pinjam-aset-select').value;
             const peminjam = document.getElementById('pinjam-nama').value.trim();
             const tgl = document.getElementById('pinjam-tgl').value;
+            const keterangan = (document.getElementById('pinjam-keterangan')?.value || '').trim();
 
-            loansData.unshift({ id: Date.now(), aset: asetNama, peminjam, tgl, status: 'Aktif' });
+            loansData.unshift({ id: Date.now(), aset: asetNama, peminjam, tgl, keterangan, status: 'Aktif' });
             const target = assetsData.find(a => a.nama === asetNama);
             if (target) target.status = 'Dipinjam';
 
             refreshAllUI();
             closeModalPinjam();
             e.target.reset();
-            showToast('Peminjaman aset berhasil dicatat!');
+            showToast('Peminjaman aset & keterangan berhasil dicatat!');
         };
 
         window.selesaikanPinjam = (loanId) => {

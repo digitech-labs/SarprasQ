@@ -1058,18 +1058,42 @@
         let maintenanceData = [];
         let currentInventarisFilter = 'Semua';
 
-        // Load saved local state
-        try {
-            const savedAssets = localStorage.getItem('sarprasq_assets_v3');
-            if (savedAssets) {
-                const parsed = JSON.parse(savedAssets);
-                if (Array.isArray(parsed) && parsed.length > 0) assetsData = parsed;
+        // Load saved local state & fetch Supabase
+        async function loadInitialData() {
+            try {
+                const savedAssets = localStorage.getItem('sarprasq_assets_v3');
+                if (savedAssets) {
+                    const parsed = JSON.parse(savedAssets);
+                    if (Array.isArray(parsed) && parsed.length > 0) assetsData = parsed;
+                }
+                const savedLoans = localStorage.getItem('sarprasq_loans_v3');
+                if (savedLoans) loansData = JSON.parse(savedLoans);
+                const savedMaint = localStorage.getItem('sarprasq_maint_v3');
+                if (savedMaint) maintenanceData = JSON.parse(savedMaint);
+            } catch (e) {}
+
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('sarpras_assets').select('*');
+                    if (!error && data && data.length > 0) {
+                        assetsData = data.map(d => ({
+                            id: Number(d.id),
+                            kode: d.kode,
+                            nama: d.nama,
+                            kategori: d.kategori,
+                            lokasi: d.lokasi,
+                            kondisi: d.kondisi,
+                            status: d.status,
+                            foto: d.foto || '',
+                            icon: d.icon || 'fa-box',
+                            updated_at: d.updated_at || getTimestampWIB()
+                        }));
+                        persistLocalState();
+                        refreshAllUI();
+                    }
+                } catch (err) {}
             }
-            const savedLoans = localStorage.getItem('sarprasq_loans_v3');
-            if (savedLoans) loansData = JSON.parse(savedLoans);
-            const savedMaint = localStorage.getItem('sarprasq_maint_v3');
-            if (savedMaint) maintenanceData = JSON.parse(savedMaint);
-        } catch (e) {}
+        }
 
         function persistLocalState() {
             try {
@@ -1077,6 +1101,11 @@
                 localStorage.setItem('sarprasq_loans_v3', JSON.stringify(loansData));
                 localStorage.setItem('sarprasq_maint_v3', JSON.stringify(maintenanceData));
             } catch (e) {}
+        }
+
+        function getTimestampWIB() {
+            const now = new Date();
+            return `${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB`;
         }
 
         // ==================== TOAST & CLOCK ====================
@@ -1096,12 +1125,8 @@
             const now = new Date();
             const timeEl = document.getElementById('clock-time');
             const dateEl = document.getElementById('clock-date');
-            if (timeEl) {
-                timeEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            }
-            if (dateEl) {
-                dateEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
-            }
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
         }
         setInterval(updateHeaderClock, 10000);
 
@@ -1326,7 +1351,7 @@
             }
         });
 
-        // ==================== CAMERA & WATERMARK ENGINE (UP-TO-DATE OVERWRITE) ====================
+        // ==================== CAMERA & SUPABASE STORAGE ENGINE ====================
         let activePhotoTargetMode = 'tambah';
         let liveDocStream = null;
         let liveDocFacingMode = 'environment';
@@ -1497,7 +1522,7 @@
                 window.currentSelectedAsset.foto = dataUrl;
                 window.currentSelectedAsset.updated_at = getTimestampWIB();
                 persistLocalState();
-                syncAssetPhotoToSupabase(window.currentSelectedAsset);
+                syncAssetToSupabase(window.currentSelectedAsset);
                 bukaDetailAset(window.currentSelectedAsset.id);
                 refreshAllUI();
                 showToast('Foto terbaru aset berhasil menggantikan foto sebelumnya!');
@@ -1590,20 +1615,42 @@
             }
         };
 
-        async function syncAssetPhotoToSupabase(asset) {
+        async function syncAssetToSupabase(asset) {
             if (!supabaseClient || !asset) return;
             try {
+                let imageUrl = asset.foto || '';
+                // Jika foto berupa Data URL base64, kita unggah ke Supabase Storage bucket 'sarpras_photos' agar database tetap bersih & ringan
+                if (imageUrl.startsWith('data:image')) {
+                    const res = await fetch(imageUrl);
+                    const blob = await res.blob();
+                    const fileName = `${asset.kode.replace(/[/\\?%*:|"<>]/g, '_')}_${Date.now()}.jpg`;
+                    const { data: uploadData, error: uploadErr } = await supabaseClient.storage
+                        .from('sarpras_photos')
+                        .upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
+                    
+                    if (!uploadErr && uploadData) {
+                        const { data: publicData } = supabaseClient.storage
+                            .from('sarpras_photos')
+                            .getPublicUrl(fileName);
+                        if (publicData && publicData.publicUrl) {
+                            imageUrl = publicData.publicUrl;
+                            asset.foto = imageUrl; // Update lokal dengan URL cloud storage
+                        }
+                    }
+                }
+
                 await supabaseClient.from('sarpras_assets').upsert({
-                    id: asset.id,
+                    id: Number(asset.id),
                     kode: asset.kode,
                     nama: asset.nama,
                     kategori: asset.kategori,
                     lokasi: asset.lokasi,
                     kondisi: asset.kondisi,
                     status: asset.status,
-                    foto: asset.foto || '',
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'kode' });
+                    foto: imageUrl,
+                    icon: asset.icon || 'fa-box',
+                    updated_at: asset.updated_at || getTimestampWIB()
+                }, { onConflict: 'id' });
             } catch (e) {}
         }
 
@@ -1847,12 +1894,12 @@
                 icon: iconMap[katVal] || 'fa-box'
             };
             assetsData.unshift(newItem);
-            syncAssetPhotoToSupabase(newItem);
+            syncAssetToSupabase(newItem);
             refreshAllUI();
             closeModalTambah();
             e.target.reset();
             clearDamagePhoto('tambah');
-            showToast('Aset & Foto Fisik berhasil disimpan!');
+            showToast('Aset & Foto Fisik berhasil disimpan & disinkronkan ke Supabase!');
         };
 
         // Edit Aset (Admin Only)
@@ -1885,7 +1932,7 @@
                 target.kategori = document.getElementById('edit-kategori-val').value;
                 target.updated_at = getTimestampWIB();
                 persistLocalState();
-                syncAssetPhotoToSupabase(target);
+                syncAssetToSupabase(target);
                 refreshAllUI();
                 closeModalEdit();
                 showToast('Perubahan data aset berhasil disimpan!');
@@ -1927,7 +1974,7 @@
                 if (fotoKondisi) {
                     targetAsset.foto = fotoKondisi;
                 }
-                syncAssetPhotoToSupabase(targetAsset);
+                syncAssetToSupabase(targetAsset);
             }
 
             if (isBaik) {
@@ -1995,7 +2042,7 @@
                     if (fotoBaru) {
                         targetAsset.foto = fotoBaru;
                     }
-                    syncAssetPhotoToSupabase(targetAsset);
+                    syncAssetToSupabase(targetAsset);
                 }
             }
             closeModalSelesaiMaint();
@@ -2031,7 +2078,10 @@
 
             loansData.unshift({ id: Date.now(), aset: asetNama, peminjam, tgl, keterangan, status: 'Aktif' });
             const target = assetsData.find(a => a.nama === asetNama);
-            if (target) target.status = 'Dipinjam';
+            if (target) {
+                target.status = 'Dipinjam';
+                syncAssetToSupabase(target);
+            }
 
             refreshAllUI();
             closeModalPinjam();
@@ -2048,7 +2098,10 @@
             if (!loan) return;
             loan.status = 'Selesai';
             const target = assetsData.find(a => a.nama === loan.aset);
-            if (target && target.kondisi.includes('Baik')) target.status = 'Tersedia';
+            if (target && target.kondisi.includes('Baik')) {
+                target.status = 'Tersedia';
+                syncAssetToSupabase(target);
+            }
             refreshAllUI();
             showToast('Alat telah dikonfirmasi dikembalikan!');
         };
@@ -2097,13 +2150,19 @@
             document.getElementById('modal-detail').style.display = 'none';
         };
 
-        window.hapusAsetTerpilih = () => {
+        window.hapusAsetTerpilih = async () => {
             if (!isAdminMode) {
                 showToast('Hanya Admin yang dapat menghapus aset.');
                 return;
             }
             if (!window.currentSelectedAsset) return;
-            assetsData = assetsData.filter(a => a.id !== window.currentSelectedAsset.id);
+            const targetId = window.currentSelectedAsset.id;
+            assetsData = assetsData.filter(a => a.id !== targetId);
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('sarpras_assets').delete().eq('id', targetId);
+                } catch (e) {}
+            }
             closeModalDetail();
             refreshAllUI();
             showToast('Aset berhasil dihapus dari database.');
@@ -2293,7 +2352,6 @@
 
         // ==================== PDF GENERATOR (F4 10 CARDS/SHEET & SINGLE) (ADMIN ONLY) ====================
         let currentPdfPreviewList = [];
-        let lastGeneratedPdfBlob = null;
         let lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
 
         window.openPreviewF4SheetModal = () => {
@@ -2471,12 +2529,14 @@
         };
 
         // ==================== INIT ON LOAD ====================
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             updateHeaderClock();
             updateRoleBasedUI();
             refreshGpsLocation();
+            await loadInitialData();
             refreshAllUI();
         });
     </script>
 </body>
 </html>
+eof

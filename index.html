@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.tailwind = window.tailwind || {};
@@ -191,7 +191,7 @@
         <span id="toast-msg">Berhasil!</span>
     </div>
 
-    <!-- HIDDEN FILE INPUTS FOR GALLERY -->
+    <!-- HIDDEN FILE INPUT FOR GALLERY -->
     <input type="file" id="hidden-gallery-input" accept="image/*" class="hidden" onchange="handleHiddenFileSelect(event)">
     <input type="file" id="hidden-qr-gallery-input" accept="image/*" class="hidden" onchange="handleQrGalleryFileSelect(event)">
 
@@ -265,7 +265,7 @@
                         </div>
                     </div>
 
-                    <!-- SYMMETRIC 2-COLUMN HERO CARDS: KESIAPAN SARPRAS & MENU PINTASAN CEPAT -->
+                    <!-- SYMMETRIC 2-COLUMN HERO CARDS -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
                         <!-- LEFT: KESIAPAN SARPRAS -->
                         <div class="rounded-[24px] p-4 sm:p-5 text-white shadow-xl flex flex-col justify-between relative overflow-hidden"
@@ -432,7 +432,7 @@
                     <div id="maintenance-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </section>
 
-                <!-- ==================== TAB: PINDAI QR CODE (1:1 LIVE AUTO-SCAN + GALERI) ==================== -->
+                <!-- ==================== TAB: PINDAI QR CODE ==================== -->
                 <section id="tab-scanner" style="display: none;" class="max-w-md mx-auto space-y-3">
                     <div class="flex items-center justify-between px-1">
                         <button onclick="switchTab('dashboard')" class="w-8 h-8 rounded-full glass-button flex items-center justify-center text-slate-700 text-xs shadow-xs">
@@ -450,12 +450,10 @@
                     </div>
 
                     <div class="rounded-[26px] bg-slate-950 p-4 text-white shadow-2xl space-y-3 border border-slate-800">
-                        <!-- 1:1 SQUARE CAMERA VIEWPORT -->
                         <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center">
                             <video id="qr-video-el" autoplay playsinline muted class="w-full h-full object-cover"></video>
                             <canvas id="qr-canvas-el" class="hidden"></canvas>
 
-                            <!-- QR FRAME CORNERS 1:1 -->
                             <div class="absolute inset-6 pointer-events-none">
                                 <div id="qr-corner-tl" class="w-9 h-9 border-t-4 border-l-4 border-blue-400 rounded-tl-xl absolute top-0 left-0 transition-colors"></div>
                                 <div id="qr-corner-tr" class="w-9 h-9 border-t-4 border-r-4 border-blue-400 rounded-tr-xl absolute top-0 right-0 transition-colors"></div>
@@ -464,13 +462,12 @@
                                 <div class="qr-laser-line"></div>
                             </div>
 
-                            <!-- PERMISSION OVERLAY IF BLOCKED -->
                             <div id="qr-permission-overlay" style="display: none;" onclick="startLiveQrScanner(true)" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-5 text-center cursor-pointer z-20">
                                 <div class="w-12 h-12 rounded-2xl bg-blue-600/25 border border-blue-400/40 text-blue-400 flex items-center justify-center text-xl mb-2.5">
                                     <i class="fa-solid fa-video"></i>
                                 </div>
                                 <p class="text-[13px] font-extrabold text-white">Izinkan Akses Kamera Live</p>
-                                <p id="qr-permission-subtext" class="text-[10.5px] text-slate-400 mt-1">Ketuk di sini untuk mengaktifkan pemindai otomatis</p>
+                                <p class="text-[10.5px] text-slate-400 mt-1">Ketuk di sini untuk mengaktifkan pemindai otomatis</p>
                             </div>
 
                             <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-slate-950/80 border border-white/10 text-[9.5px] font-extrabold tracking-wider uppercase text-white">
@@ -498,7 +495,7 @@
         </div>
     </div>
 
-    <!-- M-BANKING BOTTOM NAVIGATION DOCK (MOBILE / PORTRAIT ONLY) -->
+    <!-- M-BANKING BOTTOM NAVIGATION DOCK -->
     <nav class="mbanking-bottom-dock px-2 pt-1.5">
         <div class="max-w-md mx-auto grid grid-cols-5 items-end relative">
             <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center justify-center py-1.5 text-blue-600 transition-colors">
@@ -514,7 +511,6 @@
                 <span class="text-[9.5px] font-bold mt-1">Inventaris</span>
             </button>
 
-            <!-- CENTER FLOATING QR SCAN BUTTON -->
             <div class="flex flex-col items-center justify-end relative -top-3">
                 <button onclick="switchTab('scanner')" id="mob-nav-scanner" class="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/40 border-4 border-white flex items-center justify-center text-xl active:scale-95 transition-transform" style="width: 52px; height: 52px;">
                     <i class="fa-solid fa-qrcode"></i>
@@ -540,7 +536,7 @@
         </div>
     </nav>
 
-    <!-- ==================== MODAL 1: REGISTRASI ASET BARU (KHUSUS ADMIN) ==================== -->
+    <!-- ==================== MODAL 1: REGISTRASI ASET (ADMIN) ==================== -->
     <div id="modal-tambah" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
             <button type="button" onclick="closeModalTambah()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -569,7 +565,6 @@
                     <input type="text" id="tambah-kode" required placeholder="Misal: INV-ALK-2026-999" class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-mono font-bold focus:outline-none">
                 </div>
 
-                <!-- MODERN SEARCHABLE DROPDOWN: KATEGORI -->
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Kategori</label>
                     <input type="hidden" id="tambah-kategori-val" value="Elektronik">
@@ -596,7 +591,6 @@
                     </div>
                 </div>
 
-                <!-- FOTO FISIK ASET (UP-TO-DATE) -->
                 <div id="tambah-camera-section" class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 space-y-2.5 transition-colors">
                     <div class="flex items-center justify-between gap-2">
                         <span id="tambah-camera-title" class="text-[11px] font-extrabold text-blue-950 flex items-center gap-1.5">
@@ -604,12 +598,11 @@
                         </span>
                         <span class="px-2.5 py-0.5 rounded-full bg-blue-200/80 text-blue-900 text-[9px] font-extrabold shrink-0">Watermark GPS Otomatis</span>
                     </div>
-                    <p class="text-[9.5px] font-semibold text-slate-500 leading-relaxed">Foto ini tampil saat QR dipindai & otomatis terganti jika kelak ada pembaruan kondisi atau perbaikan.</p>
                     <div class="grid grid-cols-2 gap-2.5">
-                        <button type="button" onclick="triggerSingleAction('tambah', 'camera')" class="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('tambah', 'camera')" class="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2">
                             <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="triggerSingleAction('tambah', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('tambah', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2">
                             <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
@@ -629,7 +622,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 1B: EDIT ASET (KHUSUS ADMIN) ==================== -->
+    <!-- ==================== MODAL 1B: EDIT ASET (ADMIN) ==================== -->
     <div id="modal-edit" style="display: none;" class="fixed inset-0 z-[160000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
             <button type="button" onclick="closeModalEdit()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -668,7 +661,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 2: LAPOR & UPDATE KONDISI SARPRAS (BAIK/DIPERBAIKI, RUSAK RINGAN, RUSAK BERAT) ==================== -->
+    <!-- ==================== MODAL 2: LAPOR & UPDATE KONDISI SARPRAS ==================== -->
     <div id="modal-maintenance" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar bg-white">
             <button type="button" onclick="closeModalMaintenance()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -748,7 +741,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 3: KONFIRMASI SELESAI PERBAIKAN / KEMBALI BAIK (KHUSUS ADMIN) ==================== -->
+    <!-- ==================== MODAL 3: KONFIRMASI SELESAI PERBAIKAN (ADMIN) ==================== -->
     <div id="modal-selesai-maint" style="display: none;" class="fixed inset-0 z-[180000] bg-slate-900/50 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[24px] p-5 shadow-2xl relative max-h-[90vh] overflow-y-auto bg-white">
             <button type="button" onclick="closeModalSelesaiMaint()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -776,12 +769,11 @@
                         </span>
                         <span class="px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[9px] font-extrabold shrink-0">Ganti Foto Lama</span>
                     </div>
-                    <p class="text-[9.5px] font-semibold text-emerald-800 leading-relaxed">Foto terbaru ini akan otomatis menggantikan foto saat kondisi rusak pada data utama aset & Supabase.</p>
                     <div class="grid grid-cols-2 gap-2.5">
-                        <button type="button" onclick="triggerSingleAction('selesai_maint', 'camera')" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('selesai_maint', 'camera')" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2">
                             <i class="fa-solid fa-camera"></i> Kamera
                         </button>
-                        <button type="button" onclick="triggerSingleAction('selesai_maint', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <button type="button" onclick="triggerSingleAction('selesai_maint', 'gallery')" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2">
                             <i class="fa-solid fa-image"></i> Galeri
                         </button>
                     </div>
@@ -800,7 +792,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 4: PINJAM ALAT (DENGAN KOLOM KETERANGAN) ==================== -->
+    <!-- ==================== MODAL 4: PINJAM ALAT (+ KETERANGAN) ==================== -->
     <div id="modal-pinjam" style="display: none;" class="fixed inset-0 z-[150000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl relative bg-white max-h-[92vh] overflow-y-auto custom-scrollbar">
             <button type="button" onclick="closeModalPinjam()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 font-bold z-20 text-xs">
@@ -837,7 +829,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 5: DETAIL ASET & HASIL SCAN QR (ROLE-BASED UI) ==================== -->
+    <!-- ==================== MODAL 5: DETAIL ASET & QR SCAN ==================== -->
     <div id="modal-detail" style="display: none;" class="fixed inset-0 z-[170000] bg-slate-900/45 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-md rounded-[24px] p-4 sm:p-5 shadow-2xl relative text-center flex flex-col justify-between bg-white max-h-[92vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeModalDetail()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3 right-3 font-bold z-20 text-xs">
@@ -851,18 +843,17 @@
                 <span id="modal-detail-badge-kondisi" class="px-2.5 py-1 rounded-full text-[9.5px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">Kondisi: Baik</span>
             </div>
 
-            <!-- VISUAL FOTO FISIK ASET TERKINI (UP-TO-DATE) -->
+            <!-- VISUAL FOTO FISIK ASET TERKINI -->
             <div class="mb-2.5 text-left bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] font-extrabold text-slate-700 flex items-center gap-1.5">
                         <i class="fa-solid fa-image text-blue-600"></i> Visual Fisik Barang Terkini
                     </span>
-                    <!-- ADMIN ONLY: FOTO ULANG -->
                     <div id="detail-admin-photo-box" class="hidden flex items-center gap-1.5">
                         <button type="button" onclick="triggerSingleAction('update_detail', 'camera')" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[9.5px] font-extrabold flex items-center gap-1 shadow-xs">
                             <i class="fa-solid fa-camera"></i> Foto Ulang
                         </button>
-                        <button type="button" onclick="triggerSingleAction('update_detail', 'gallery')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-[9.5px] font-extrabold flex items-center gap-1 shadow-xs" title="Unggah Foto Baru dari Galeri">
+                        <button type="button" onclick="triggerSingleAction('update_detail', 'gallery')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-[9.5px] font-extrabold flex items-center gap-1 shadow-xs">
                             <i class="fa-solid fa-upload"></i>
                         </button>
                     </div>
@@ -874,15 +865,14 @@
                             <i class="fa-solid fa-camera-retro"></i>
                         </div>
                         <p class="text-[10.5px] font-bold text-slate-300">Belum ada foto fisik barang</p>
-                        <p class="text-[9px] text-slate-400">Foto otomatis diperbarui mengikuti riwayat kondisi terakhir.</p>
                     </div>
                 </div>
-                <p id="modal-detail-photo-caption" class="text-[9px] font-semibold text-slate-500 text-center italic">Foto otomatis diperbarui mengikuti riwayat kondisi terakhir (Baik / Rusak / Selesai Perbaikan).</p>
+                <p id="modal-detail-photo-caption" class="text-[9px] font-semibold text-slate-500 text-center italic">Foto otomatis diperbarui mengikuti riwayat kondisi terakhir.</p>
             </div>
 
-            <!-- KARTU STIKER QR INVENTARIS -->
+            <!-- QR STICKER CARD -->
             <div id="modal-sticker-preview" style="width: 100%; background: #ffffff; border: 1.5px solid #5b21b6; padding: 8px; text-align: left; margin: 4px 0;">
-                <div style="background: #5b21b6; color: white; font-size: 8.5px; font-weight: 800; text-align: center; padding: 3px 4px; letter-spacing: 0.3px; text-transform: uppercase;">
+                <div style="background: #5b21b6; color: white; font-size: 8.5px; font-weight: 800; text-align: center; padding: 3px 4px; text-transform: uppercase;">
                     KARTU INVENTARIS BARANG · SDIT MUH. AL KAUTSAR
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 2px;">
@@ -894,21 +884,15 @@
                         <div>Tahun: <strong style="color: #0f172a; font-weight: 800;">2026</strong> &nbsp; Kondisi: <strong id="modal-lbl-kondisi" style="color: #0f172a; font-weight: 800;">Baik</strong></div>
                     </div>
                 </div>
-                <div style="text-align: center; font-size: 8.5px; color: #64748b; font-style: italic; margin-top: 6px; padding-top: 4px; border-top: 1px solid #f1f5f9;">
-                    Pindai QR untuk menuju data inventaris online
-                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 mt-3">
-                <!-- ADMIN ONLY: PRATINJAU & PDF -->
                 <button id="btn-detail-pdf" onclick="downloadSingleBarcodePDF()" class="hidden py-2.5 rounded-full bg-purple-800 hover:bg-purple-900 text-white text-[11px] font-extrabold shadow items-center justify-center gap-1.5">
                     <i class="fa-solid fa-file-pdf"></i> Pratinjau & PDF
                 </button>
-                <!-- ADMIN ONLY: EDIT ASET -->
                 <button id="btn-detail-edit" onclick="openModalEditFromDetail()" class="hidden py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow items-center justify-center gap-1.5">
                     <i class="fa-solid fa-pen-to-square"></i> Edit Aset
                 </button>
-                <!-- ADMIN ONLY: HAPUS ASET -->
                 <button onclick="hapusAsetTerpilih()" id="btn-hapus-aset" class="hidden col-span-2 py-2 rounded-full glass-button text-rose-600 text-[11px] font-extrabold">
                     <i class="fa-solid fa-trash-can mr-1"></i> Hapus Aset dari Database
                 </button>
@@ -916,7 +900,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 6: LIVE WEBRTC CAMERA CAPTURE ==================== -->
+    <!-- ==================== MODAL 6: LIVE WEBRTC CAMERA ==================== -->
     <div id="modal-camera-capture" style="display: none;" class="fixed inset-0 z-[220000] bg-slate-950/90 backdrop-blur-md items-center justify-center p-3">
         <div class="w-full max-w-md rounded-[26px] bg-slate-900 border border-slate-800 p-4 text-white shadow-2xl space-y-3 relative">
             <div class="flex items-center justify-between">
@@ -952,7 +936,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 7: PRATINJAU & UNDUH PDF LABEL F4 / SATUAN (KHUSUS ADMIN) ==================== -->
+    <!-- ==================== MODAL 7: PRATINJAU PDF LABEL F4 ==================== -->
     <div id="modal-pdf-preview" style="display: none;" class="fixed inset-0 z-[210000] bg-slate-900/60 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-2xl rounded-[26px] p-4 sm:p-5 shadow-2xl bg-white max-h-[92vh] flex flex-col justify-between">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200">
@@ -973,12 +957,7 @@
             <div id="pdf-preview-cards-grid" class="my-3 p-3 rounded-2xl bg-slate-100 border border-slate-200 overflow-y-auto custom-scrollbar grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[60vh]"></div>
 
             <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-200">
-                <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-full glass-button text-slate-700 text-[11px] font-extrabold">
-                    Tutup
-                </button>
-                <button type="button" onclick="shareGeneratedPdfFile()" class="px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
-                    <i class="fa-solid fa-share-nodes"></i> Bagikan / Simpan ke HP
-                </button>
+                <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-full glass-button text-slate-700 text-[11px] font-extrabold">Tutup</button>
                 <button type="button" onclick="triggerDirectPdfDownload()" class="px-5 py-2.5 rounded-full bg-purple-800 hover:bg-purple-900 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
                     <i class="fa-solid fa-download"></i> Download PDF Sekarang
                 </button>
@@ -986,7 +965,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 8: PORTAL LOGIN ADMIN MANDIRI (LONG-PRESS SARPRASQ) ==================== -->
+    <!-- ==================== MODAL 8: PORTAL ADMIN LOGIN ==================== -->
     <div id="modal-admin-login" style="display: none;" class="fixed inset-0 z-[230000] bg-slate-900/55 backdrop-blur-md items-center justify-center p-3">
         <div class="glass-card w-full max-w-sm rounded-[26px] p-5 shadow-2xl bg-white relative">
             <button onclick="closeAdminModal()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 text-xs font-bold">
@@ -1007,12 +986,8 @@
                     <input type="password" id="admin-pass-input" required placeholder="Masukkan sandi admin..." class="w-full search-pill rounded-xl py-2.5 px-3.5 text-[12px] font-bold focus:outline-none">
                 </div>
                 <div class="flex items-center justify-between gap-2 pt-1">
-                    <button type="button" onclick="logoutAdminMode()" class="px-3.5 py-2 rounded-full glass-button text-rose-600 text-[10.5px] font-extrabold">
-                        Keluar Mode Admin
-                    </button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-extrabold shadow">
-                        Verifikasi & Masuk Admin
-                    </button>
+                    <button type="button" onclick="logoutAdminMode()" class="px-3.5 py-2 rounded-full glass-button text-rose-600 text-[10.5px] font-extrabold">Keluar Mode Admin</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-extrabold shadow">Verifikasi & Masuk</button>
                 </div>
             </form>
         </div>
@@ -1043,51 +1018,81 @@
         };
 
         let assetsData = [
-            { id: 101, kode: 'INV-ALK-2023-045', nama: 'Proyektor Epson EB-X51', kategori: 'Elektronik', lokasi: 'Kelas 4B', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-video', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' },
-            { id: 102, kode: 'INV-ALK-2022-012', nama: 'AC Daikin 1 PK', kategori: 'Elektronik', lokasi: 'Kelas 6C', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-snowflake', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' },
-            { id: 103, kode: 'INV-ALK-2020-088', nama: 'Meja Guru Kayu Jati', kategori: 'Furnitur', lokasi: 'Kelas 1A', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chair', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' },
-            { id: 104, kode: 'INV-ALK-2024-001', nama: 'Sound System Portable', kategori: 'Elektronik', lokasi: 'Gudang Sarpras', kondisi: 'Baik', status: 'Dipinjam', icon: 'fa-volume-high', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' },
-            { id: 105, kode: 'INV-ALK-2021-034', nama: 'Papan Tulis Kaca', kategori: 'Fasilitas', lokasi: 'Lab Komputer', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chalkboard', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' },
-            { id: 106, kode: 'INV-ALK-2026-263', nama: 'Laptop Lenovo ThinkPad', kategori: 'Elektronik', lokasi: 'Ruang Guru', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-laptop', foto: '', updated_at: '26 Okt 2026, 07:30 WIB' }
+            { id: 101, kode: 'INV-ALK-2023-045', nama: 'Proyektor Epson EB-X51', kategori: 'Elektronik', lokasi: 'Kelas 4B', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-video', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 102, kode: 'INV-ALK-2022-012', nama: 'AC Daikin 1 PK', kategori: 'Elektronik', lokasi: 'Kelas 6C', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-snowflake', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 103, kode: 'INV-ALK-2020-088', nama: 'Meja Guru Kayu Jati', kategori: 'Furnitur', lokasi: 'Kelas 1A', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chair', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 104, kode: 'INV-ALK-2024-001', nama: 'Sound System Portable', kategori: 'Elektronik', lokasi: 'Gudang Sarpras', kondisi: 'Baik', status: 'Dipinjam', icon: 'fa-volume-high', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 105, kode: 'INV-ALK-2021-034', nama: 'Papan Tulis Kaca', kategori: 'Fasilitas', lokasi: 'Lab Komputer', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chalkboard', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 106, kode: 'INV-ALK-2026-263', nama: 'Laptop Lenovo ThinkPad', kategori: 'Elektronik', lokasi: 'Ruang Guru', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-laptop', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' }
         ];
 
         let loansData = [
-            { id: 201, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-26', keterangan: 'Kegiatan senam pagi & baris-berbaris di halaman utama', status: 'Aktif' }
+            { id: 201, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-26', keterangan: 'Digunakan untuk senam pagi', status: 'Aktif', kelompok_data: 'PEMINJAMAN' }
         ];
 
         let maintenanceData = [];
         let currentInventarisFilter = 'Semua';
 
-        // Load saved local state & fetch Supabase
+        // Load data from Supabase table 'sarpras' using kelompok_data grouping
         async function loadInitialData() {
             try {
-                const savedAssets = localStorage.getItem('sarprasq_assets_v3');
+                const savedAssets = localStorage.getItem('sarprasq_assets_v4');
                 if (savedAssets) {
                     const parsed = JSON.parse(savedAssets);
                     if (Array.isArray(parsed) && parsed.length > 0) assetsData = parsed;
                 }
-                const savedLoans = localStorage.getItem('sarprasq_loans_v3');
+                const savedLoans = localStorage.getItem('sarprasq_loans_v4');
                 if (savedLoans) loansData = JSON.parse(savedLoans);
-                const savedMaint = localStorage.getItem('sarprasq_maint_v3');
+                const savedMaint = localStorage.getItem('sarprasq_maint_v4');
                 if (savedMaint) maintenanceData = JSON.parse(savedMaint);
             } catch (e) {}
 
             if (supabaseClient) {
                 try {
-                    const { data, error } = await supabaseClient.from('sarpras_assets').select('*');
+                    const { data, error } = await supabaseClient.from('sarpras').select('*');
                     if (!error && data && data.length > 0) {
-                        assetsData = data.map(d => ({
-                            id: Number(d.id),
-                            kode: d.kode,
-                            nama: d.nama,
-                            kategori: d.kategori,
-                            lokasi: d.lokasi,
-                            kondisi: d.kondisi,
-                            status: d.status,
-                            foto: d.foto || '',
-                            icon: d.icon || 'fa-box',
-                            updated_at: d.updated_at || getTimestampWIB()
-                        }));
+                        const cloudAssets = data.filter(d => d.kelompok_data === 'ASET' || !d.kelompok_data);
+                        const cloudLoans = data.filter(d => d.kelompok_data === 'PEMINJAMAN');
+                        const cloudMaint = data.filter(d => d.kelompok_data === 'MAINTENANCE');
+
+                        if (cloudAssets.length > 0) {
+                            assetsData = cloudAssets.map(d => ({
+                                id: Number(d.id || Date.now()),
+                                kode: d.kode || d.aset_kode || 'INV-ALK',
+                                nama: d.nama || d.aset_nama || 'Barang Sarpras',
+                                kategori: d.kategori || d.aset_kategori || 'Elektronik',
+                                lokasi: d.lokasi || d.aset_lokasi || 'Ruang Sekolah',
+                                kondisi: d.kondisi || d.aset_kondisi || 'Baik',
+                                status: d.status || d.aset_status || 'Tersedia',
+                                foto: d.foto || d.aset_foto || '',
+                                icon: d.icon || 'fa-box',
+                                updated_at: d.updated_at || getTimestampWIB(),
+                                kelompok_data: 'ASET'
+                            }));
+                        }
+                        if (cloudLoans.length > 0) {
+                            loansData = cloudLoans.map(l => ({
+                                id: Number(l.id || Date.now()),
+                                aset: l.pinjam_aset || l.aset || 'Barang',
+                                peminjam: l.pinjam_peminjam || l.peminjam || 'Pegawai',
+                                tgl: l.pinjam_tgl || l.tgl || new Date().toISOString().split('T')[0],
+                                keterangan: l.pinjam_keterangan || l.keterangan || '',
+                                status: l.status || 'Aktif',
+                                kelompok_data: 'PEMINJAMAN'
+                            }));
+                        }
+                        if (cloudMaint.length > 0) {
+                            maintenanceData = cloudMaint.map(m => ({
+                                id: Number(m.id || Date.now()),
+                                aset: m.maint_aset || m.aset || 'Barang',
+                                pelapor: m.maint_pelapor || m.pelapor || 'Petugas',
+                                keluhan: m.maint_keluhan || m.keluhan || '',
+                                tingkat: m.maint_tingkat || m.tingkat || 'Rusak Ringan',
+                                foto: m.maint_foto || m.foto || '',
+                                status: m.maint_status || m.status || 'Dilaporkan',
+                                kelompok_data: 'MAINTENANCE'
+                            }));
+                        }
                         persistLocalState();
                         refreshAllUI();
                     }
@@ -1097,9 +1102,9 @@
 
         function persistLocalState() {
             try {
-                localStorage.setItem('sarprasq_assets_v3', JSON.stringify(assetsData));
-                localStorage.setItem('sarprasq_loans_v3', JSON.stringify(loansData));
-                localStorage.setItem('sarprasq_maint_v3', JSON.stringify(maintenanceData));
+                localStorage.setItem('sarprasq_assets_v4', JSON.stringify(assetsData));
+                localStorage.setItem('sarprasq_loans_v4', JSON.stringify(loansData));
+                localStorage.setItem('sarprasq_maint_v4', JSON.stringify(maintenanceData));
             } catch (e) {}
         }
 
@@ -1108,7 +1113,6 @@
             return `${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB`;
         }
 
-        // ==================== TOAST & CLOCK ====================
         window.showToast = (msg) => {
             const box = document.getElementById('toast-box');
             const txt = document.getElementById('toast-msg');
@@ -1116,9 +1120,7 @@
             txt.textContent = msg;
             box.style.display = 'flex';
             clearTimeout(window._toastTimer);
-            window._toastTimer = setTimeout(() => {
-                box.style.display = 'none';
-            }, 3200);
+            window._toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3200);
         };
 
         function updateHeaderClock() {
@@ -1130,7 +1132,6 @@
         }
         setInterval(updateHeaderClock, 10000);
 
-        // ==================== GPS LOCATION ====================
         window.refreshGpsLocation = () => {
             const lbl = document.getElementById('header-gps-label');
             if (lbl) lbl.textContent = 'Mendeteksi...';
@@ -1156,7 +1157,7 @@
             }, { enableHighAccuracy: true, timeout: 7000 });
         };
 
-        // ==================== LONG PRESS SARPRASQ FOR ADMIN LOGIN ====================
+        // Long-press brand trigger for Admin portal
         let brandPressTimer = null;
         window.startBrandPress = (e) => {
             clearTimeout(brandPressTimer);
@@ -1164,12 +1165,8 @@
                 document.getElementById('modal-admin-login').style.display = 'flex';
             }, 1200);
         };
-        window.cancelBrandPress = () => {
-            clearTimeout(brandPressTimer);
-        };
-        window.closeAdminModal = () => {
-            document.getElementById('modal-admin-login').style.display = 'none';
-        };
+        window.cancelBrandPress = () => { clearTimeout(brandPressTimer); };
+        window.closeAdminModal = () => { document.getElementById('modal-admin-login').style.display = 'none'; };
         window.handleAdminLoginSubmit = (e) => {
             e.preventDefault();
             const val = (document.getElementById('admin-pass-input').value || '').trim();
@@ -1232,9 +1229,8 @@
             }
         }
 
-        // ==================== MODERN SEARCHABLE DROPDOWN ENGINE ====================
+        // MODERN SEARCHABLE DROPDOWN ENGINE
         const modernDropdownRegistry = {};
-
         window.initModernDropdown = (inputId, optionsList, defaultVal) => {
             const hiddenInput = document.getElementById(inputId);
             const wrap = document.getElementById(`dd-wrap-${inputId}`);
@@ -1280,12 +1276,11 @@
 
             const q = (query || '').toLowerCase().trim();
             const filtered = allOpts.filter(o =>
-                o.label.toLowerCase().includes(q) ||
-                (o.sublabel && o.sublabel.toLowerCase().includes(q))
+                o.label.toLowerCase().includes(q) || (o.sublabel && o.sublabel.toLowerCase().includes(q))
             );
 
             if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="p-3.5 text-center text-[11px] font-bold text-slate-400">Tidak ditemukan hasil yang cocok</div>`;
+                listEl.innerHTML = `<div class="p-3.5 text-center text-[11px] font-bold text-slate-400">Tidak ditemukan hasil</div>`;
                 return;
             }
 
@@ -1325,10 +1320,7 @@
             }
         };
 
-        window.filterModernDropdown = (inputId, val) => {
-            renderModernDropdownItems(inputId, val);
-        };
-
+        window.filterModernDropdown = (inputId, val) => { renderModernDropdownItems(inputId, val); };
         window.selectModernDropdownItem = (inputId, value) => {
             const hiddenInput = document.getElementById(inputId);
             const allOpts = modernDropdownRegistry[inputId] || [];
@@ -1346,12 +1338,12 @@
         };
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.modern-dd-menu')) {
+            if (!e.target.closest('.modern-dd-menu') && !e.target.closest('.search-pill')) {
                 document.querySelectorAll('.modern-dd-menu').forEach(m => m.classList.remove('open'));
             }
         });
 
-        // ==================== CAMERA & SUPABASE STORAGE ENGINE ====================
+        // CAMERA & WATERMARK ENGINE
         let activePhotoTargetMode = 'tambah';
         let liveDocStream = null;
         let liveDocFacingMode = 'environment';
@@ -1360,10 +1352,7 @@
             activePhotoTargetMode = mode;
             if (sourceType === 'gallery') {
                 const galInput = document.getElementById('hidden-gallery-input');
-                if (galInput) {
-                    galInput.value = '';
-                    galInput.click();
-                }
+                if (galInput) { galInput.value = ''; galInput.click(); }
             } else {
                 openDirectLiveCamera();
             }
@@ -1386,10 +1375,7 @@
                     audio: false
                 });
                 liveDocStream = stream;
-                if (video) {
-                    video.srcObject = stream;
-                    await video.play();
-                }
+                if (video) { video.srcObject = stream; await video.play(); }
             } catch (err) {
                 closeDirectLiveCamera();
                 const galInput = document.getElementById('hidden-gallery-input');
@@ -1493,8 +1479,8 @@
                 const nama = rec ? rec.aset : 'Sarpras Sekolah';
                 const found = assetsData.find(a => a.nama === nama);
                 return { nama, kode: found ? found.kode : 'INV-ALK', kondisi: 'Baik / Diperbaiki' };
-            } else if (mode === 'update_detail') {
-                const a = window.currentSelectedAsset || {};
+            } else if (mode === 'update_detail' && window.currentSelectedAsset) {
+                const a = window.currentSelectedAsset;
                 return { nama: a.nama || 'Aset Sekolah', kode: a.kode || 'INV-ALK', kondisi: a.kondisi || 'Baik' };
             } else {
                 const nama = document.getElementById('maint-aset-select')?.value || 'Sarpras Sekolah';
@@ -1528,7 +1514,7 @@
                 showToast('Foto terbaru aset berhasil menggantikan foto sebelumnya!');
                 return;
             }
-            showToast('Foto & Watermark GPS Maps Berhasil Disematkan!');
+            showToast('Foto & Watermark GPS Berhasil Disematkan!');
         }
 
         window.clearDamagePhoto = (mode) => {
@@ -1577,84 +1563,78 @@
             if (val.includes('Baik')) {
                 camBox.className = 'p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 space-y-2.5 transition-colors';
                 if (camTitle) camTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> Dokumentasi Kondisi Baik / Diperbaiki';
-                if (camTitle) camTitle.className = 'text-[11px] font-extrabold text-emerald-950 flex items-center gap-1.5';
-                if (camBadge) {
-                    camBadge.className = 'px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[9px] font-extrabold shrink-0';
-                    camBadge.textContent = 'Ganti Foto Terbaru';
-                }
-                if (camDesc) {
-                    camDesc.className = 'text-[9.5px] font-semibold text-emerald-800 leading-relaxed';
-                    camDesc.textContent = 'Foto kondisi baik/setelah diperbaiki ini otomatis menggantikan foto rusak sebelumnya dan mengembalikan status aset menjadi Tersedia.';
-                }
-                if (btnCam) btnCam.className = 'py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all';
-                if (submitBtn) {
-                    submitBtn.className = 'w-full py-2.5 mt-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[12px] font-extrabold shadow-md transition-colors';
-                    submitBtn.textContent = 'Simpan Kondisi Baik / Diperbaiki';
-                }
-                if (iconBox) iconBox.className = 'w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs shadow transition-colors';
+                if (camBadge) { camBadge.className = 'px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[9px] font-extrabold shrink-0'; camBadge.textContent = 'Ganti Foto Terbaru'; }
+                if (camDesc) { camDesc.className = 'text-[9.5px] font-semibold text-emerald-800 leading-relaxed'; camDesc.textContent = 'Foto kondisi baik ini otomatis menggantikan foto rusak sebelumnya dan mengembalikan status aset menjadi Tersedia.'; }
+                if (btnCam) btnCam.className = 'py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2';
+                if (submitBtn) { submitBtn.className = 'w-full py-2.5 mt-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[12px] font-extrabold shadow-md'; submitBtn.textContent = 'Simpan Kondisi Baik / Diperbaiki'; }
+                if (iconBox) iconBox.className = 'w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs shadow';
                 if (keluhanInput) keluhanInput.placeholder = 'Misal: Sudah selesai diservis & berfungsi normal kembali';
             } else {
                 camBox.className = 'p-3.5 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-2.5 transition-colors';
                 if (camTitle) camTitle.innerHTML = `<i class="fa-solid fa-location-dot text-rose-600"></i> Dokumentasi Kondisi (${val})`;
-                if (camTitle) camTitle.className = 'text-[11px] font-extrabold text-rose-950 flex items-center gap-1.5';
-                if (camBadge) {
-                    camBadge.className = 'px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0';
-                    camBadge.textContent = 'Watermark GPS Otomatis';
-                }
-                if (camDesc) {
-                    camDesc.className = 'text-[9.5px] font-semibold text-rose-800/80 leading-relaxed';
-                    camDesc.textContent = 'Foto kondisi rusak ini akan otomatis menggantikan foto aset sebelumnya agar saat QR dipindai tampil kondisi terkini.';
-                }
-                if (btnCam) btnCam.className = 'py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all';
-                if (submitBtn) {
-                    submitBtn.className = 'w-full py-2.5 mt-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full text-[12px] font-extrabold shadow-md transition-colors';
-                    submitBtn.textContent = 'Simpan Laporan Kondisi';
-                }
-                if (iconBox) iconBox.className = 'w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs shadow transition-colors';
+                if (camBadge) { camBadge.className = 'px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900 text-[9px] font-extrabold shrink-0'; camBadge.textContent = 'Watermark GPS Otomatis'; }
+                if (camDesc) { camDesc.className = 'text-[9.5px] font-semibold text-rose-800/80 leading-relaxed'; camDesc.textContent = 'Foto kondisi rusak ini otomatis menggantikan foto aset sebelumnya agar saat QR dipindai tampil kondisi terkini.'; }
+                if (btnCam) btnCam.className = 'py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11.5px] font-extrabold shadow-sm flex items-center justify-center gap-2';
+                if (submitBtn) { submitBtn.className = 'w-full py-2.5 mt-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full text-[12px] font-extrabold shadow-md'; submitBtn.textContent = 'Simpan Laporan Kondisi'; }
+                if (iconBox) iconBox.className = 'w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs shadow';
                 if (keluhanInput) keluhanInput.placeholder = 'Misal: AC tidak dingin / lampu proyektor redup';
             }
         };
 
+        // SYNC TO SUPABASE TABLE 'sarpras' USING KELOMPOK_DATA
         async function syncAssetToSupabase(asset) {
             if (!supabaseClient || !asset) return;
             try {
-                let imageUrl = asset.foto || '';
-                // Jika foto berupa Data URL base64, kita unggah ke Supabase Storage bucket 'sarpras_photos' agar database tetap bersih & ringan
-                if (imageUrl.startsWith('data:image')) {
-                    const res = await fetch(imageUrl);
-                    const blob = await res.blob();
-                    const fileName = `${asset.kode.replace(/[/\\?%*:|"<>]/g, '_')}_${Date.now()}.jpg`;
-                    const { data: uploadData, error: uploadErr } = await supabaseClient.storage
-                        .from('sarpras_photos')
-                        .upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
-                    
-                    if (!uploadErr && uploadData) {
-                        const { data: publicData } = supabaseClient.storage
-                            .from('sarpras_photos')
-                            .getPublicUrl(fileName);
-                        if (publicData && publicData.publicUrl) {
-                            imageUrl = publicData.publicUrl;
-                            asset.foto = imageUrl; // Update lokal dengan URL cloud storage
-                        }
-                    }
-                }
-
-                await supabaseClient.from('sarpras_assets').upsert({
+                await supabaseClient.from('sarpras').upsert({
                     id: Number(asset.id),
+                    kelompok_data: 'ASET',
                     kode: asset.kode,
                     nama: asset.nama,
                     kategori: asset.kategori,
                     lokasi: asset.lokasi,
                     kondisi: asset.kondisi,
                     status: asset.status,
-                    foto: imageUrl,
+                    foto: asset.foto || '',
                     icon: asset.icon || 'fa-box',
                     updated_at: asset.updated_at || getTimestampWIB()
                 }, { onConflict: 'id' });
             } catch (e) {}
         }
 
-        // ==================== RENDER UI & DASHBOARD ====================
+        async function syncLoanToSupabase(loan) {
+            if (!supabaseClient || !loan) return;
+            try {
+                await supabaseClient.from('sarpras').upsert({
+                    id: Number(loan.id),
+                    kelompok_data: 'PEMINJAMAN',
+                    aset: loan.aset,
+                    peminjam: loan.peminjam,
+                    tgl: loan.tgl,
+                    keterangan: loan.keterangan,
+                    status: loan.status,
+                    updated_at: getTimestampWIB()
+                }, { onConflict: 'id' });
+            } catch (e) {}
+        }
+
+        async function syncMaintToSupabase(m) {
+            if (!supabaseClient || !m) return;
+            try {
+                await supabaseClient.from('sarpras').upsert({
+                    id: Number(m.id),
+                    kelompok_data: 'MAINTENANCE',
+                    aset: m.aset,
+                    pelapor: m.pelapor,
+                    keluhan: m.keluhan,
+                    tingkat: m.tingkat,
+                    foto: m.foto || '',
+                    status: m.status,
+                    updated_at: getTimestampWIB()
+                }, { onConflict: 'id' });
+            } catch (e) {}
+        }
+
+        // RENDER UI & DASHBOARD
         window.setInventarisFilter = (filterName) => {
             currentInventarisFilter = filterName;
             ['Semua', 'Tersedia', 'Dipinjam', 'Perbaikan'].forEach(f => {
@@ -1688,20 +1668,10 @@
             const activeLoansCount = loansData.filter(l => l.status === 'Aktif').length;
             const openMaintCount = maintenanceData.filter(m => m.status !== 'Selesai').length;
 
-            ['badge-inv-desktop', 'badge-inv-mobile'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = total;
-            });
-            ['badge-pinjam-desktop', 'badge-pinjam-mobile'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = activeLoansCount;
-            });
-            ['badge-maint-desktop', 'badge-maint-mobile'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = openMaintCount;
-            });
+            ['badge-inv-desktop', 'badge-inv-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = total; });
+            ['badge-pinjam-desktop', 'badge-pinjam-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = activeLoansCount; });
+            ['badge-maint-desktop', 'badge-maint-mobile'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = openMaintCount; });
 
-            // Dashboard Recent Assets
             const recentEl = document.getElementById('dashboard-recent-list');
             if (recentEl) {
                 recentEl.innerHTML = assetsData.slice(0, 4).map(a => `
@@ -1721,11 +1691,10 @@
                 `).join('');
             }
 
-            // Dashboard Recent Activity
             const actEl = document.getElementById('dashboard-activity-list');
             if (actEl) {
                 const combined = [
-                    ...maintenanceData.map(m => ({ type: 'maint', title: `${m.aset} - ${m.keluhan}`, sub: `Petugas/Pelapor: ${m.pelapor}`, status: m.status })),
+                    ...maintenanceData.map(m => ({ type: 'maint', title: `${m.aset} - ${m.keluhan}`, sub: `Pelapor: ${m.pelapor}`, status: m.status })),
                     ...loansData.map(l => ({ type: 'loan', title: l.aset, sub: `${l.peminjam}${l.keterangan ? ' • ' + l.keterangan : ''}`, status: l.status }))
                 ].slice(0, 4);
 
@@ -1748,7 +1717,7 @@
             renderInventaris();
             renderPeminjaman();
             renderMaintenance();
-        }
+        };
 
         window.renderInventaris = () => {
             const container = document.getElementById('inventaris-grouped-container');
@@ -1799,7 +1768,7 @@
                 html += `</div></div>`;
             });
 
-            container.innerHTML = html || `<div class="glass-card rounded-2xl p-6 text-center text-xs font-bold text-slate-400">Tidak ada aset yang cocok dengan pencarian / filter.</div>`;
+            container.innerHTML = html || `<div class="glass-card rounded-2xl p-6 text-center text-xs font-bold text-slate-400">Tidak ada aset yang cocok.</div>`;
         };
 
         window.renderPeminjaman = () => {
@@ -1810,19 +1779,19 @@
                     <div class="min-w-0 flex-1">
                         <h4 class="font-extrabold text-[12.5px] text-slate-900 truncate">${l.aset}</h4>
                         <p class="text-[10.5px] font-bold text-slate-600 truncate">${l.peminjam}</p>
-                        ${l.keterangan ? `<p class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 px-2.5 py-1 rounded-lg border border-amber-200/80 mt-1.5 line-clamp-2"><i class="fa-solid fa-clipboard-list mr-1 text-amber-600"></i>${l.keterangan}</p>` : ''}
+                        ${l.keterangan ? `<p class="text-[10px] font-semibold text-amber-800 bg-amber-50/90 px-2.5 py-1 rounded-lg border border-amber-200/80 mt-1.5"><i class="fa-solid fa-clipboard-list mr-1 text-amber-600"></i>${l.keterangan}</p>` : ''}
                         <p class="text-[9.5px] text-slate-400 font-mono mt-1">Tanggal Pinjam: ${l.tgl}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         ${l.status === 'Aktif'
                             ? (isAdminMode
                                 ? `<button onclick="selesaikanPinjam(${l.id})" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold shadow-xs">Konfirmasi Kembali</button>`
-                                : `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[9.5px] font-extrabold border border-amber-200">Sedang Dipinjam</span>`)
+                                : `<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[9.5px] font-extrabold border border-amber-200">Dipinjam</span>`)
                             : `<span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9.5px] font-extrabold">Selesai</span>`
                         }
                     </div>
                 </div>
-            `).join('') || `<div class="text-xs text-slate-400 p-3">Belum ada data peminjaman.</div>`;
+            `).join('') || `<div class="text-xs text-slate-400 p-3">Belum ada peminjaman.</div>`;
         };
 
         window.renderMaintenance = () => {
@@ -1841,17 +1810,17 @@
                     ${m.foto ? `
                     <div onclick="openPhotoLightbox('${m.foto}')" class="mt-1 rounded-xl overflow-hidden border border-slate-200 bg-slate-950 cursor-pointer relative group">
                         <img src="${m.foto}" alt="Bukti Fisik" class="w-full h-32 object-contain mx-auto">
-                        <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-black/75 text-white text-[9px] font-bold"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i>Perbesar Foto</span>
+                        <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-black/75 text-white text-[9px] font-bold"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i>Perbesar</span>
                     </div>` : ''}
                     ${m.status !== 'Selesai' && isAdminMode ? `
-                    <button type="button" onclick="openModalSelesaiMaint(${m.id})" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-extrabold shadow-xs flex items-center justify-center gap-1.5 transition-all">
+                    <button type="button" onclick="openModalSelesaiMaint(${m.id})" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-extrabold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-camera-rotate"></i> Update Selesai Diperbaiki (Kembali Baik)
                     </button>` : ''}
                 </div>
-            `).join('') || `<div class="glass-card rounded-2xl p-5 text-center text-[11.5px] font-bold text-slate-400 md:col-span-2">Belum ada riwayat laporan kondisi & perbaikan sarpras.</div>`;
+            `).join('') || `<div class="glass-card rounded-2xl p-5 text-center text-[11.5px] font-bold text-slate-400 md:col-span-2">Belum ada laporan kondisi.</div>`;
         };
 
-        // ==================== CRUD ACTIONS & ROLE PROTECTION ====================
+        // CRUD ACTIONS
         window.generateAutoKode = () => {
             const rand = Math.floor(100 + Math.random() * 900);
             const el = document.getElementById('tambah-kode');
@@ -1859,22 +1828,17 @@
         };
 
         window.openModalTambah = () => {
-            if (!isAdminMode) {
-                showToast('Fitur Registrasi Aset khusus Admin & Superadmin.');
-                return;
-            }
+            if (!isAdminMode) { showToast('Registrasi Aset khusus Admin.'); return; }
             generateAutoKode();
             initModernDropdown('tambah-kategori-val', [
-                { value: 'Elektronik', label: 'Elektronik', sublabel: 'Proyektor, AC, Laptop, Sound System', icon: 'fa-plug' },
-                { value: 'Furnitur', label: 'Furnitur', sublabel: 'Meja, Kursi, Lemari Kelas', icon: 'fa-chair' },
-                { value: 'Fasilitas', label: 'Fasilitas', sublabel: 'Papan Tulis, Instalasi Ruang', icon: 'fa-building' }
+                { value: 'Elektronik', label: 'Elektronik', sublabel: 'Proyektor, AC, Laptop', icon: 'fa-plug' },
+                { value: 'Furnitur', label: 'Furnitur', sublabel: 'Meja, Kursi, Lemari', icon: 'fa-chair' },
+                { value: 'Fasilitas', label: 'Fasilitas', sublabel: 'Papan Tulis, Instalasi', icon: 'fa-building' }
             ], 'Elektronik');
             toggleTambahCameraSection();
             document.getElementById('modal-tambah').style.display = 'flex';
         };
-        window.closeModalTambah = () => {
-            document.getElementById('modal-tambah').style.display = 'none';
-        };
+        window.closeModalTambah = () => { document.getElementById('modal-tambah').style.display = 'none'; };
 
         window.simpanAset = (e) => {
             e.preventDefault();
@@ -1891,7 +1855,8 @@
                 foto: document.getElementById('tambah-foto-rusak-val').value || '',
                 updated_at: getTimestampWIB(),
                 status: kondisiVal === 'Baik' ? 'Tersedia' : 'Perbaikan',
-                icon: iconMap[katVal] || 'fa-box'
+                icon: iconMap[katVal] || 'fa-box',
+                kelompok_data: 'ASET'
             };
             assetsData.unshift(newItem);
             syncAssetToSupabase(newItem);
@@ -1902,7 +1867,6 @@
             showToast('Aset & Foto Fisik berhasil disimpan & disinkronkan ke Supabase!');
         };
 
-        // Edit Aset (Admin Only)
         window.openModalEditFromDetail = () => {
             if (!isAdminMode || !window.currentSelectedAsset) return;
             const a = window.currentSelectedAsset;
@@ -1918,9 +1882,7 @@
             closeModalDetail();
             document.getElementById('modal-edit').style.display = 'flex';
         };
-        window.closeModalEdit = () => {
-            document.getElementById('modal-edit').style.display = 'none';
-        };
+        window.closeModalEdit = () => { document.getElementById('modal-edit').style.display = 'none'; };
         window.simpanEditAset = (e) => {
             e.preventDefault();
             const id = Number(document.getElementById('edit-asset-id').value);
@@ -1952,9 +1914,7 @@
             toggleMaintConditionSection();
             document.getElementById('modal-maintenance').style.display = 'flex';
         };
-        window.closeModalMaintenance = () => {
-            document.getElementById('modal-maintenance').style.display = 'none';
-        };
+        window.closeModalMaintenance = () => { document.getElementById('modal-maintenance').style.display = 'none'; };
 
         window.simpanMaintenance = (e) => {
             e.preventDefault();
@@ -1971,9 +1931,7 @@
                 targetAsset.kondisi = isBaik ? 'Baik' : tingkatKondisi;
                 targetAsset.status = isBaik ? 'Tersedia' : 'Perbaikan';
                 targetAsset.updated_at = getTimestampWIB();
-                if (fotoKondisi) {
-                    targetAsset.foto = fotoKondisi;
-                }
+                if (fotoKondisi) targetAsset.foto = fotoKondisi;
                 syncAssetToSupabase(targetAsset);
             }
 
@@ -1983,32 +1941,33 @@
                         m.status = 'Selesai';
                         m.tingkat = 'Baik / Diperbaiki';
                         if (fotoKondisi) m.foto = fotoKondisi;
+                        syncMaintToSupabase(m);
                     }
                 });
             }
 
-            maintenanceData.unshift({
+            const newM = {
                 id: Date.now(),
                 aset: asetNama,
                 pelapor: pelaporVal,
                 keluhan: keluhanVal,
                 tingkat: tingkatKondisi,
                 foto: fotoKondisi || (targetAsset ? targetAsset.foto : ''),
-                status: isBaik ? 'Selesai' : 'Dilaporkan'
-            });
+                status: isBaik ? 'Selesai' : 'Dilaporkan',
+                kelompok_data: 'MAINTENANCE'
+            };
+            maintenanceData.unshift(newM);
+            syncMaintToSupabase(newM);
 
             refreshAllUI();
             closeModalMaintenance();
             e.target.reset();
             clearDamagePhoto('maint');
-            showToast(isBaik ? 'Kondisi Baik / Diperbaiki & Foto terbaru berhasil disimpan!' : 'Laporan kondisi & foto berhasil disimpan!');
+            showToast(isBaik ? 'Kondisi Baik / Diperbaiki & Foto terbaru tersimpan!' : 'Laporan kondisi & foto berhasil disimpan!');
         };
 
         window.openModalSelesaiMaint = (maintId) => {
-            if (!isAdminMode) {
-                showToast('Hanya Admin yang dapat mengonfirmasi perbaikan.');
-                return;
-            }
+            if (!isAdminMode) { showToast('Hanya Admin yang dapat mengonfirmasi perbaikan.'); return; }
             const rec = maintenanceData.find(m => m.id === maintId);
             if (!rec) return;
             document.getElementById('selesai-maint-id').value = rec.id;
@@ -2017,9 +1976,7 @@
             clearDamagePhoto('selesai_maint');
             document.getElementById('modal-selesai-maint').style.display = 'flex';
         };
-        window.closeModalSelesaiMaint = () => {
-            document.getElementById('modal-selesai-maint').style.display = 'none';
-        };
+        window.closeModalSelesaiMaint = () => { document.getElementById('modal-selesai-maint').style.display = 'none'; };
 
         window.simpanSelesaiMaintenance = (e) => {
             e.preventDefault();
@@ -2033,15 +1990,14 @@
                 rec.keluhan = `${rec.keluhan} — Selesai: ${catatan}`;
                 rec.tingkat = 'Baik / Diperbaiki';
                 if (fotoBaru) rec.foto = fotoBaru;
+                syncMaintToSupabase(rec);
 
                 const targetAsset = assetsData.find(a => a.nama === rec.aset);
                 if (targetAsset) {
                     targetAsset.kondisi = 'Baik';
                     targetAsset.status = 'Tersedia';
                     targetAsset.updated_at = getTimestampWIB();
-                    if (fotoBaru) {
-                        targetAsset.foto = fotoBaru;
-                    }
+                    if (fotoBaru) targetAsset.foto = fotoBaru;
                     syncAssetToSupabase(targetAsset);
                 }
             }
@@ -2065,9 +2021,7 @@
             if (ketInput) ketInput.value = '';
             document.getElementById('modal-pinjam').style.display = 'flex';
         };
-        window.closeModalPinjam = () => {
-            document.getElementById('modal-pinjam').style.display = 'none';
-        };
+        window.closeModalPinjam = () => { document.getElementById('modal-pinjam').style.display = 'none'; };
 
         window.simpanPinjam = (e) => {
             e.preventDefault();
@@ -2076,7 +2030,10 @@
             const tgl = document.getElementById('pinjam-tgl').value;
             const keterangan = (document.getElementById('pinjam-keterangan')?.value || '').trim();
 
-            loansData.unshift({ id: Date.now(), aset: asetNama, peminjam, tgl, keterangan, status: 'Aktif' });
+            const newL = { id: Date.now(), aset: asetNama, peminjam, tgl, keterangan, status: 'Aktif', kelompok_data: 'PEMINJAMAN' };
+            loansData.unshift(newL);
+            syncLoanToSupabase(newL);
+
             const target = assetsData.find(a => a.nama === asetNama);
             if (target) {
                 target.status = 'Dipinjam';
@@ -2090,13 +2047,12 @@
         };
 
         window.selesaikanPinjam = (loanId) => {
-            if (!isAdminMode) {
-                showToast('Hanya Admin yang dapat mengonfirmasi pengembalian.');
-                return;
-            }
+            if (!isAdminMode) { showToast('Hanya Admin yang dapat mengonfirmasi pengembalian.'); return; }
             const loan = loansData.find(l => l.id === loanId);
             if (!loan) return;
             loan.status = 'Selesai';
+            syncLoanToSupabase(loan);
+
             const target = assetsData.find(a => a.nama === loan.aset);
             if (target && target.kondisi.includes('Baik')) {
                 target.status = 'Tersedia';
@@ -2106,7 +2062,6 @@
             showToast('Alat telah dikonfirmasi dikembalikan!');
         };
 
-        // ==================== DETAIL ASET & LIGHTBOX ====================
         window.currentSelectedAsset = null;
         window.bukaDetailAset = (id) => {
             const a = assetsData.find(x => x.id === id);
@@ -2132,12 +2087,12 @@
                 imgEl.src = a.foto;
                 imgEl.classList.remove('hidden');
                 emptyEl.classList.add('hidden');
-                if (capEl) capEl.textContent = `Foto fisik terkini (${a.kondisi}) ${a.updated_at ? '• Diperbarui ' + a.updated_at : ''} • Ketuk gambar untuk memperbesar`;
+                if (capEl) capEl.textContent = `Foto fisik terkini (${a.kondisi}) • Ketuk untuk memperbesar`;
             } else {
                 imgEl.src = '';
                 imgEl.classList.add('hidden');
                 emptyEl.classList.remove('hidden');
-                if (capEl) capEl.textContent = 'Foto otomatis diperbarui mengikuti riwayat kondisi terakhir (Baik / Rusak / Selesai Perbaikan).';
+                if (capEl) capEl.textContent = 'Foto otomatis diperbarui mengikuti riwayat kondisi terakhir.';
             }
 
             const q = document.getElementById('modal-qrcode-box');
@@ -2146,21 +2101,16 @@
             document.getElementById('modal-detail').style.display = 'flex';
         };
 
-        window.closeModalDetail = () => {
-            document.getElementById('modal-detail').style.display = 'none';
-        };
+        window.closeModalDetail = () => { document.getElementById('modal-detail').style.display = 'none'; };
 
         window.hapusAsetTerpilih = async () => {
-            if (!isAdminMode) {
-                showToast('Hanya Admin yang dapat menghapus aset.');
-                return;
-            }
+            if (!isAdminMode) { showToast('Hanya Admin yang dapat menghapus aset.'); return; }
             if (!window.currentSelectedAsset) return;
             const targetId = window.currentSelectedAsset.id;
             assetsData = assetsData.filter(a => a.id !== targetId);
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('sarpras_assets').delete().eq('id', targetId);
+                    await supabaseClient.from('sarpras').delete().eq('id', targetId);
                 } catch (e) {}
             }
             closeModalDetail();
@@ -2173,11 +2123,8 @@
             document.getElementById('lightbox-img-el').src = src;
             document.getElementById('modal-photo-lightbox').style.display = 'flex';
         };
-        window.closePhotoLightbox = () => {
-            document.getElementById('modal-photo-lightbox').style.display = 'none';
-        };
+        window.closePhotoLightbox = () => { document.getElementById('modal-photo-lightbox').style.display = 'none'; };
 
-        // ==================== TAB NAVIGATION ====================
         window.switchTab = (tabName) => {
             const tabs = ['dashboard', 'inventaris', 'peminjaman', 'maintenance', 'scanner'];
             tabs.forEach(t => {
@@ -2198,14 +2145,11 @@
                 }
             });
 
-            if (tabName === 'scanner') {
-                startLiveQrScanner(false);
-            } else {
-                stopLiveQrScanner();
-            }
+            if (tabName === 'scanner') startLiveQrScanner(false);
+            else stopLiveQrScanner();
         };
 
-        // ==================== LIVE AUTO-SCAN QR + GALLERY QR ====================
+        // SCANNER ENGINE
         let qrStream = null;
         let qrScanInterval = null;
         let qrFacingMode = 'environment';
@@ -2222,29 +2166,20 @@
                     audio: false
                 });
                 qrStream = stream;
-                if (video) {
-                    video.srcObject = stream;
-                    await video.play();
-                }
+                if (video) { video.srcObject = stream; await video.play(); }
                 if (overlay) overlay.style.display = 'none';
-                if (statusTxt) statusTxt.textContent = 'Kamera aktif • Arahkan ke QR Code SarprasQ (Auto-Scan)';
+                if (statusTxt) statusTxt.textContent = 'Kamera aktif • Arahkan ke QR Code SarprasQ';
 
                 qrScanInterval = setInterval(scanQrVideoFrame, 140);
             } catch (err) {
                 if (overlay) overlay.style.display = 'flex';
-                if (statusTxt) statusTxt.textContent = 'Ketuk kotak kamera atau pilih Scan dari Galeri.';
+                if (statusTxt) statusTxt.textContent = 'Ketuk kotak kamera untuk mengizinkan akses.';
             }
         };
 
         window.stopLiveQrScanner = () => {
-            if (qrScanInterval) {
-                clearInterval(qrScanInterval);
-                qrScanInterval = null;
-            }
-            if (qrStream) {
-                qrStream.getTracks().forEach(t => t.stop());
-                qrStream = null;
-            }
+            if (qrScanInterval) { clearInterval(qrScanInterval); qrScanInterval = null; }
+            if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
         };
 
         window.switchQrCameraFacing = () => {
@@ -2277,10 +2212,7 @@
 
         window.triggerQrGalleryScan = () => {
             const inp = document.getElementById('hidden-qr-gallery-input');
-            if (inp) {
-                inp.value = '';
-                inp.click();
-            }
+            if (inp) { inp.value = ''; inp.click(); }
         };
 
         window.handleQrGalleryFileSelect = (event) => {
@@ -2303,7 +2235,7 @@
                             return;
                         }
                     }
-                    showToast('QR Code tidak terdeteksi pada gambar tersebut.');
+                    showToast('QR Code tidak terdeteksi pada gambar.');
                 };
                 img.src = e.target.result;
             };
@@ -2313,62 +2245,40 @@
         function onQrCodeDetected(rawCode) {
             const clean = (rawCode || '').trim();
             if (!clean) return;
-            const found = assetsData.find(a =>
-                a.kode.toLowerCase() === clean.toLowerCase() ||
-                a.nama.toLowerCase() === clean.toLowerCase()
-            );
+            const found = assetsData.find(a => a.kode.toLowerCase() === clean.toLowerCase() || a.nama.toLowerCase() === clean.toLowerCase());
             if (found) {
-                ['qr-corner-tl', 'qr-corner-tr', 'qr-corner-bl', 'qr-corner-br'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.replace('border-blue-400', 'border-emerald-400');
-                });
                 stopLiveQrScanner();
-                showToast(`Ketemu: ${found.nama} (${found.kode})`);
+                showToast(`Ketemu: ${found.nama}`);
                 bukaDetailAset(found.id);
             } else {
-                showToast(`Kode QR "${clean}" tidak terdaftar di inventaris.`);
+                showToast(`Kode QR "${clean}" tidak terdaftar.`);
             }
         }
 
         window.handleManualCodeLookup = () => {
             const inp = document.getElementById('manual-qr-input');
             const val = (inp ? inp.value : '').trim();
-            if (!val) {
-                showToast('Ketik kode inventaris terlebih dahulu!');
-                return;
-            }
-            const found = assetsData.find(a =>
-                a.kode.toLowerCase() === val.toLowerCase() ||
-                a.kode.toLowerCase().includes(val.toLowerCase()) ||
-                a.nama.toLowerCase().includes(val.toLowerCase())
-            );
-            if (found) {
-                showToast(`Ditemukan: ${found.nama}`);
-                bukaDetailAset(found.id);
-            } else {
-                showToast(`Aset dengan kode "${val}" tidak ditemukan.`);
-            }
+            if (!val) { showToast('Ketik kode inventaris terlebih dahulu!'); return; }
+            const found = assetsData.find(a => a.kode.toLowerCase() === val.toLowerCase() || a.nama.toLowerCase().includes(val.toLowerCase()));
+            if (found) { bukaDetailAset(found.id); } else { showToast(`Aset tidak ditemukan.`); }
         };
 
-        // ==================== PDF GENERATOR (F4 10 CARDS/SHEET & SINGLE) (ADMIN ONLY) ====================
+        // PDF F4 GENERATOR
         let currentPdfPreviewList = [];
         let lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
 
         window.openPreviewF4SheetModal = () => {
-            if (!isAdminMode) {
-                showToast('Pencetakan Label PDF khusus Admin.');
-                return;
-            }
+            if (!isAdminMode) { showToast('Pencetakan label khusus Admin.'); return; }
             currentPdfPreviewList = [...assetsData];
             lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
-            renderPdfPreviewModalUI('Pratinjau Lembar Label QR (Standar F4)', `${currentPdfPreviewList.length} Kartu Aset • 10 Kartu per Halaman F4 (210mm x 330mm)`);
+            renderPdfPreviewModalUI('Pratinjau Lembar Label QR (Standar F4)', `${currentPdfPreviewList.length} Kartu Aset • 10 per Halaman F4`);
         };
 
         window.downloadSingleBarcodePDF = () => {
             if (!isAdminMode || !window.currentSelectedAsset) return;
             currentPdfPreviewList = [window.currentSelectedAsset];
             lastGeneratedPdfFilename = `Label_${window.currentSelectedAsset.kode}.pdf`;
-            renderPdfPreviewModalUI(`Pratinjau Kartu Label: ${window.currentSelectedAsset.nama}`, `Kode: ${window.currentSelectedAsset.kode} • Siap Cetak / Unduh PDF`);
+            renderPdfPreviewModalUI(`Pratinjau Kartu Label: ${window.currentSelectedAsset.nama}`, `Kode: ${window.currentSelectedAsset.kode}`);
         };
 
         function renderPdfPreviewModalUI(title, subtitle) {
@@ -2377,7 +2287,7 @@
             const grid = document.getElementById('pdf-preview-cards-grid');
             grid.innerHTML = currentPdfPreviewList.map((a, idx) => `
                 <div class="bg-white border-2 border-purple-800 p-2.5 text-left shadow-xs">
-                    <div class="bg-purple-800 text-white text-[8px] font-extrabold text-center py-1 uppercase tracking-wider">
+                    <div class="bg-purple-800 text-white text-[8px] font-extrabold text-center py-1 uppercase">
                         KARTU INVENTARIS BARANG · SDIT MUH. AL KAUTSAR
                     </div>
                     <div class="flex items-center gap-2.5 mt-2">
@@ -2389,14 +2299,10 @@
                             <div>Tahun: <strong>2026</strong> &nbsp; Kondisi: <strong>${a.kondisi}</strong></div>
                         </div>
                     </div>
-                    <div class="text-center text-[7.5px] text-slate-400 italic mt-1.5 pt-1 border-t border-slate-100">
-                        Pindai QR untuk menuju data inventaris online
-                    </div>
                 </div>
             `).join('');
 
             document.getElementById('modal-pdf-preview').style.display = 'flex';
-
             setTimeout(() => {
                 currentPdfPreviewList.forEach((a, idx) => {
                     const box = document.getElementById(`prev-qr-item-${idx}`);
@@ -2408,15 +2314,12 @@
             }, 60);
         }
 
-        window.closePdfPreviewModal = () => {
-            document.getElementById('modal-pdf-preview').style.display = 'none';
-        };
+        window.closePdfPreviewModal = () => { document.getElementById('modal-pdf-preview').style.display = 'none'; };
 
         async function buildQrDataUrl(text) {
             return new Promise((resolve) => {
                 const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '-9999px';
+                tempDiv.style.position = 'fixed'; tempDiv.style.left = '-9999px';
                 document.body.appendChild(tempDiv);
                 new QRCode(tempDiv, { text: text, width: 180, height: 180, colorDark: '#4c1d95', colorLight: '#ffffff' });
                 setTimeout(() => {
@@ -2432,17 +2335,10 @@
         async function generateVectorF4PdfDoc(items) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [210, 330] });
-            const cardW = 93;
-            const cardH = 54;
-            const startX = 9;
-            const startY = 12;
-            const gapX = 6;
-            const gapY = 6;
+            const cardW = 93; const cardH = 54; const startX = 9; const startY = 12; const gapX = 6; const gapY = 6;
 
             for (let i = 0; i < items.length; i++) {
-                if (i > 0 && i % 10 === 0) {
-                    doc.addPage([210, 330], 'portrait');
-                }
+                if (i > 0 && i % 10 === 0) doc.addPage([210, 330], 'portrait');
                 const idxOnPage = i % 10;
                 const col = idxOnPage % 2;
                 const row = Math.floor(idxOnPage / 2);
@@ -2462,42 +2358,26 @@
                 doc.text('KARTU INVENTARIS BARANG · SDIT MUH. AL KAUTSAR', x + cardW / 2, y + 6.3, { align: 'center' });
 
                 const qrDataUrl = await buildQrDataUrl(item.kode);
-                if (qrDataUrl) {
-                    doc.addImage(qrDataUrl, 'PNG', x + 4, y + 11.5, 26, 26);
-                }
+                if (qrDataUrl) doc.addImage(qrDataUrl, 'PNG', x + 4, y + 11.5, 26, 26);
 
                 const tx = x + 33;
                 doc.setTextColor(30, 41, 59);
                 doc.setFontSize(8.5);
+                doc.setFont('helvetica', 'normal'); doc.text('Kode:', tx, y + 16);
+                doc.setFont('courier', 'bold'); doc.setTextColor(76, 29, 149); doc.text(String(item.kode || '-'), tx + 11, y + 16);
 
-                doc.setFont('helvetica', 'normal');
-                doc.text('Kode:', tx, y + 16);
-                doc.setFont('courier', 'bold');
-                doc.setTextColor(76, 29, 149);
-                doc.text(String(item.kode || '-'), tx + 11, y + 16);
+                doc.setTextColor(15, 23, 42); doc.setFont('helvetica', 'normal'); doc.text('Nama:', tx, y + 22);
+                doc.setFont('helvetica', 'bold'); doc.text(String(item.nama || '-').substring(0, 24), tx + 11, y + 22);
 
-                doc.setTextColor(15, 23, 42);
-                doc.setFont('helvetica', 'normal');
-                doc.text('Nama:', tx, y + 22);
-                doc.setFont('helvetica', 'bold');
-                const namaTrunc = String(item.nama || '-').substring(0, 24);
-                doc.text(namaTrunc, tx + 11, y + 22);
+                doc.setFont('helvetica', 'normal'); doc.text('Lokasi:', tx, y + 28);
+                doc.setFont('helvetica', 'bold'); doc.text(String(item.lokasi || '-').substring(0, 22), tx + 12, y + 28);
 
-                doc.setFont('helvetica', 'normal');
-                doc.text('Lokasi:', tx, y + 28);
-                doc.setFont('helvetica', 'bold');
-                doc.text(String(item.lokasi || '-').substring(0, 22), tx + 12, y + 28);
+                doc.setFont('helvetica', 'normal'); doc.text(`Tahun: 2026   Kondisi: ${item.kondisi || 'Baik'}`, tx, y + 34);
 
-                doc.setFont('helvetica', 'normal');
-                doc.text(`Tahun: 2026   Kondisi: ${item.kondisi || 'Baik'}`, tx, y + 34);
-
-                doc.setDrawColor(226, 232, 240);
-                doc.setLineWidth(0.25);
+                doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.25);
                 doc.line(x + 3, y + 43, x + cardW - 3, y + 43);
 
-                doc.setTextColor(100, 116, 139);
-                doc.setFont('helvetica', 'italic');
-                doc.setFontSize(7);
+                doc.setTextColor(100, 116, 139); doc.setFont('helvetica', 'italic'); doc.setFontSize(7);
                 doc.text('Pindai QR untuk menuju data inventaris online', x + cardW / 2, y + 48.5, { align: 'center' });
             }
             return doc;
@@ -2510,25 +2390,6 @@
             showToast('PDF Berhasil Diunduh!');
         };
 
-        window.shareGeneratedPdfFile = async () => {
-            showToast('Menyiapkan file PDF untuk dibagikan...');
-            const doc = await generateVectorF4PdfDoc(currentPdfPreviewList);
-            const blob = doc.output('blob');
-            const file = new File([blob], lastGeneratedPdfFilename, { type: 'application/pdf' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Label Inventaris SarprasQ',
-                        text: 'Lembar Kartu Inventaris Barang SDIT Muhammadiyah Al Kautsar'
-                    });
-                    return;
-                } catch (e) {}
-            }
-            doc.save(lastGeneratedPdfFilename);
-        };
-
-        // ==================== INIT ON LOAD ====================
         window.addEventListener('DOMContentLoaded', async () => {
             updateHeaderClock();
             updateRoleBasedUI();
@@ -2539,4 +2400,3 @@
     </script>
 </body>
 </html>
-eof

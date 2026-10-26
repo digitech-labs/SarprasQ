@@ -509,13 +509,24 @@
                                 <span id="qr-live-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                                 <span class="text-[9.5px] font-extrabold text-white tracking-wide uppercase">Auto-Scan Aktif</span>
                             </div>
-                            <!-- Tombol Izin Kamera Live (Hanya muncul jika izin kamera belum diberikan) -->
-                            <div id="qr-camera-permission-retry" style="display: none;" onclick="startScanner()" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-5 text-center gap-2.5 cursor-pointer z-20">
-                                <div class="w-12 h-12 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-xl shadow-lg">
+                            <!-- Panel Izin Kamera Live Interaktif -->
+                            <div id="qr-camera-permission-retry" style="display: none;" class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-4 text-center gap-2 z-20">
+                                <div class="w-11 h-11 rounded-2xl bg-blue-600/25 border border-blue-500/40 text-blue-400 flex items-center justify-center text-lg shadow-lg">
                                     <i class="fa-solid fa-video"></i>
                                 </div>
-                                <p class="text-[11.5px] text-white font-extrabold">Izinkan Akses Kamera Live</p>
-                                <p class="text-[10px] text-slate-400">Ketuk di sini untuk mengaktifkan pemindai otomatis</p>
+                                <p id="qr-perm-title" class="text-[12px] text-white font-extrabold leading-tight">Akses Kamera Diperlukan</p>
+                                <p id="qr-perm-status-msg" class="text-[10px] text-slate-300 leading-relaxed px-1">Tekan tombol di bawah lalu pilih <b>"Izinkan / Allow"</b> saat muncul pop-up browser.</p>
+                                <button type="button" onclick="requestLiveScannerPermission(event)" class="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[11px] font-extrabold shadow-md flex items-center justify-center gap-1.5 transition-all">
+                                    <i class="fa-solid fa-unlock-keyhole"></i> Minta Izin Kamera Live
+                                </button>
+                                <div id="qr-perm-extra-actions" style="display: none;" class="w-full grid grid-cols-2 gap-1.5 pt-1">
+                                    <button type="button" onclick="triggerFallbackQrCamera()" class="py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-extrabold flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-camera"></i> Kamera Sistem
+                                    </button>
+                                    <button type="button" onclick="openAppInFullTab()" class="py-1.5 px-2 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[10px] font-extrabold flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-up-right-from-square"></i> Tab Penuh
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -577,6 +588,7 @@
     <!-- INPUT KAMERA & GALERI NATIVE GLOBAL (1 PINTU TANPA POPUP GANDA) -->
     <input type="file" id="global-native-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleDirectPhotoInput(event)">
     <input type="file" id="global-gallery-file-input" accept="image/*" class="hidden" onchange="handleDirectPhotoInput(event)">
+    <input type="file" id="qr-fallback-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleFallbackQrImageScan(event)">
 
     <!-- M-BANKING BOTTOM NAVIGATION BAR (MOBILE ONLY) -->
     <nav class="mbanking-bottom-dock">
@@ -1051,32 +1063,81 @@
 
         let activeWebRtcStream = null, currentCameraMode = 'maint', currentFacingMode = 'environment';
 
+        // Buka kebijakan izin kamera pada elemen iframe induk (jika berada di dalam portal My Alka)
+        function unlockIframeCameraPolicy() {
+            try {
+                if (window.frameElement) {
+                    const curAllow = window.frameElement.getAttribute('allow') || '';
+                    if (!curAllow.includes('camera')) {
+                        window.frameElement.setAttribute('allow', (curAllow ? curAllow + '; ' : '') + 'camera *; microphone *; geolocation *');
+                    }
+                }
+            } catch (e) {}
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'ALKA_REQUEST_CAMERA_PERMISSION' }, '*');
+                }
+            } catch (e) {}
+        }
+        unlockIframeCameraPolicy();
+
+        // Fungsi Universal pengambil stream kamera (mendukung konteks lokal, parent, dan top window)
+        async function acquireLiveCameraStream(preferredFacing = 'environment') {
+            unlockIframeCameraPolicy();
+
+            const mediaDevicesSources = [];
+            try { if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) mediaDevicesSources.push(navigator.mediaDevices); } catch (e) {}
+            try { if (window.parent && window.parent !== window && window.parent.navigator?.mediaDevices?.getUserMedia) mediaDevicesSources.push(window.parent.navigator.mediaDevices); } catch (e) {}
+            try { if (window.top && window.top !== window && window.top.navigator?.mediaDevices?.getUserMedia) mediaDevicesSources.push(window.top.navigator.mediaDevices); } catch (e) {}
+
+            // Gunakan constraint sederhana tanpa 'exact' di urutan pertama agar pop-up perizinan sistem langsung muncul
+            const attempts = [
+                { video: { facingMode: preferredFacing }, audio: false },
+                { video: { facingMode: { ideal: preferredFacing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+                { video: true, audio: false }
+            ];
+
+            let lastErr = null;
+            for (const md of mediaDevicesSources) {
+                for (const constraints of attempts) {
+                    try {
+                        const stream = await md.getUserMedia(constraints);
+                        if (stream) return stream;
+                    } catch (err) {
+                        lastErr = err;
+                        if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError')) {
+                            break; // Lanjut coba sumber mediaDevices induk (window.parent / window.top)
+                        }
+                    }
+                }
+            }
+
+            // Fallback API lawas (webkitGetUserMedia / mozGetUserMedia)
+            const legacyGum = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (legacyGum) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        legacyGum.call(navigator, { video: true, audio: false }, resolve, reject);
+                    });
+                } catch (err) {
+                    lastErr = err;
+                }
+            }
+
+            throw lastErr || new Error('NotAllowedError');
+        }
+
         // 1 TOMBOL KAMERA UNTUK SEMUA PERANGKAT (LANGSUNG BUKA KAMERA LIVE DI HP & LAPTOP)
         window.handleSingleCameraAction = async (mode) => {
             currentCameraMode = mode;
             detectLiveMapsLocation(false);
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                triggerNativeCameraInput();
-                return;
-            }
 
             try {
                 if (activeWebRtcStream) {
                     activeWebRtcStream.getTracks().forEach(t => t.stop());
                     activeWebRtcStream = null;
                 }
-                try {
-                    activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: { ideal: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 960 } },
-                        audio: false
-                    });
-                } catch (errFacing) {
-                    activeWebRtcStream = await navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: false
-                    });
-                }
+                activeWebRtcStream = await acquireLiveCameraStream(currentFacingMode);
                 const modal = document.getElementById('modal-camera-capture');
                 const vid = document.getElementById('webrtc-video-element');
                 modal.style.display = 'flex';
@@ -1439,62 +1500,88 @@
             startScanner();
         };
 
-        async function acquireLiveCameraStream(preferredFacing) {
-            const attempts = [
-                { video: { facingMode: { exact: preferredFacing } }, audio: false },
-                { video: { facingMode: { ideal: preferredFacing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-                { video: { facingMode: preferredFacing }, audio: false },
-                { video: true, audio: false }
-            ];
-
-            for (const constraints of attempts) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    if (stream) return stream;
-                } catch (e) {}
+        window.openAppInFullTab = () => {
+            try {
+                window.open(window.location.href, '_blank');
+            } catch (e) {
+                showToast('Buka menu browser (titik tiga) lalu pilih Buka di Browser.');
             }
+        };
 
-            if (navigator.mediaDevices.enumerateDevices) {
-                try {
-                    const devices = await navigator.mediaDevices.enumerateDevices();
-                    const videoDevices = devices.filter(d => d.kind === 'videoinput');
-                    if (videoDevices.length > 0) {
-                        const targetDev = preferredFacing === 'environment'
-                            ? (videoDevices.find(d => /back|rear|belakang|environment/i.test(d.label)) || videoDevices[videoDevices.length - 1])
-                            : videoDevices[0];
-                        return await navigator.mediaDevices.getUserMedia({
-                            video: { deviceId: { exact: targetDev.deviceId } },
-                            audio: false
-                        });
+        window.triggerFallbackQrCamera = () => {
+            const inp = document.getElementById('qr-fallback-camera-input');
+            if (inp) { inp.value = ''; inp.click(); }
+        };
+
+        window.handleFallbackQrImageScan = (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('scanner-status-text');
+            if (statusEl) statusEl.textContent = 'Memindai QR Code dari tangkapan kamera...';
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.getElementById('qr-scan-canvas');
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    const maxDim = 900;
+                    const scale = Math.min(1, maxDim / Math.max(img.width || 1, img.height || 1));
+                    canvas.width = Math.max(1, Math.floor(img.width * scale));
+                    canvas.height = Math.max(1, Math.floor(img.height * scale));
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    if (window.jsQR) {
+                        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
+                        if (code && code.data) {
+                            onQrCodeDetected(code.data);
+                            return;
+                        }
                     }
-                } catch (e) {}
-            }
-            throw new Error('Camera unavailable');
-        }
+                    showToast('QR Code belum terbaca jelas, coba arahkan lebih dekat.');
+                    if (statusEl) statusEl.textContent = 'QR belum terbaca. Coba ulangi atau ketik kode di bawah.';
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
 
-        window.startScanner = async () => {
-            hideAllViews();
-            document.getElementById('scanner-view').style.display = 'flex';
-            const inputEl = document.getElementById('simulated-scan-code');
-            if (inputEl) inputEl.value = '';
+        window.requestLiveScannerPermission = async (evt) => {
+            if (evt) evt.stopPropagation();
+            const msgEl = document.getElementById('qr-perm-status-msg');
+            const titleEl = document.getElementById('qr-perm-title');
+            const extraBox = document.getElementById('qr-perm-extra-actions');
+            if (msgEl) msgEl.innerHTML = 'Meminta dialog perizinan kamera dari perangkat...';
+
+            await startScanner(true);
+        };
+
+        window.startScanner = async (fromRetryButton = false) => {
+            // Penting: Minta stream kamera SEGERA saat event klik pengguna berlangsung agar pop-up izin browser tidak diblokir
+            const streamPromise = acquireLiveCameraStream(qrFacingMode);
+
+            if (!fromRetryButton) {
+                hideAllViews();
+                document.getElementById('scanner-view').style.display = 'flex';
+                const inputEl = document.getElementById('simulated-scan-code');
+                if (inputEl) inputEl.value = '';
+            }
 
             const vid = document.getElementById('qr-video-stream');
             const canvas = document.getElementById('qr-scan-canvas');
             const retryOverlay = document.getElementById('qr-camera-permission-retry');
             const statusEl = document.getElementById('scanner-status-text');
+            const msgEl = document.getElementById('qr-perm-status-msg');
+            const titleEl = document.getElementById('qr-perm-title');
+            const extraBox = document.getElementById('qr-perm-extra-actions');
 
             if (retryOverlay) retryOverlay.style.display = 'none';
             setScannerCornerHighlight(false);
             if (statusEl) statusEl.textContent = 'Mengaktifkan kamera live...';
 
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (retryOverlay) retryOverlay.style.display = 'flex';
-                if (statusEl) statusEl.textContent = 'Browser perangkat ini belum mengizinkan akses kamera live.';
-                return;
-            }
-
             try {
-                qrVideoStream = await acquireLiveCameraStream(qrFacingMode);
+                qrVideoStream = await streamPromise;
                 vid.srcObject = qrVideoStream;
                 vid.setAttribute('playsinline', 'true');
                 vid.setAttribute('webkit-playsinline', 'true');
@@ -1507,9 +1594,10 @@
                         vid.play().catch(() => {}).finally(done);
                     };
                     vid.play().then(done).catch(() => {});
-                    setTimeout(done, 800);
+                    setTimeout(done, 700);
                 });
 
+                if (retryOverlay) retryOverlay.style.display = 'none';
                 if (statusEl) statusEl.textContent = 'Kamera aktif • Arahkan ke QR Code SarprasQ (Auto-Scan)';
 
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -1518,13 +1606,14 @@
                     try { nativeDetector = new window.BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] }); } catch (e) {}
                 }
 
+                if (qrScanInterval) clearInterval(qrScanInterval);
                 qrScanInterval = setInterval(async () => {
                     if (isProcessingQrMatch || !vid || vid.readyState < 2) return;
                     const vw = vid.videoWidth;
                     const vh = vid.videoHeight;
                     if (!vw || !vh) return;
 
-                    // 1. Prioritaskan BarcodeDetector hardware langsung pada elemen video (sangat cepat di Android/iOS/Chrome)
+                    // 1. Prioritaskan BarcodeDetector hardware langsung pada elemen video
                     if (nativeDetector) {
                         try {
                             const barcodes = await nativeDetector.detect(vid);
@@ -1559,7 +1648,19 @@
 
             } catch (err) {
                 if (retryOverlay) retryOverlay.style.display = 'flex';
-                if (statusEl) statusEl.textContent = 'Ketuk pada kotak kamera untuk mengizinkan akses kamera live';
+                const errName = (err && err.name) ? err.name : '';
+                if (extraBox) extraBox.style.display = 'grid';
+
+                if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError' || errName === 'SecurityError') {
+                    if (titleEl) titleEl.textContent = 'Izin Kamera Diblokir Browser / Aplikasi';
+                    if (msgEl) msgEl.innerHTML = 'Klik ikon <b>Gembok 🔒 / Pengaturan Situs</b> di bar atas browser untuk mengizinkan <b>Kamera</b>, atau gunakan tombol di bawah:';
+                    if (statusEl) statusEl.textContent = 'Izin kamera ditahan oleh browser/iframe induk. Gunakan opsi di atas.';
+                    if (fromRetryButton) showToast('Izin kamera ditahan oleh browser/iframe. Gunakan Kamera Sistem atau Tab Penuh.');
+                } else {
+                    if (titleEl) titleEl.textContent = 'Izinkan Akses Kamera Live';
+                    if (msgEl) msgEl.innerHTML = 'Tekan <b>Minta Izin Kamera Live</b> untuk memunculkan pop-up izin, atau gunakan <b>Kamera Sistem</b>.';
+                    if (statusEl) statusEl.textContent = 'Menunggu izin akses kamera perangkat...';
+                }
             }
         };
 

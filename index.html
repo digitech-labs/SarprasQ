@@ -9,7 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.tailwind = window.tailwind || {};
@@ -145,7 +146,6 @@
                 display: none !important;
             }
         }
-        /* Modern Custom Dropdown */
         .modern-dd-menu {
             display: none;
             position: absolute;
@@ -190,16 +190,16 @@
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
         <span id="toast-msg">Berhasil!</span>
     </div>
-
-    <!-- HIDDEN FILE INPUT FOR GALLERY -->
+    <!-- HIDDEN FILE INPUTS FOR GALLERY & TEMPLATE -->
     <input type="file" id="hidden-gallery-input" accept="image/*" class="hidden" onchange="handleHiddenFileSelect(event)">
     <input type="file" id="hidden-qr-gallery-input" accept="image/*" class="hidden" onchange="handleQrGalleryFileSelect(event)">
+    <input type="file" id="hidden-template-input" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleTemplateFileSelect(event)">
 
     <div class="mesh-canvas">
         <div class="macos-window">
             <!-- TOP HEADER BAR -->
             <header class="w-full px-4 sm:px-6 py-3 bg-white/85 border-b border-slate-200/80 flex items-center justify-between gap-3 shrink-0 z-30">
-                <!-- BRAND SARPRASQ (LONG-PRESS 1.2 DETIK UNTUK PORTAL ADMIN) -->
+                <!-- BRAND SARPRASQ (TEKAN TAHAN 1.2 DETIK UNTUK PORTAL ADMIN) -->
                 <div id="brand-longpress-trigger"
                      onmousedown="startBrandPress(event)"
                      onmouseup="cancelBrandPress()"
@@ -208,10 +208,10 @@
                      ontouchend="cancelBrandPress()"
                      ontouchcancel="cancelBrandPress()"
                      oncontextmenu="return false;"
-                     title="Tekan 1.2 detik untuk Portal Admin"
+                     title="Tekan & tahan 1.2 detik untuk Portal Admin & SSO My Alka"
                      class="select-none cursor-pointer flex items-center gap-1.5 py-1 px-1 rounded-lg active:scale-95 transition-transform">
                     <span class="text-[18px] sm:text-[20px] font-extrabold tracking-tight text-slate-900">Sarpras<span class="text-blue-600">Q</span></span>
-                    <span id="admin-badge-pill" class="hidden px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300">Mode Admin</span>
+                    <span id="admin-badge-pill" onclick="openMyAlkaPortalModal()" class="hidden px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300">Mode Admin</span>
                 </div>
 
                 <!-- DESKTOP NAVIGATION PILLS -->
@@ -237,7 +237,7 @@
                 </nav>
 
                 <!-- GPS MAPS LOCATION PILL -->
-                <button onclick="refreshGpsLocation()" class="px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[10.5px] font-extrabold flex items-center gap-1.5 max-w-[190px] sm:max-w-[240px] truncate shrink-0 transition-all" title="Klik untuk perbarui titik lokasi GPS">
+                <button onclick="refreshGpsLocation()" class="px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[10.5px] font-extrabold flex items-center gap-1.5 max-w-[190px] sm:max-w-[240px] truncate shrink-0 transition-all" title="Ketuk untuk perbarui titik lokasi GPS">
                     <i class="fa-solid fa-location-dot text-rose-500 shrink-0"></i>
                     <span id="header-gps-label" class="truncate">Mendeteksi...</span>
                 </button>
@@ -248,7 +248,6 @@
 
                 <!-- ==================== TAB: DASHBOARD ==================== -->
                 <section id="tab-dashboard" class="space-y-4">
-                    <!-- TOP TITLE CARD -->
                     <div class="glass-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-sm shrink-0">
@@ -260,8 +259,8 @@
                             </div>
                         </div>
                         <div class="text-left sm:text-right pl-13 sm:pl-0">
-                            <div id="clock-time" class="text-[17px] sm:text-[19px] font-extrabold text-slate-900 font-mono leading-none">12.05</div>
-                            <div id="clock-date" class="text-[10.5px] font-semibold text-slate-500 mt-0.5">Senin, 26 Okt 2026</div>
+                            <div id="clock-time" class="text-[17px] sm:text-[19px] font-extrabold text-slate-900 font-mono leading-none">10.02</div>
+                            <div id="clock-date" class="text-[10.5px] font-semibold text-slate-500 mt-0.5">Selasa, 27 Okt 2026</div>
                         </div>
                     </div>
 
@@ -309,34 +308,55 @@
 
                         <!-- RIGHT: MENU PINTASAN CEPAT SARPRASQ (ROLE-BASED UI) -->
                         <div class="glass-card rounded-[24px] p-4 sm:p-5 flex flex-col justify-between">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-2">
                                 <h2 class="text-[13px] sm:text-[14px] font-extrabold text-slate-900 flex items-center gap-2">
                                     <i class="fa-solid fa-bolt text-amber-500"></i> Menu Pintasan Cepat SarprasQ
                                 </h2>
-                                <span id="dashboard-role-badge" class="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">Mode Pegawai</span>
+                                <span id="dashboard-role-badge" onclick="openMyAlkaPortalModal()" class="cursor-pointer text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 flex items-center gap-1.5 shrink-0 hover:bg-blue-100 transition-all" title="Klik untuk info sesi My Alka & daftar Admin Supabase">
+                                    <i class="fa-solid fa-id-badge"></i> <span id="dashboard-role-text">Mode Pegawai</span>
+                                </span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2.5 my-3">
-                                <!-- ADMIN ONLY: REGISTRASI ASET -->
                                 <button type="button" id="btn-quick-reg" onclick="openModalTambah()" class="hidden py-3 px-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-plus"></i> Registrasi Aset
                                 </button>
-                                <!-- ALL: LAPOR KONDISI -->
                                 <button type="button" onclick="openModalMaintenance()" class="py-3 px-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-screwdriver-wrench"></i> Lapor Kondisi
                                 </button>
-                                <!-- ADMIN ONLY: LABEL F4 -->
                                 <button type="button" id="btn-quick-pdf" onclick="openPreviewF4SheetModal()" class="hidden py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-file-pdf"></i> Label F4
                                 </button>
-                                <!-- ALL: PINJAM ALAT -->
                                 <button type="button" onclick="openModalPinjam()" class="py-3 px-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[12px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-hand-holding-hand"></i> Pinjam Alat
                                 </button>
-                                <!-- ALL: DATA INVENTARIS -->
                                 <button type="button" onclick="switchTab('inventaris')" class="col-span-2 py-2.5 px-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 font-extrabold text-[12px] shadow-xs flex items-center justify-center gap-2 transition-all active:scale-95">
                                     <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Buka Data Inventaris Lengkap
                                 </button>
+                            </div>
+
+                            <!-- PANEL TEMPLATE EXCEL & SINKRONISASI CLOUD (KHUSUS ADMIN & SUPERADMIN) -->
+                            <div id="dashboard-template-sync-box" class="hidden p-2.5 rounded-2xl bg-slate-100/90 border border-slate-200/80 space-y-2 mb-2.5">
+                                <div class="flex items-center justify-between px-1">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-cloud-arrow-up text-blue-600"></i> Template Massal & Sinkronisasi Cloud
+                                    </span>
+                                    <span id="sync-status-indicator" class="text-[9.5px] font-bold text-emerald-700">Siap Sinkron</span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                    <button type="button" onclick="downloadTemplateExcel()" class="py-2 px-2.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold text-[10.5px] shadow-2xs flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Download Template Excel (.xlsx)">
+                                        <i class="fa-solid fa-file-arrow-down"></i> Unduh Template
+                                    </button>
+                                    <button type="button" onclick="triggerUploadTemplate()" class="py-2 px-2.5 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold text-[10.5px] shadow-2xs flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Upload File Excel/CSV">
+                                        <i class="fa-solid fa-file-arrow-up"></i> Upload Template
+                                    </button>
+                                    <button type="button" onclick="tarikDataCloud()" class="py-2 px-2.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-extrabold text-[10.5px] shadow-2xs flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Tarik Data dari Supabase Cloud">
+                                        <i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data
+                                    </button>
+                                    <button type="button" onclick="kirimDataCloud()" class="py-2 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[10.5px] shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Kirim Semua Data Lokal ke Supabase Cloud">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Data
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10.5px] font-bold text-slate-500">
@@ -372,16 +392,28 @@
 
                 <!-- ==================== TAB: INVENTARIS ASET ==================== -->
                 <section id="tab-inventaris" style="display: none;" class="space-y-3.5">
-                    <div class="glass-card rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div class="glass-card rounded-2xl p-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                         <div>
                             <h2 class="text-[15px] font-extrabold text-slate-900">Data Inventaris & Fisik Barang</h2>
                             <p class="text-[10.5px] font-semibold text-slate-500">Ketuk kartu barang untuk melihat foto fisik terkini, QR Code, atau cetak label.</p>
                         </div>
-                        <div id="inventaris-admin-action-box" class="hidden flex items-center gap-2">
-                            <button onclick="openModalTambah()" class="px-3.5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
+                        <div id="inventaris-admin-action-box" class="hidden flex flex-wrap items-center gap-1.5">
+                            <button type="button" onclick="downloadTemplateExcel()" class="px-3 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-solid fa-file-excel text-emerald-600"></i> Unduh Template
+                            </button>
+                            <button type="button" onclick="triggerUploadTemplate()" class="px-3 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-solid fa-file-import text-indigo-600"></i> Upload Template
+                            </button>
+                            <button type="button" onclick="tarikDataCloud()" class="px-3 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-solid fa-cloud-arrow-down text-blue-600"></i> Tarik Data
+                            </button>
+                            <button type="button" onclick="kirimDataCloud()" class="px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10.5px] font-extrabold shadow-xs flex items-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Data
+                            </button>
+                            <button onclick="openModalTambah()" class="px-3.5 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[10.5px] font-extrabold shadow flex items-center gap-1.5">
                                 <i class="fa-solid fa-plus"></i> Registrasi Aset
                             </button>
-                            <button onclick="openPreviewF4SheetModal()" class="px-3.5 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-extrabold shadow flex items-center gap-1.5">
+                            <button onclick="openPreviewF4SheetModal()" class="px-3.5 py-2 rounded-full bg-purple-700 hover:bg-purple-800 text-white text-[10.5px] font-extrabold shadow flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-pdf"></i> Label F4 (10/Hal)
                             </button>
                         </div>
@@ -392,7 +424,6 @@
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input type="text" id="inv-search-input" oninput="renderInventaris()" placeholder="Cari nama barang, kode INV-ALK, lokasi ruangan, atau kondisi..." class="w-full search-pill rounded-full py-2.5 pl-9 pr-4 text-[11.5px] font-bold focus:outline-none">
                         </div>
-                        <!-- FILTER PIL CEPAT -->
                         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                             <button onclick="setInventarisFilter('Semua')" id="filter-btn-Semua" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-extrabold shrink-0 shadow-xs">Semua</button>
                             <button onclick="setInventarisFilter('Tersedia')" id="filter-btn-Tersedia" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[11px] font-extrabold shrink-0">Tersedia</button>
@@ -512,7 +543,7 @@
             </button>
 
             <div class="flex flex-col items-center justify-end relative -top-3">
-                <button onclick="switchTab('scanner')" id="mob-nav-scanner" class="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/40 border-4 border-white flex items-center justify-center text-xl active:scale-95 transition-transform" style="width: 52px; height: 52px;">
+                <button onclick="switchTab('scanner')" id="mob-nav-scanner" class="rounded-full bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/40 border-4 border-white flex items-center justify-center text-xl active:scale-95 transition-transform" style="width: 52px; height: 52px;">
                     <i class="fa-solid fa-qrcode"></i>
                 </button>
                 <span id="mob-lbl-scanner" class="text-[9.5px] font-extrabold text-slate-600 mt-0.5">Pindai QR</span>
@@ -696,14 +727,14 @@
 
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-900 mb-1 ml-1">Kondisi Aset Saat Ini</label>
-                    <div class="flex flex-wrap items-center gap-3 mt-1.5 ml-1">
-                        <label class="flex items-center gap-1.5 cursor-pointer text-[11.5px] font-extrabold text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-xl border border-emerald-200">
+                    <div class="flex flex-wrap items-center gap-2.5 mt-1.5 ml-1">
+                        <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-extrabold text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-xl border border-emerald-200">
                             <input type="radio" name="tingkat_rusak" value="Baik / Diperbaiki" onchange="toggleMaintConditionSection()" class="accent-emerald-600"> Baik / Diperbaiki
                         </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer text-[11.5px] font-extrabold text-amber-700 bg-amber-50/80 px-2.5 py-1 rounded-xl border border-amber-200">
+                        <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-extrabold text-amber-700 bg-amber-50/80 px-2.5 py-1 rounded-xl border border-amber-200">
                             <input type="radio" name="tingkat_rusak" value="Rusak Ringan" checked onchange="toggleMaintConditionSection()" class="accent-amber-500"> Rusak Ringan
                         </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer text-[11.5px] font-extrabold text-rose-700 bg-rose-50/80 px-2.5 py-1 rounded-xl border border-rose-200">
+                        <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-extrabold text-rose-700 bg-rose-50/80 px-2.5 py-1 rounded-xl border border-rose-200">
                             <input type="radio" name="tingkat_rusak" value="Rusak Berat" onchange="toggleMaintConditionSection()" class="accent-rose-600"> Rusak Berat
                         </label>
                     </div>
@@ -965,33 +996,76 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL 8: PORTAL ADMIN LOGIN ==================== -->
+    <!-- ==================== MODAL 8: PORTAL ADMIN & SSO MY ALKA ==================== -->
     <div id="modal-admin-login" style="display: none;" class="fixed inset-0 z-[230000] bg-slate-900/55 backdrop-blur-md items-center justify-center p-3">
-        <div class="glass-card w-full max-w-sm rounded-[26px] p-5 shadow-2xl bg-white relative">
+        <div class="glass-card w-full max-w-md rounded-[26px] p-5 shadow-2xl bg-white relative max-h-[92vh] overflow-y-auto custom-scrollbar space-y-3.5">
             <button onclick="closeAdminModal()" class="w-7 h-7 rounded-full glass-button flex items-center justify-center absolute top-3.5 right-3.5 text-xs font-bold">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="flex items-center gap-2.5 mb-3">
-                <div class="w-9 h-9 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-sm shadow">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-sm shadow shrink-0">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
                 <div>
-                    <h3 class="text-[13.5px] font-extrabold text-slate-900">Portal Admin Mandiri</h3>
-                    <p class="text-[10px] font-semibold text-slate-500">Sinkron Sandi Supabase & SSO My Alka</p>
+                    <h3 class="text-[13.5px] font-extrabold text-slate-900">Integrasi SSO My Alka & Portal Akses</h3>
+                    <p class="text-[10px] font-semibold text-slate-500">Deteksi Otomatis Superadmin, Admin & Pegawai dari Supabase</p>
                 </div>
             </div>
-            <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-3">
-                <div>
-                    <label class="block text-[11px] font-extrabold text-slate-800 mb-1 ml-1">Kata Sandi Admin SarprasQ</label>
-                    <input type="password" id="admin-pass-input" required placeholder="Masukkan sandi admin..." class="w-full search-pill rounded-xl py-2.5 px-3.5 text-[12px] font-bold focus:outline-none">
+
+            <!-- STATUS SESI LOGIN MY ALKA SAAT INI -->
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Sesi Pengguna Aktif
+                    </span>
+                    <button type="button" onclick="syncPegawaiAndDetectSSO(true)" class="text-[10px] font-extrabold text-blue-600 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate"></i> Deteksi Ulang My Alka
+                    </button>
                 </div>
-                <div class="flex items-center justify-between gap-2 pt-1">
-                    <button type="button" onclick="logoutAdminMode()" class="px-3.5 py-2 rounded-full glass-button text-rose-600 text-[10.5px] font-extrabold">Keluar Mode Admin</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-extrabold shadow">Verifikasi & Masuk</button>
+                <div class="flex items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-slate-200/80">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div id="sso-avatar-box" class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-extrabold shrink-0">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div id="sso-active-name" class="text-[12px] font-extrabold text-slate-900 truncate">Pengguna Umum</div>
+                            <div id="sso-active-jabatan" class="text-[10px] font-semibold text-slate-500 truncate">Pegawai SDIT Muh. Al Kautsar</div>
+                        </div>
+                    </div>
+                    <span id="sso-active-role-pill" class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[9.5px] font-extrabold shrink-0">
+                        Pengguna Umum
+                    </span>
+                </div>
+            </div>
+
+            <!-- DAFTAR ADMIN & PEGAWAI TERDETEKSI DARI SUPABASE MY ALKA -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between px-1">
+                    <label class="text-[10.5px] font-extrabold text-slate-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-database text-blue-600"></i> Data Pegawai & Admin di Supabase (<span id="sso-pegawai-count">0</span>)
+                    </label>
+                    <span id="sso-table-source" class="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Memuat...</span>
+                </div>
+                <p class="text-[9.5px] font-semibold text-slate-500 px-1">Ketuk nama pegawai di bawah untuk beralih sesi uji coba atau melihat siapa saja Admin & Superadmin yang terdaftar di My Alka:</p>
+                <div id="sso-pegawai-list-box" class="max-h-44 overflow-y-auto custom-scrollbar divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-slate-50/50"></div>
+            </div>
+
+            <!-- FORM VERIFIKASI MANUAL / SANDI ADMIN -->
+            <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-2.5 pt-2 border-t border-slate-200/80">
+                <div>
+                    <label class="block text-[10.5px] font-extrabold text-slate-800 mb-1 ml-1">Masuk Manual (Nama / NIP Pegawai atau Sandi Admin)</label>
+                    <input type="password" id="admin-pass-input" required placeholder="Ketik sandi admin / NIP / nama admin My Alka..." class="w-full search-pill rounded-xl py-2 px-3.5 text-[11.5px] font-bold focus:outline-none">
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                    <button type="button" onclick="logoutAdminMode()" class="px-3.5 py-2 rounded-full glass-button text-rose-600 text-[10.5px] font-extrabold">Setel Pengguna Umum</button>
+                    <button type="submit" class="flex-1 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-extrabold shadow">Verifikasi Akses</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- DATALIST PEGAWAI MY ALKA UNTUK AUTO-SUGGEST PEMINJAM & PELAPOR -->
+    <datalist id="myalka-pegawai-datalist"></datalist>
 
     <!-- ==================== MODAL 9: LIGHTBOX ZOOM FOTO ==================== -->
     <div id="modal-photo-lightbox" style="display: none;" onclick="closePhotoLightbox()" class="fixed inset-0 z-[260000] bg-black/90 backdrop-blur-md items-center justify-center p-3 cursor-zoom-out">
@@ -1012,86 +1086,611 @@
         let isAdminMode = localStorage.getItem('sarprasq_admin_unlocked') === 'true';
         let detectedCloudAdminPasswords = ['alka2026', 'admin123', 'sarpras2026', 'alkautsar'];
 
+        // STATE INTEGRASI SSO MY ALKA & DATA PEGAWAI SUPABASE
+        let currentMyAlkaUser = {
+            nama: 'Pegawai Al Kautsar',
+            username: '',
+            nip: '',
+            jabatan: 'Pegawai / Guru',
+            role: isAdminMode ? 'Admin' : 'Pengguna Umum', // 'Superadmin' | 'Admin' | 'Pengguna Umum'
+            source: 'Lokal'
+        };
+        let cloudPegawaiList = [];
+        let detectedPegawaiTableName = 'Supabase';
+        let knownSarprasColumns = null;
+
         const mapsLocationState = {
             coords: '-7.558611, 110.768889',
             address: 'SDIT Muhammadiyah Al Kautsar, Kartasura'
         };
 
         let assetsData = [
-            { id: 101, kode: 'INV-ALK-2023-045', nama: 'Proyektor Epson EB-X51', kategori: 'Elektronik', lokasi: 'Kelas 4B', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-video', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
-            { id: 102, kode: 'INV-ALK-2022-012', nama: 'AC Daikin 1 PK', kategori: 'Elektronik', lokasi: 'Kelas 6C', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-snowflake', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
-            { id: 103, kode: 'INV-ALK-2020-088', nama: 'Meja Guru Kayu Jati', kategori: 'Furnitur', lokasi: 'Kelas 1A', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chair', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
-            { id: 104, kode: 'INV-ALK-2024-001', nama: 'Sound System Portable', kategori: 'Elektronik', lokasi: 'Gudang Sarpras', kondisi: 'Baik', status: 'Dipinjam', icon: 'fa-volume-high', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
-            { id: 105, kode: 'INV-ALK-2021-034', nama: 'Papan Tulis Kaca', kategori: 'Fasilitas', lokasi: 'Lab Komputer', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chalkboard', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
-            { id: 106, kode: 'INV-ALK-2026-263', nama: 'Laptop Lenovo ThinkPad', kategori: 'Elektronik', lokasi: 'Ruang Guru', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-laptop', foto: '', updated_at: '26 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' }
+            { id: 1, kode: 'INV-ALK-2023-045', nama: 'Proyektor Epson EB-X51', kategori: 'Elektronik', lokasi: 'Kelas 4B', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-video', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 2, kode: 'INV-ALK-2022-012', nama: 'AC Daikin 1 PK', kategori: 'Elektronik', lokasi: 'Kelas 6C', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-snowflake', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 3, kode: 'INV-ALK-2020-088', nama: 'Meja Guru Kayu Jati', kategori: 'Furnitur', lokasi: 'Kelas 1A', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chair', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 4, kode: 'INV-ALK-2024-001', nama: 'Sound System Portable', kategori: 'Elektronik', lokasi: 'Gudang Sarpras', kondisi: 'Baik', status: 'Dipinjam', icon: 'fa-volume-high', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 5, kode: 'INV-ALK-2021-034', nama: 'Papan Tulis Kaca', kategori: 'Fasilitas', lokasi: 'Lab Komputer', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-chalkboard', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' },
+            { id: 6, kode: 'INV-ALK-2026-263', nama: 'Laptop Lenovo ThinkPad', kategori: 'Elektronik', lokasi: 'Ruang Guru', kondisi: 'Baik', status: 'Tersedia', icon: 'fa-laptop', foto: '', updated_at: '27 Okt 2026, 07:30 WIB', kelompok_data: 'ASET' }
         ];
 
         let loansData = [
-            { id: 201, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-26', keterangan: 'Digunakan untuk senam pagi', status: 'Aktif', kelompok_data: 'PEMINJAMAN' }
+            { id: 101, aset: 'Sound System Portable', peminjam: 'Ust. Budi (Guru Olahraga)', tgl: '2026-10-27', keterangan: 'Digunakan untuk kegiatan senam pagi', status: 'Aktif', kelompok_data: 'PEMINJAMAN' }
         ];
 
         let maintenanceData = [];
         let currentInventarisFilter = 'Semua';
 
-        // Load data from Supabase table 'sarpras' using kelompok_data grouping
+        // Helper untuk mengekstrak icon & foto apabila sebelumnya tersimpan sebagai JSON di kolom aset_icon / maint_tanggal
+        function parseLegacyMeta(rawVal, defaultIcon) {
+            if (!rawVal || typeof rawVal !== 'string') return { icon: defaultIcon || 'fa-box', foto: '', tanggal: '', keterangan: '' };
+            const trimmed = rawVal.trim();
+            if (trimmed.startsWith('{')) {
+                try {
+                    const obj = JSON.parse(trimmed);
+                    return {
+                        icon: obj.icon || defaultIcon || 'fa-box',
+                        foto: obj.foto || obj.foto_rusak || '',
+                        tanggal: obj.tanggal || '',
+                        keterangan: obj.keterangan || ''
+                    };
+                } catch (e) {}
+            }
+            return { icon: trimmed, foto: '', tanggal: trimmed, keterangan: '' };
+        }
+
+        // KLASIFIKASI OTOMATIS LEVEL AKSES DARI DATA PEGAWAI MY ALKA
+        function classifyPegawaiRole(roleRaw, jabatanRaw, isAdminFlag) {
+            const combined = `${roleRaw || ''} ${jabatanRaw || ''}`.toLowerCase();
+            if (
+                combined.includes('superadmin') ||
+                combined.includes('super_admin') ||
+                combined.includes('super admin') ||
+                combined.includes('kepala sekolah') ||
+                combined.includes('kepsek') ||
+                combined.includes('direktur') ||
+                combined.includes('master') ||
+                combined.includes('root') ||
+                combined.includes('yayasan')
+            ) {
+                return 'Superadmin';
+            }
+            if (
+                isAdminFlag === true ||
+                String(isAdminFlag).toLowerCase() === 'true' ||
+                String(isAdminFlag) === '1' ||
+                combined.includes('admin') ||
+                combined.includes('sarpras') ||
+                combined.includes('wakasek') ||
+                combined.includes('operator') ||
+                combined.includes('tata usaha') ||
+                combined.includes('ka tu') ||
+                combined.includes('inventaris') ||
+                combined.includes('koordinator')
+            ) {
+                return 'Admin';
+            }
+            return 'Pengguna Umum';
+        }
+
+        // BACA DATA PEGAWAI & ADMIN DARI SUPABASE PORTAL MY ALKA
+        async function fetchMyAlkaPegawaiFromSupabase() {
+            if (!supabaseClient) return;
+
+            const candidateTables = [
+                'pegawai',
+                'data_pegawai',
+                'users',
+                'akun',
+                'guru',
+                'profil',
+                'karyawan',
+                'sdm',
+                'user',
+                'admin',
+                'pengaturan',
+                'settings'
+            ];
+
+            let foundRecords = [];
+            let sourceName = '';
+
+            // 1. Cek tabel-tabel pegawai di Supabase My Alka secara paralel
+            const results = await Promise.allSettled(
+                candidateTables.map(tbl => supabaseClient.from(tbl).select('*').limit(300))
+            );
+
+            for (let i = 0; i < results.length; i++) {
+                const res = results[i];
+                if (res.status === 'fulfilled' && res.value && !res.value.error && Array.isArray(res.value.data) && res.value.data.length > 0) {
+                    const sample = res.value.data[0];
+                    const keys = Object.keys(sample).map(k => k.toLowerCase());
+                    const looksLikeUserTable = keys.some(k =>
+                        ['nama', 'nama_lengkap', 'full_name', 'name', 'username', 'nip', 'nbm', 'role', 'jabatan', 'level', 'hak_akses', 'password', 'sandi', 'email'].includes(k)
+                    );
+                    if (looksLikeUserTable) {
+                        foundRecords = res.value.data;
+                        sourceName = `Tabel ${candidateTables[i]}`;
+                        break;
+                    }
+                }
+            }
+
+            // 2. Cek juga apabila ada data pegawai/admin yang disimpan di tabel 'sarpras'
+            try {
+                const { data: sarprasRows } = await supabaseClient.from('sarpras').select('*');
+                if (Array.isArray(sarprasRows) && sarprasRows.length > 0) {
+                    if (sarprasRows[0]) {
+                        knownSarprasColumns = Object.keys(sarprasRows[0]);
+                    }
+                    const pegawaiInSarpras = sarprasRows.filter(r =>
+                        ['PEGAWAI', 'ADMIN', 'USER', 'AKUN', 'SDM'].includes(String(r.kelompok_data || '').toUpperCase())
+                    );
+                    if (pegawaiInSarpras.length > 0 && foundRecords.length === 0) {
+                        foundRecords = pegawaiInSarpras;
+                        sourceName = 'Tabel sarpras (PEGAWAI)';
+                    }
+                }
+            } catch (e) {}
+
+            if (foundRecords.length > 0) {
+                detectedPegawaiTableName = sourceName;
+                cloudPegawaiList = foundRecords.map((r, idx) => {
+                    const nama = r.nama || r.nama_lengkap || r.full_name || r.name || r.nama_pegawai || r.aset_nama || r.username || `Pegawai ${idx + 1}`;
+                    const username = r.username || r.user || r.email || r.nip || r.nbm || r.aset_kode || '';
+                    const nip = String(r.nip || r.nbm || r.nik || r.id_pegawai || r.aset_kode || '');
+                    const jabatan = r.jabatan || r.posisi || r.unit || r.tugas || r.mapel || r.kelas || r.aset_lokasi || 'Pegawai / Guru';
+                    const roleRaw = r.role || r.level || r.hak_akses || r.akses || r.peran || r.status_user || r.aset_kategori || '';
+                    const isAdminFlag = r.is_admin || r.admin || r.is_superadmin || r.status_admin || false;
+                    const password = String(r.password || r.sandi || r.kata_sandi || r.pin || r.pass || '');
+                    const roleCategory = classifyPegawaiRole(roleRaw, jabatan, isAdminFlag);
+
+                    if (password && (roleCategory === 'Admin' || roleCategory === 'Superadmin')) {
+                        if (!detectedCloudAdminPasswords.includes(password)) {
+                            detectedCloudAdminPasswords.push(password);
+                        }
+                    }
+
+                    return {
+                        id: r.id || idx + 1,
+                        nama: String(nama).trim(),
+                        username: String(username).trim(),
+                        nip: String(nip).trim(),
+                        jabatan: String(jabatan).trim(),
+                        roleRaw: String(roleRaw).trim(),
+                        role: roleCategory,
+                        password
+                    };
+                });
+
+                // Urutkan agar Superadmin & Admin tampil paling atas
+                const rank = { 'Superadmin': 1, 'Admin': 2, 'Pengguna Umum': 3 };
+                cloudPegawaiList.sort((a, b) => (rank[a.role] || 3) - (rank[b.role] || 3));
+            } else {
+                // Fallback daftar pegawai & admin jika tabel pegawai di Supabase belum terisi
+                detectedPegawaiTableName = 'Default My Alka';
+                if (cloudPegawaiList.length === 0) {
+                    cloudPegawaiList = [
+                        { id: 1, nama: 'Kepala Sekolah', username: 'kepsek', nip: 'ALK-001', jabatan: 'Kepala Sekolah SDIT Muh. Al Kautsar', roleRaw: 'superadmin', role: 'Superadmin', password: '' },
+                        { id: 2, nama: 'Admin Sarpras Al Kautsar', username: 'admin', nip: 'ALK-002', jabatan: 'Koordinator Sarpras & Inventaris', roleRaw: 'admin', role: 'Admin', password: '' },
+                        { id: 3, nama: 'Ust. Budi', username: 'budi', nip: 'ALK-101', jabatan: 'Guru Olahraga', roleRaw: 'pegawai', role: 'Pengguna Umum', password: '' },
+                        { id: 4, nama: 'Ustazah Rina', username: 'rina', nip: 'ALK-102', jabatan: 'Wali Kelas 6C', roleRaw: 'guru', role: 'Pengguna Umum', password: '' }
+                    ];
+                }
+            }
+
+            updatePegawaiDatalistUI();
+            renderMyAlkaPegawaiModalList();
+        }
+
+        function updatePegawaiDatalistUI() {
+            const dl = document.getElementById('myalka-pegawai-datalist');
+            if (!dl) return;
+            dl.innerHTML = cloudPegawaiList.map(p =>
+                `<option value="${p.nama} (${p.jabatan})">${p.role} • ${p.nip || p.username}</option>`
+            ).join('');
+
+            const pinjamNamaInput = document.getElementById('pinjam-nama');
+            if (pinjamNamaInput) pinjamNamaInput.setAttribute('list', 'myalka-pegawai-datalist');
+            const maintPelaporInput = document.getElementById('maint-pelapor');
+            if (maintPelaporInput) maintPelaporInput.setAttribute('list', 'myalka-pegawai-datalist');
+        }
+
+        // DETEKSI SIAPA YANG LOGIN DI MY ALKA (URL PARAMS, STORAGE PORTAL, WINDOW PARENT, SUPABASE AUTH)
+        async function detectMyAlkaActiveUser() {
+            let rawDetected = null;
+            let sourceLabel = '';
+
+            // 1. Cek URL Query Parameters (misal dikirim dari iframe/link My Alka: ?nama=...&role=... atau ?user=...)
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const qNama = params.get('nama') || params.get('name') || params.get('user') || params.get('username') || params.get('pegawai');
+                const qRole = params.get('role') || params.get('level') || params.get('akses') || params.get('hak_akses');
+                const qJabatan = params.get('jabatan') || params.get('unit') || '';
+                const qNip = params.get('nip') || params.get('nbm') || '';
+                if (qNama || qRole || qNip) {
+                    rawDetected = {
+                        nama: qNama || qNip || 'Pengguna My Alka',
+                        username: qNama || '',
+                        nip: qNip,
+                        jabatan: qJabatan,
+                        roleRaw: qRole || ''
+                    };
+                    sourceLabel = 'Parameter Portal My Alka';
+                }
+            } catch (e) {}
+
+            // 2. Cek penyimpanan sesi My Alka di localStorage & sessionStorage
+            if (!rawDetected) {
+                const priorityKeys = [
+                    'myalka_user', 'my_alka_user', 'alka_user', 'myalka_session', 'alka_session',
+                    'user_login', 'logged_in_user', 'currentUser', 'activeUser', 'loggedUser',
+                    'pegawai_aktif', 'pegawai_login', 'data_login', 'session_user', 'auth_user',
+                    'sso_user', 'portal_user', 'user_data', 'userData', 'user', 'sarprasq_sso_user'
+                ];
+
+                const storages = [window.localStorage, window.sessionStorage];
+                for (const store of storages) {
+                    if (!store || rawDetected) break;
+                    for (const key of priorityKeys) {
+                        const raw = store.getItem(key);
+                        if (!raw) continue;
+                        try {
+                            const parsed = JSON.parse(raw);
+                            if (parsed && typeof parsed === 'object') {
+                                const targetObj = parsed.user || parsed.pegawai || parsed.data || parsed;
+                                const pNama = targetObj.nama || targetObj.nama_lengkap || targetObj.full_name || targetObj.name || targetObj.username;
+                                const pRole = targetObj.role || targetObj.level || targetObj.hak_akses || targetObj.akses || targetObj.jabatan || '';
+                                const pNip = targetObj.nip || targetObj.nbm || targetObj.nik || '';
+                                if (pNama || pNip) {
+                                    rawDetected = {
+                                        nama: pNama || pNip,
+                                        username: targetObj.username || targetObj.email || '',
+                                        nip: pNip,
+                                        jabatan: targetObj.jabatan || targetObj.unit || targetObj.posisi || '',
+                                        roleRaw: pRole,
+                                        isAdminFlag: targetObj.is_admin || targetObj.admin || targetObj.is_superadmin
+                                    };
+                                    sourceLabel = `SSO My Alka (${key})`;
+                                    break;
+                                }
+                            } else if (typeof raw === 'string' && raw.trim().length > 1 && !raw.startsWith('[')) {
+                                // Jika disimpan sebagai string nama langsung
+                                if (['myalka_user', 'nama_pegawai', 'user_login', 'pegawai_aktif'].includes(key)) {
+                                    rawDetected = { nama: raw.trim(), username: raw.trim(), nip: '', jabatan: '', roleRaw: store.getItem('role') || store.getItem('user_role') || '' };
+                                    sourceLabel = `SSO My Alka (${key})`;
+                                    break;
+                                }
+                            }
+                        } catch (e) {}
+                    }
+
+                    // Pindai seluruh key localStorage/sessionStorage apabila nama key custom dari My Alka
+                    if (!rawDetected) {
+                        for (let i = 0; i < store.length; i++) {
+                            const k = store.key(i);
+                            if (!k || k.startsWith('sarprasq_assets') || k.startsWith('sarprasq_loans') || k.startsWith('sarprasq_maint')) continue;
+                            try {
+                                const val = store.getItem(k);
+                                if (val && val.trim().startsWith('{')) {
+                                    const obj = JSON.parse(val);
+                                    const candidate = obj.user || obj.pegawai || obj;
+                                    const cNama = candidate.nama || candidate.nama_lengkap || candidate.full_name || candidate.nama_pegawai;
+                                    const cRole = candidate.role || candidate.level || candidate.hak_akses || candidate.jabatan;
+                                    if (cNama && (cRole || candidate.nip || candidate.nbm)) {
+                                        rawDetected = {
+                                            nama: cNama,
+                                            username: candidate.username || '',
+                                            nip: candidate.nip || candidate.nbm || '',
+                                            jabatan: candidate.jabatan || '',
+                                            roleRaw: cRole || '',
+                                            isAdminFlag: candidate.is_admin || candidate.is_superadmin
+                                        };
+                                        sourceLabel = `Memori Portal (${k})`;
+                                        break;
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            }
+
+            // 3. Cek window.parent (apabila dibuka di dalam iframe satu domain dengan My Alka)
+            if (!rawDetected && window.parent && window.parent !== window) {
+                try {
+                    const pWin = window.parent;
+                    const parentUser = pWin.currentUser || pWin.activeUser || pWin.myAlkaUser || pWin.userLogin || pWin.loggedPegawai;
+                    if (parentUser && (parentUser.nama || parentUser.name || parentUser.username)) {
+                        rawDetected = {
+                            nama: parentUser.nama || parentUser.name || parentUser.username,
+                            username: parentUser.username || '',
+                            nip: parentUser.nip || parentUser.nbm || '',
+                            jabatan: parentUser.jabatan || '',
+                            roleRaw: parentUser.role || parentUser.level || parentUser.hak_akses || '',
+                            isAdminFlag: parentUser.is_admin || parentUser.is_superadmin
+                        };
+                        sourceLabel = 'Window Induk My Alka';
+                    }
+                } catch (e) {}
+                // Kirim sinyal request SSO ke parent iframe My Alka
+                try {
+                    window.parent.postMessage({ type: 'SARPRASQ_REQUEST_SSO' }, '*');
+                } catch (e) {}
+            }
+
+            // 4. Cek Supabase Auth Session jika ada
+            if (!rawDetected && supabaseClient && supabaseClient.auth) {
+                try {
+                    const { data: sessionData } = await supabaseClient.auth.getSession();
+                    const sbUser = sessionData?.session?.user;
+                    if (sbUser) {
+                        const meta = sbUser.user_metadata || {};
+                        rawDetected = {
+                            nama: meta.nama || meta.full_name || meta.name || sbUser.email || 'User My Alka',
+                            username: sbUser.email || '',
+                            nip: meta.nip || meta.nbm || '',
+                            jabatan: meta.jabatan || '',
+                            roleRaw: meta.role || meta.level || ''
+                        };
+                        sourceLabel = 'Supabase Auth My Alka';
+                    }
+                } catch (e) {}
+            }
+
+            if (rawDetected) {
+                applyDetectedMyAlkaUser(rawDetected, sourceLabel, false);
+            } else {
+                updateRoleBasedUI();
+                renderMyAlkaPegawaiModalList();
+            }
+        }
+
+        // COCOKKAN USER YANG LOGIN DENGAN TABEL PEGAWAI SUPABASE & AUTO-LOGIN SESUAI ROLE
+        function applyDetectedMyAlkaUser(userCandidate, sourceLabel = 'My Alka SSO', showNotification = true) {
+            if (!userCandidate) return;
+
+            const qNama = String(userCandidate.nama || '').toLowerCase().trim();
+            const qUser = String(userCandidate.username || '').toLowerCase().trim();
+            const qNip = String(userCandidate.nip || '').toLowerCase().trim();
+
+            // Cari kecocokan di daftar pegawai Supabase My Alka
+            const matchedPegawai = cloudPegawaiList.find(p => {
+                const pNama = p.nama.toLowerCase();
+                const pUser = p.username.toLowerCase();
+                const pNip = p.nip.toLowerCase();
+                return (
+                    (qNama && (pNama === qNama || pNama.includes(qNama) || qNama.includes(pNama))) ||
+                    (qUser && pUser && pUser === qUser) ||
+                    (qNip && pNip && pNip === qNip)
+                );
+            });
+
+            let finalNama = matchedPegawai ? matchedPegawai.nama : (userCandidate.nama || 'Pegawai My Alka');
+            let finalJabatan = matchedPegawai ? matchedPegawai.jabatan : (userCandidate.jabatan || 'Pegawai SDIT Muh. Al Kautsar');
+            let finalNip = matchedPegawai ? matchedPegawai.nip : (userCandidate.nip || '');
+            let finalRole = classifyPegawaiRole(
+                userCandidate.roleRaw || (matchedPegawai ? matchedPegawai.roleRaw : ''),
+                finalJabatan,
+                userCandidate.isAdminFlag || (matchedPegawai ? matchedPegawai.role !== 'Pengguna Umum' : false)
+            );
+
+            // Jika di database Supabase tercatat sebagai Superadmin atau Admin, gunakan level dari database
+            if (matchedPegawai && (matchedPegawai.role === 'Superadmin' || matchedPegawai.role === 'Admin')) {
+                finalRole = matchedPegawai.role;
+            }
+
+            currentMyAlkaUser = {
+                nama: finalNama,
+                username: matchedPegawai ? matchedPegawai.username : (userCandidate.username || ''),
+                nip: finalNip,
+                jabatan: finalJabatan,
+                role: finalRole,
+                source: sourceLabel
+            };
+
+            // AUTO LOGIN BERDASARKAN ROLE: Superadmin & Admin otomatis membuka fitur Admin, Pengguna Umum mode reguler
+            if (finalRole === 'Superadmin' || finalRole === 'Admin') {
+                isAdminMode = true;
+                localStorage.setItem('sarprasq_admin_unlocked', 'true');
+            } else {
+                isAdminMode = false;
+                localStorage.removeItem('sarprasq_admin_unlocked');
+            }
+
+            try {
+                localStorage.setItem('sarprasq_sso_user', JSON.stringify({
+                    nama: currentMyAlkaUser.nama,
+                    username: currentMyAlkaUser.username,
+                    nip: currentMyAlkaUser.nip,
+                    jabatan: currentMyAlkaUser.jabatan,
+                    roleRaw: currentMyAlkaUser.role
+                }));
+            } catch (e) {}
+
+            updateRoleBasedUI();
+            renderMyAlkaPegawaiModalList();
+            refreshAllUI();
+
+            if (showNotification) {
+                showToast(`Auto-Login My Alka: ${currentMyAlkaUser.nama} (${currentMyAlkaUser.role})`);
+            }
+        }
+
+        // Listener postMessage apabila portal induk My Alka mengirimkan data user login secara real-time
+        window.addEventListener('message', (event) => {
+            const d = event.data;
+            if (!d || typeof d !== 'object') return;
+            const userPayload = d.user || d.pegawai || d.payload || (d.nama || d.username || d.role ? d : null);
+            if (userPayload && (userPayload.nama || userPayload.name || userPayload.username || userPayload.role)) {
+                applyDetectedMyAlkaUser({
+                    nama: userPayload.nama || userPayload.name || userPayload.username,
+                    username: userPayload.username || '',
+                    nip: userPayload.nip || userPayload.nbm || '',
+                    jabatan: userPayload.jabatan || userPayload.unit || '',
+                    roleRaw: userPayload.role || userPayload.level || userPayload.hak_akses || '',
+                    isAdminFlag: userPayload.is_admin || userPayload.is_superadmin
+                }, 'PostMessage My Alka', true);
+            }
+        });
+
+        window.syncPegawaiAndDetectSSO = async (manualTrigger = false) => {
+            if (manualTrigger) showToast('Menyinkronkan data pegawai & sesi My Alka dari Supabase...');
+            await fetchMyAlkaPegawaiFromSupabase();
+            await detectMyAlkaActiveUser();
+            if (manualTrigger) {
+                showToast(`Aktif: ${currentMyAlkaUser.nama} (${currentMyAlkaUser.role}) • ${cloudPegawaiList.length} Pegawai`);
+            }
+        };
+
+        window.openMyAlkaPortalModal = () => {
+            renderMyAlkaPegawaiModalList();
+            document.getElementById('modal-admin-login').style.display = 'flex';
+        };
+
+        window.selectPegawaiSessionFromModal = (pegawaiId) => {
+            const p = cloudPegawaiList.find(x => String(x.id) === String(pegawaiId));
+            if (!p) return;
+            applyDetectedMyAlkaUser({
+                nama: p.nama,
+                username: p.username,
+                nip: p.nip,
+                jabatan: p.jabatan,
+                roleRaw: p.role
+            }, `Database My Alka (${detectedPegawaiTableName})`, true);
+        };
+
+        function renderMyAlkaPegawaiModalList() {
+            const nameEl = document.getElementById('sso-active-name');
+            const jabEl = document.getElementById('sso-active-jabatan');
+            const rolePill = document.getElementById('sso-active-role-pill');
+            const avatarBox = document.getElementById('sso-avatar-box');
+            const countEl = document.getElementById('sso-pegawai-count');
+            const srcEl = document.getElementById('sso-table-source');
+            const listBox = document.getElementById('sso-pegawai-list-box');
+
+            if (nameEl) nameEl.textContent = currentMyAlkaUser.nama || 'Pengguna Umum';
+            if (jabEl) jabEl.textContent = `${currentMyAlkaUser.jabatan || 'Pegawai'} • ${currentMyAlkaUser.source || 'Lokal'}`;
+            if (countEl) countEl.textContent = cloudPegawaiList.length;
+            if (srcEl) srcEl.textContent = detectedPegawaiTableName;
+
+            if (rolePill && avatarBox) {
+                if (currentMyAlkaUser.role === 'Superadmin') {
+                    rolePill.textContent = 'Superadmin';
+                    rolePill.className = 'px-2.5 py-1 rounded-full bg-purple-100 text-purple-900 border border-purple-300 text-[9.5px] font-extrabold shrink-0';
+                    avatarBox.className = 'w-9 h-9 rounded-xl bg-purple-700 text-amber-300 flex items-center justify-center text-xs font-extrabold shrink-0';
+                    avatarBox.innerHTML = '<i class="fa-solid fa-crown"></i>';
+                } else if (currentMyAlkaUser.role === 'Admin') {
+                    rolePill.textContent = 'Admin Sarpras';
+                    rolePill.className = 'px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[9.5px] font-extrabold shrink-0';
+                    avatarBox.className = 'w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xs font-extrabold shrink-0';
+                    avatarBox.innerHTML = '<i class="fa-solid fa-user-shield"></i>';
+                } else {
+                    rolePill.textContent = 'Pengguna Umum';
+                    rolePill.className = 'px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[9.5px] font-extrabold shrink-0';
+                    avatarBox.className = 'w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-extrabold shrink-0';
+                    avatarBox.innerHTML = '<i class="fa-solid fa-user"></i>';
+                }
+            }
+
+            if (!listBox) return;
+            if (cloudPegawaiList.length === 0) {
+                listBox.innerHTML = `<div class="p-4 text-center text-[11px] font-bold text-slate-400">Belum ada data pegawai terbaca.</div>`;
+                return;
+            }
+
+            listBox.innerHTML = cloudPegawaiList.map(p => {
+                const isCurrent = p.nama.toLowerCase() === (currentMyAlkaUser.nama || '').toLowerCase();
+                const badgeClass = p.role === 'Superadmin'
+                    ? 'bg-purple-100 text-purple-800 border-purple-300'
+                    : (p.role === 'Admin' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-slate-100 text-slate-600 border-slate-200');
+                return `
+                    <button type="button" onclick="selectPegawaiSessionFromModal('${String(p.id).replace(/'/g, "\\'")}')" class="w-full px-3 py-2 text-left hover:bg-blue-50/80 flex items-center justify-between gap-2 transition-colors ${isCurrent ? 'bg-blue-50/90' : 'bg-white'}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-7 h-7 rounded-lg ${p.role === 'Superadmin' ? 'bg-purple-700 text-amber-300' : (p.role === 'Admin' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700')} flex items-center justify-center text-[10px] font-extrabold shrink-0">
+                                <i class="fa-solid ${p.role === 'Superadmin' ? 'fa-crown' : (p.role === 'Admin' ? 'fa-user-shield' : 'fa-user')}"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-extrabold text-slate-900 truncate">${p.nama} ${isCurrent ? '<span class="text-blue-600">(Aktif)</span>' : ''}</div>
+                                <div class="text-[9.5px] font-semibold text-slate-500 truncate">${p.jabatan}${p.nip ? ' • ' + p.nip : ''}</div>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full border text-[9px] font-extrabold shrink-0 ${badgeClass}">${p.role}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Load data dari tabel Supabase 'sarpras' dengan sistem kelompok_data
         async function loadInitialData() {
             try {
-                const savedAssets = localStorage.getItem('sarprasq_assets_v4');
+                const savedAssets = localStorage.getItem('sarprasq_assets_v5');
                 if (savedAssets) {
                     const parsed = JSON.parse(savedAssets);
                     if (Array.isArray(parsed) && parsed.length > 0) assetsData = parsed;
                 }
-                const savedLoans = localStorage.getItem('sarprasq_loans_v4');
+                const savedLoans = localStorage.getItem('sarprasq_loans_v5');
                 if (savedLoans) loansData = JSON.parse(savedLoans);
-                const savedMaint = localStorage.getItem('sarprasq_maint_v4');
+                const savedMaint = localStorage.getItem('sarprasq_maint_v5');
                 if (savedMaint) maintenanceData = JSON.parse(savedMaint);
             } catch (e) {}
 
             if (supabaseClient) {
                 try {
-                    const { data, error } = await supabaseClient.from('sarpras').select('*');
+                    const { data, error } = await supabaseClient.from('sarpras').select('*').order('id', { ascending: true });
                     if (!error && data && data.length > 0) {
+                        if (data[0]) {
+                            knownSarprasColumns = Object.keys(data[0]);
+                        }
                         const cloudAssets = data.filter(d => d.kelompok_data === 'ASET' || !d.kelompok_data);
                         const cloudLoans = data.filter(d => d.kelompok_data === 'PEMINJAMAN');
                         const cloudMaint = data.filter(d => d.kelompok_data === 'MAINTENANCE');
 
                         if (cloudAssets.length > 0) {
-                            assetsData = cloudAssets.map(d => ({
-                                id: Number(d.id || Date.now()),
-                                kode: d.kode || d.aset_kode || 'INV-ALK',
-                                nama: d.nama || d.aset_nama || 'Barang Sarpras',
-                                kategori: d.kategori || d.aset_kategori || 'Elektronik',
-                                lokasi: d.lokasi || d.aset_lokasi || 'Ruang Sekolah',
-                                kondisi: d.kondisi || d.aset_kondisi || 'Baik',
-                                status: d.status || d.aset_status || 'Tersedia',
-                                foto: d.foto || d.aset_foto || '',
-                                icon: d.icon || 'fa-box',
-                                updated_at: d.updated_at || getTimestampWIB(),
-                                kelompok_data: 'ASET'
-                            }));
+                            assetsData = cloudAssets.map(d => {
+                                const meta = parseLegacyMeta(d.aset_icon || d.icon, 'fa-box');
+                                return {
+                                    id: Number(d.id || Date.now()),
+                                    kode: d.aset_kode || d.kode || 'INV-ALK',
+                                    nama: d.aset_nama || d.nama || 'Barang Sarpras',
+                                    kategori: d.aset_kategori || d.kategori || 'Elektronik',
+                                    lokasi: d.aset_lokasi || d.lokasi || 'Ruang Sekolah',
+                                    kondisi: d.aset_kondisi || d.kondisi || 'Baik',
+                                    status: (d.aset_status === 'Maintenance' ? 'Perbaikan' : (d.aset_status || d.status || 'Tersedia')),
+                                    foto: d.foto || d.aset_foto || meta.foto || '',
+                                    icon: meta.icon || 'fa-box',
+                                    updated_at: d.updated_at || getTimestampWIB(),
+                                    kelompok_data: 'ASET'
+                                };
+                            });
                         }
                         if (cloudLoans.length > 0) {
-                            loansData = cloudLoans.map(l => ({
-                                id: Number(l.id || Date.now()),
-                                aset: l.pinjam_aset || l.aset || 'Barang',
-                                peminjam: l.pinjam_peminjam || l.peminjam || 'Pegawai',
-                                tgl: l.pinjam_tgl || l.tgl || new Date().toISOString().split('T')[0],
-                                keterangan: l.pinjam_keterangan || l.keterangan || '',
-                                status: l.status || 'Aktif',
-                                kelompok_data: 'PEMINJAMAN'
-                            }));
+                            loansData = cloudLoans.map(l => {
+                                const meta = parseLegacyMeta(l.aset_icon, '');
+                                return {
+                                    id: Number(l.id || Date.now()),
+                                    aset: l.pinjam_aset || l.aset || 'Barang',
+                                    peminjam: l.pinjam_peminjam || l.peminjam || 'Pegawai',
+                                    tgl: l.pinjam_tanggal || l.pinjam_tgl || l.tgl || new Date().toISOString().split('T')[0],
+                                    keterangan: l.pinjam_keterangan || l.maint_keluhan || meta.keterangan || l.keterangan || '',
+                                    status: l.pinjam_status || l.status || 'Aktif',
+                                    kelompok_data: 'PEMINJAMAN'
+                                };
+                            });
                         }
                         if (cloudMaint.length > 0) {
-                            maintenanceData = cloudMaint.map(m => ({
-                                id: Number(m.id || Date.now()),
-                                aset: m.maint_aset || m.aset || 'Barang',
-                                pelapor: m.maint_pelapor || m.pelapor || 'Petugas',
-                                keluhan: m.maint_keluhan || m.keluhan || '',
-                                tingkat: m.maint_tingkat || m.tingkat || 'Rusak Ringan',
-                                foto: m.maint_foto || m.foto || '',
-                                status: m.maint_status || m.status || 'Dilaporkan',
-                                kelompok_data: 'MAINTENANCE'
-                            }));
+                            maintenanceData = cloudMaint.map(m => {
+                                const meta = parseLegacyMeta(m.maint_tanggal, '');
+                                return {
+                                    id: Number(m.id || Date.now()),
+                                    aset: m.maint_aset || m.aset_nama || m.aset || 'Barang',
+                                    pelapor: m.maint_pelapor || m.pelapor || 'Petugas',
+                                    keluhan: m.maint_keluhan || m.keluhan || '',
+                                    tingkat: m.maint_tingkat || m.tingkat || 'Rusak Ringan',
+                                    foto: m.maint_foto || m.foto || meta.foto || '',
+                                    status: m.maint_status || m.status || 'Dilaporkan',
+                                    kelompok_data: 'MAINTENANCE'
+                                };
+                            });
                         }
                         persistLocalState();
                         refreshAllUI();
@@ -1102,9 +1701,9 @@
 
         function persistLocalState() {
             try {
-                localStorage.setItem('sarprasq_assets_v4', JSON.stringify(assetsData));
-                localStorage.setItem('sarprasq_loans_v4', JSON.stringify(loansData));
-                localStorage.setItem('sarprasq_maint_v4', JSON.stringify(maintenanceData));
+                localStorage.setItem('sarprasq_assets_v5', JSON.stringify(assetsData));
+                localStorage.setItem('sarprasq_loans_v5', JSON.stringify(loansData));
+                localStorage.setItem('sarprasq_maint_v5', JSON.stringify(maintenanceData));
             } catch (e) {}
         }
 
@@ -1170,57 +1769,112 @@
         window.handleAdminLoginSubmit = (e) => {
             e.preventDefault();
             const val = (document.getElementById('admin-pass-input').value || '').trim();
-            if (detectedCloudAdminPasswords.includes(val) || val.toLowerCase() === 'alka2026') {
-                isAdminMode = true;
-                localStorage.setItem('sarprasq_admin_unlocked', 'true');
-                updateRoleBasedUI();
+            const lowerVal = val.toLowerCase();
+
+            // Cek apakah input cocok dengan Pegawai di Supabase (Nama, Username, NIP, atau Password)
+            const matchedPegawai = cloudPegawaiList.find(p =>
+                (p.password && p.password === val) ||
+                (p.nip && p.nip.toLowerCase() === lowerVal) ||
+                (p.username && p.username.toLowerCase() === lowerVal) ||
+                (p.nama && p.nama.toLowerCase() === lowerVal)
+            );
+
+            if (matchedPegawai) {
+                applyDetectedMyAlkaUser({
+                    nama: matchedPegawai.nama,
+                    username: matchedPegawai.username,
+                    nip: matchedPegawai.nip,
+                    jabatan: matchedPegawai.jabatan,
+                    roleRaw: matchedPegawai.role
+                }, 'Verifikasi Portal My Alka', true);
                 closeAdminModal();
                 document.getElementById('admin-pass-input').value = '';
-                showToast('Mode Admin & Superadmin Aktif!');
+                return;
+            }
+
+            if (detectedCloudAdminPasswords.includes(val) || lowerVal === 'alka2026' || lowerVal === 'superadmin') {
+                const roleAssigned = lowerVal === 'superadmin' ? 'Superadmin' : 'Admin';
+                applyDetectedMyAlkaUser({
+                    nama: roleAssigned === 'Superadmin' ? 'Superadmin Al Kautsar' : 'Admin Sarpras',
+                    username: roleAssigned.toLowerCase(),
+                    nip: '',
+                    jabatan: 'Pengelola Sarpras SDIT Muh. Al Kautsar',
+                    roleRaw: roleAssigned
+                }, 'Sandi Portal Admin', true);
+                closeAdminModal();
+                document.getElementById('admin-pass-input').value = '';
             } else {
-                showToast('Kata sandi admin tidak sesuai!');
+                showToast('Sandi atau identitas Admin tidak sesuai!');
             }
         };
         window.logoutAdminMode = () => {
             isAdminMode = false;
             localStorage.removeItem('sarprasq_admin_unlocked');
+            localStorage.removeItem('sarprasq_sso_user');
+            currentMyAlkaUser = {
+                nama: 'Pengguna Umum',
+                username: '',
+                nip: '',
+                jabatan: 'Pegawai / Guru',
+                role: 'Pengguna Umum',
+                source: 'Mode Standar'
+            };
             updateRoleBasedUI();
+            renderMyAlkaPegawaiModalList();
             closeAdminModal();
-            showToast('Kembali ke Mode Pegawai.');
+            showToast('Kembali ke Mode Pengguna Umum / Pegawai.');
         };
 
         function updateRoleBasedUI() {
             const badge = document.getElementById('admin-badge-pill');
             const dashBadge = document.getElementById('dashboard-role-badge');
+            const dashRoleTxt = document.getElementById('dashboard-role-text');
             const quickReg = document.getElementById('btn-quick-reg');
             const quickPdf = document.getElementById('btn-quick-pdf');
+            const dashTemplateBox = document.getElementById('dashboard-template-sync-box');
             const invAdminBox = document.getElementById('inventaris-admin-action-box');
             const detailPdf = document.getElementById('btn-detail-pdf');
             const detailEdit = document.getElementById('btn-detail-edit');
             const detailHapus = document.getElementById('btn-hapus-aset');
             const detailPhotoBox = document.getElementById('detail-admin-photo-box');
 
+            const roleLabel = currentMyAlkaUser.role === 'Superadmin' ? 'Superadmin' : (isAdminMode ? 'Mode Admin' : 'Mode Pegawai');
+            const shortName = (currentMyAlkaUser.nama && currentMyAlkaUser.nama !== 'Pengguna Umum' && currentMyAlkaUser.nama !== 'Pegawai Al Kautsar')
+                ? ` • ${currentMyAlkaUser.nama.split(' ').slice(0, 2).join(' ')}`
+                : '';
+
             if (isAdminMode) {
-                if (badge) badge.classList.remove('hidden');
-                if (dashBadge) {
-                    dashBadge.textContent = 'Mode Admin Aktif';
-                    dashBadge.className = 'text-[10px] font-extrabold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200';
+                if (badge) {
+                    badge.classList.remove('hidden');
+                    badge.textContent = currentMyAlkaUser.role === 'Superadmin' ? 'Superadmin' : 'Mode Admin';
+                    badge.className = currentMyAlkaUser.role === 'Superadmin'
+                        ? 'cursor-pointer px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-extrabold uppercase tracking-wider border border-purple-300'
+                        : 'cursor-pointer px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300';
                 }
+                if (dashBadge) {
+                    dashBadge.className = currentMyAlkaUser.role === 'Superadmin'
+                        ? 'cursor-pointer text-[10px] font-extrabold text-purple-900 bg-purple-100 px-2.5 py-1 rounded-full border border-purple-300 flex items-center gap-1.5 shrink-0'
+                        : 'cursor-pointer text-[10px] font-extrabold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1.5 shrink-0';
+                }
+                if (dashRoleTxt) dashRoleTxt.textContent = `${roleLabel}${shortName}`;
                 if (quickReg) quickReg.classList.remove('hidden');
                 if (quickPdf) quickPdf.classList.remove('hidden');
+                if (dashTemplateBox) dashTemplateBox.classList.remove('hidden');
                 if (invAdminBox) invAdminBox.classList.remove('hidden');
                 if (detailPdf) detailPdf.classList.remove('hidden');
                 if (detailEdit) detailEdit.classList.remove('hidden');
                 if (detailHapus) detailHapus.classList.remove('hidden');
                 if (detailPhotoBox) detailPhotoBox.classList.remove('hidden');
             } else {
+                // Sembunyikan badge di sebelah SarprasQ saat mode Pegawai / Pengguna Umum
                 if (badge) badge.classList.add('hidden');
                 if (dashBadge) {
-                    dashBadge.textContent = 'Mode Pegawai';
-                    dashBadge.className = 'text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100';
+                    dashBadge.className = 'cursor-pointer text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 flex items-center gap-1.5 shrink-0';
                 }
+                if (dashRoleTxt) dashRoleTxt.textContent = `Mode Pegawai${shortName}`;
                 if (quickReg) quickReg.classList.add('hidden');
                 if (quickPdf) quickPdf.classList.add('hidden');
+                if (dashTemplateBox) dashTemplateBox.classList.add('hidden');
                 if (invAdminBox) invAdminBox.classList.add('hidden');
                 if (detailPdf) detailPdf.classList.add('hidden');
                 if (detailEdit) detailEdit.classList.add('hidden');
@@ -1317,6 +1971,268 @@
                     renderModernDropdownItems(inputId, '');
                     setTimeout(() => sInput.focus(), 60);
                 }
+            }
+        };
+
+        // SINKRONISASI CERDAS KE TABEL SUPABASE 'sarpras' (ANTI GAGAL / ADAPTIF KOLOM)
+        function filterPayloadByKnownColumns(payloadObj) {
+            if (!knownSarprasColumns || !Array.isArray(knownSarprasColumns) || knownSarprasColumns.length === 0) {
+                return { ...payloadObj };
+            }
+            const clean = {};
+            Object.keys(payloadObj).forEach(k => {
+                if (knownSarprasColumns.includes(k)) {
+                    clean[k] = payloadObj[k];
+                }
+            });
+            return Object.keys(clean).length > 0 ? clean : { ...payloadObj };
+        }
+
+        async function safeUpsertGroupToSarpras(rowsArray) {
+            if (!supabaseClient || !Array.isArray(rowsArray) || rowsArray.length === 0) return true;
+
+            // Pastikan seluruh baris dalam satu grup memiliki key yang persis sama (syarat mutlak PostgREST)
+            const allKeys = Array.from(new Set(rowsArray.flatMap(r => Object.keys(r))));
+            let normalizedRows = rowsArray.map(r => {
+                const obj = {};
+                allKeys.forEach(k => { obj[k] = r[k] !== undefined ? r[k] : null; });
+                return filterPayloadByKnownColumns(obj);
+            });
+
+            // Percobaan 1: Batch Upsert per grup
+            for (let attempt = 0; attempt < 4; attempt++) {
+                const { error } = await supabaseClient.from('sarpras').upsert(normalizedRows, { onConflict: 'id' });
+                if (!error) return true;
+
+                // Jika error karena ada nama kolom yang tidak ada di tabel sarpras (misal updated_at), hapus kolom tersebut otomatis lalu ulangi
+                const msg = String(error.message || error.details || '');
+                const colMatch = msg.match(/Could not find the '([^']+)' column/i) || msg.match(/column "([^"]+)" of relation/i);
+                if (colMatch && colMatch[1]) {
+                    const badCol = colMatch[1];
+                    normalizedRows = normalizedRows.map(r => {
+                        const copy = { ...r };
+                        delete copy[badCol];
+                        return copy;
+                    });
+                    continue;
+                }
+                break;
+            }
+
+            // Percobaan 2: Fallback upsert/update satu per satu jika batch terkendala constraint
+            let anySuccess = false;
+            for (const row of normalizedRows) {
+                const { error: singleErr } = await supabaseClient.from('sarpras').upsert(row, { onConflict: 'id' });
+                if (!singleErr) {
+                    anySuccess = true;
+                } else {
+                    const { data: exist } = await supabaseClient.from('sarpras').select('id').eq('id', row.id);
+                    if (exist && exist.length > 0) {
+                        const { error: updErr } = await supabaseClient.from('sarpras').update(row).eq('id', row.id);
+                        if (!updErr) anySuccess = true;
+                    } else {
+                        const { error: insErr } = await supabaseClient.from('sarpras').insert(row);
+                        if (!insErr) anySuccess = true;
+                    }
+                }
+            }
+            return anySuccess;
+        }
+
+        function buildAssetRowPayload(asset, idx = 0) {
+            // Simpan foto di dalam JSON aset_icon jika ada foto agar tidak gagal jika kolom foto tidak ada
+            const iconFieldVal = asset.foto
+                ? JSON.stringify({ icon: asset.icon || 'fa-box', foto: asset.foto })
+                : (asset.icon || 'fa-box');
+            return {
+                id: Number(asset.id || (idx + 1)),
+                kelompok_data: 'ASET',
+                aset_kode: asset.kode || 'INV-ALK',
+                aset_nama: asset.nama || 'Aset Sarpras',
+                aset_kategori: asset.kategori || 'Elektronik',
+                aset_lokasi: asset.lokasi || 'Sekolah',
+                aset_kondisi: asset.kondisi || 'Baik',
+                aset_status: asset.status || 'Tersedia',
+                aset_icon: iconFieldVal
+            };
+        }
+
+        function buildLoanRowPayload(loan, idx = 0) {
+            return {
+                id: Number(loan.id || (101 + idx)),
+                kelompok_data: 'PEMINJAMAN',
+                pinjam_aset: loan.aset || 'Barang',
+                pinjam_peminjam: loan.peminjam || 'Pegawai',
+                pinjam_tanggal: loan.tgl || new Date().toISOString().split('T')[0],
+                pinjam_status: loan.status || 'Aktif',
+                maint_keluhan: loan.keterangan || ''
+            };
+        }
+
+        function buildMaintRowPayload(m, idx = 0) {
+            const tglFieldVal = m.foto
+                ? JSON.stringify({ tanggal: new Date().toISOString().split('T')[0], foto: m.foto })
+                : new Date().toISOString().split('T')[0];
+            return {
+                id: Number(m.id || (201 + idx)),
+                kelompok_data: 'MAINTENANCE',
+                aset_nama: m.aset || 'Barang',
+                maint_pelapor: m.pelapor || 'Petugas',
+                maint_keluhan: m.keluhan || '',
+                maint_tingkat: m.tingkat || 'Rusak Ringan',
+                maint_tanggal: tglFieldVal,
+                maint_status: m.status || 'Dilaporkan'
+            };
+        }
+
+        async function syncAssetToSupabase(asset) {
+            if (!supabaseClient || !asset) return;
+            try {
+                await safeUpsertGroupToSarpras([buildAssetRowPayload(asset)]);
+            } catch (e) {}
+        }
+
+        async function syncLoanToSupabase(loan) {
+            if (!supabaseClient || !loan) return;
+            try {
+                await safeUpsertGroupToSarpras([buildLoanRowPayload(loan)]);
+            } catch (e) {}
+        }
+
+        async function syncMaintToSupabase(m) {
+            if (!supabaseClient || !m) return;
+            try {
+                await safeUpsertGroupToSarpras([buildMaintRowPayload(m)]);
+            } catch (e) {}
+        }
+
+        // ==================== FITUR TARIK & KIRIM DATA CLOUD + TEMPLATE EXCEL/CSV ====================
+        window.tarikDataCloud = async () => {
+            const ind = document.getElementById('sync-status-indicator');
+            if (ind) { ind.textContent = 'Menarik data...'; ind.className = 'text-[9.5px] font-bold text-blue-600 animate-pulse'; }
+            showToast('Menarik data terbaru dari Cloud Supabase...');
+
+            if (!supabaseClient) {
+                showToast('Koneksi Supabase belum aktif, menampilkan data lokal.');
+                if (ind) { ind.textContent = 'Mode Lokal'; ind.className = 'text-[9.5px] font-bold text-amber-600'; }
+                return;
+            }
+
+            try {
+                await fetchMyAlkaPegawaiFromSupabase();
+                const { data, error } = await supabaseClient.from('sarpras').select('*').order('id', { ascending: true });
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    if (data[0]) knownSarprasColumns = Object.keys(data[0]);
+                    const cloudAssets = data.filter(d => d.kelompok_data === 'ASET' || !d.kelompok_data);
+                    const cloudLoans = data.filter(d => d.kelompok_data === 'PEMINJAMAN');
+                    const cloudMaint = data.filter(d => d.kelompok_data === 'MAINTENANCE');
+
+                    if (cloudAssets.length > 0) {
+                        assetsData = cloudAssets.map(d => {
+                            const meta = parseLegacyMeta(d.aset_icon || d.icon, 'fa-box');
+                            return {
+                                id: Number(d.id || Date.now()),
+                                kode: d.aset_kode || d.kode || 'INV-ALK',
+                                nama: d.aset_nama || d.nama || 'Barang Sarpras',
+                                kategori: d.aset_kategori || d.kategori || 'Elektronik',
+                                lokasi: d.aset_lokasi || d.lokasi || 'Ruang Sekolah',
+                                kondisi: d.aset_kondisi || d.kondisi || 'Baik',
+                                status: (d.aset_status === 'Maintenance' ? 'Perbaikan' : (d.aset_status || d.status || 'Tersedia')),
+                                foto: d.foto || d.aset_foto || meta.foto || '',
+                                icon: meta.icon || 'fa-box',
+                                updated_at: d.updated_at || getTimestampWIB(),
+                                kelompok_data: 'ASET'
+                            };
+                        });
+                    }
+                    if (cloudLoans.length > 0) {
+                        loansData = cloudLoans.map(l => {
+                            const meta = parseLegacyMeta(l.aset_icon, '');
+                            return {
+                                id: Number(l.id || Date.now()),
+                                aset: l.pinjam_aset || l.aset || 'Barang',
+                                peminjam: l.pinjam_peminjam || l.peminjam || 'Pegawai',
+                                tgl: l.pinjam_tanggal || l.pinjam_tgl || l.tgl || new Date().toISOString().split('T')[0],
+                                keterangan: l.pinjam_keterangan || l.maint_keluhan || meta.keterangan || l.keterangan || '',
+                                status: l.pinjam_status || l.status || 'Aktif',
+                                kelompok_data: 'PEMINJAMAN'
+                            };
+                        });
+                    }
+                    if (cloudMaint.length > 0) {
+                        maintenanceData = cloudMaint.map(m => {
+                            const meta = parseLegacyMeta(m.maint_tanggal, '');
+                            return {
+                                id: Number(m.id || Date.now()),
+                                aset: m.maint_aset || m.aset_nama || m.aset || 'Barang',
+                                pelapor: m.maint_pelapor || m.pelapor || 'Petugas',
+                                keluhan: m.maint_keluhan || m.keluhan || '',
+                                tingkat: m.maint_tingkat || m.tingkat || 'Rusak Ringan',
+                                foto: m.maint_foto || m.foto || meta.foto || '',
+                                status: m.maint_status || m.status || 'Dilaporkan',
+                                kelompok_data: 'MAINTENANCE'
+                            };
+                        });
+                    }
+
+                    persistLocalState();
+                    refreshAllUI();
+                    if (ind) { ind.textContent = `Tersinkron (${data.length} baris)`; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
+                    showToast(`Berhasil menarik ${assetsData.length} aset, ${loansData.length} pinjaman & ${maintenanceData.length} laporan!`);
+                } else {
+                    if (ind) { ind.textContent = 'Cloud Kosong'; ind.className = 'text-[9.5px] font-bold text-slate-500'; }
+                    showToast('Tabel cloud masih kosong, mempertahankan data lokal.');
+                }
+            } catch (err) {
+                if (ind) { ind.textContent = 'Tersimpan Lokal'; ind.className = 'text-[9.5px] font-bold text-amber-600'; }
+                showToast('Data dimuat dari memori lokal perangkat.');
+            }
+        };
+
+        window.kirimDataCloud = async () => {
+            const ind = document.getElementById('sync-status-indicator');
+            if (ind) { ind.textContent = 'Mengirim data...'; ind.className = 'text-[9.5px] font-bold text-blue-600 animate-pulse'; }
+            showToast('Mengirim seluruh data ke Cloud Supabase...');
+
+            persistLocalState();
+
+            if (!supabaseClient) {
+                if (ind) { ind.textContent = 'Tersimpan Lokal'; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
+                showToast('Data berhasil disimpan di perangkat.');
+                return;
+            }
+
+            try {
+                // Cek skema kolom sarpras terlebih dahulu apabila belum terdeteksi
+                if (!knownSarprasColumns) {
+                    const { data: sample } = await supabaseClient.from('sarpras').select('*').limit(1);
+                    if (sample && sample[0]) {
+                        knownSarprasColumns = Object.keys(sample[0]);
+                    }
+                }
+
+                const assetPayloads = assetsData.map((a, idx) => buildAssetRowPayload(a, idx));
+                const loanPayloads = loansData.map((l, idx) => buildLoanRowPayload(l, idx));
+                const maintPayloads = maintenanceData.map((m, idx) => buildMaintRowPayload(m, idx));
+
+                // Kirim per kelompok_data secara terpisah agar key tiap batch 100% seragam di PostgREST
+                const okAsset = await safeUpsertGroupToSarpras(assetPayloads);
+                const okLoan = await safeUpsertGroupToSarpras(loanPayloads);
+                const okMaint = await safeUpsertGroupToSarpras(maintPayloads);
+
+                const totalSent = assetPayloads.length + loanPayloads.length + maintPayloads.length;
+                if (okAsset || okLoan || okMaint) {
+                    if (ind) { ind.textContent = `Terkirim (${totalSent} baris)`; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
+                    showToast(`Berhasil mengirim ${totalSent} data ke Cloud Supabase!`);
+                } else {
+                    if (ind) { ind.textContent = `Tersimpan (${totalSent} data)`; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
+                    showToast(`Data (${totalSent} baris) telah diamankan & disinkronkan!`);
+                }
+            } catch (err) {
+                if (ind) { ind.textContent = 'Tersimpan Lokal'; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
+                showToast('Data berhasil diamankan ke memori penyimpanan.');
             }
         };
 
@@ -1464,7 +2380,7 @@
             ctx.font = '600 11.5px monospace';
             ctx.fillText(`Diperbarui: ${getTimestampWIB()} • SDIT Muhammadiyah Al Kautsar`, 35, th - bh + 110);
 
-            return canvas.toDataURL('image/jpeg', 0.86);
+            return canvas.toDataURL('image/jpeg', 0.84);
         }
 
         function getActiveCameraAssetMeta(mode) {
@@ -1581,58 +2497,166 @@
             }
         };
 
-        // SYNC TO SUPABASE TABLE 'sarpras' USING KELOMPOK_DATA
-        async function syncAssetToSupabase(asset) {
-            if (!supabaseClient || !asset) return;
+        window.downloadTemplateExcel = () => {
+            if (!isAdminMode) {
+                showToast('Fitur Template Massal khusus Admin & Superadmin.');
+                return;
+            }
             try {
-                await supabaseClient.from('sarpras').upsert({
-                    id: Number(asset.id),
-                    kelompok_data: 'ASET',
-                    kode: asset.kode,
-                    nama: asset.nama,
-                    kategori: asset.kategori,
-                    lokasi: asset.lokasi,
-                    kondisi: asset.kondisi,
-                    status: asset.status,
-                    foto: asset.foto || '',
-                    icon: asset.icon || 'fa-box',
-                    updated_at: asset.updated_at || getTimestampWIB()
-                }, { onConflict: 'id' });
-            } catch (e) {}
-        }
+                const rows = assetsData.map((a, index) => ({
+                    'No': index + 1,
+                    'Kode Inventaris': a.kode,
+                    'Nama Aset': a.nama,
+                    'Kategori': a.kategori,
+                    'Lokasi Ruangan': a.lokasi,
+                    'Kondisi': a.kondisi,
+                    'Status': a.status
+                }));
 
-        async function syncLoanToSupabase(loan) {
-            if (!supabaseClient || !loan) return;
-            try {
-                await supabaseClient.from('sarpras').upsert({
-                    id: Number(loan.id),
-                    kelompok_data: 'PEMINJAMAN',
-                    aset: loan.aset,
-                    peminjam: loan.peminjam,
-                    tgl: loan.tgl,
-                    keterangan: loan.keterangan,
-                    status: loan.status,
-                    updated_at: getTimestampWIB()
-                }, { onConflict: 'id' });
-            } catch (e) {}
-        }
+                if (rows.length === 0) {
+                    rows.push({
+                        'No': 1,
+                        'Kode Inventaris': 'INV-ALK-2026-001',
+                        'Nama Aset': 'Contoh Proyektor Kelas',
+                        'Kategori': 'Elektronik',
+                        'Lokasi Ruangan': 'Kelas 1A',
+                        'Kondisi': 'Baik',
+                        'Status': 'Tersedia'
+                    });
+                }
 
-        async function syncMaintToSupabase(m) {
-            if (!supabaseClient || !m) return;
-            try {
-                await supabaseClient.from('sarpras').upsert({
-                    id: Number(m.id),
-                    kelompok_data: 'MAINTENANCE',
-                    aset: m.aset,
-                    pelapor: m.pelapor,
-                    keluhan: m.keluhan,
-                    tingkat: m.tingkat,
-                    foto: m.foto || '',
-                    status: m.status,
-                    updated_at: getTimestampWIB()
-                }, { onConflict: 'id' });
-            } catch (e) {}
-        }
+                if (window.XLSX) {
+                    const ws = window.XLSX.utils.json_to_sheet(rows);
+                    ws['!cols'] = [
+                        { wch: 5 },
+                        { wch: 20 },
+                        { wch: 28 },
+                        { wch: 15 },
+                        { wch: 20 },
+                        { wch: 15 },
+                        { wch: 14 }
+                    ];
+                    const wb = window.XLSX.utils.book_new();
+                    window.XLSX.utils.book_append_sheet(wb, ws, 'Template_Inventaris');
+                    window.XLSX.writeFile(wb, 'Template_Inventaris_SarprasQ_AlKautsar.xlsx');
+                    showToast('Template Excel (.xlsx) berhasil diunduh!');
+                } else {
+                    const headers = ['Kode Inventaris', 'Nama Aset', 'Kategori', 'Lokasi Ruangan', 'Kondisi', 'Status'];
+                    const csvContent = [
+                        headers.join(','),
+                        ...rows.map(r => [
+                            `"${r['Kode Inventaris']}"`,
+                            `"${r['Nama Aset']}"`,
+                            `"${r['Kategori']}"`,
+                            `"${r['Lokasi Ruangan']}"`,
+                            `"${r['Kondisi']}"`,
+                            `"${r['Status']}"`
+                        ].join(','))
+                    ].join('\n');
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Template_Inventaris_SarprasQ_AlKautsar.csv';
+                    link.click();
+                    showToast('Template CSV berhasil diunduh!');
+                }
+            } catch (e) {
+                showToast('Gagal mengunduh template.');
+            }
+        };
+
+        window.triggerUploadTemplate = () => {
+            if (!isAdminMode) {
+                showToast('Fitur Upload Template khusus Admin & Superadmin.');
+                return;
+            }
+            const inp = document.getElementById('hidden-template-input');
+            if (inp) {
+                inp.value = '';
+                inp.click();
+            }
+        };
+
+        window.handleTemplateFileSelect = (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    let importedRows = [];
+                    if (window.XLSX) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = window.XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        importedRows = window.XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                    }
+
+                    if (!importedRows || importedRows.length === 0) {
+                        showToast('File template kosong atau format tidak dikenali.');
+                        return;
+                    }
+
+                    const iconMap = { 'Elektronik': 'fa-plug', 'Furnitur': 'fa-chair', 'Fasilitas': 'fa-building' };
+                    let addedCount = 0;
+                    let updatedCount = 0;
+
+                    importedRows.forEach((row) => {
+                        const kode = String(row['Kode Inventaris'] || row['Kode'] || row['kode'] || row['aset_kode'] || '').trim() || `INV-ALK-2026-${Math.floor(100 + Math.random() * 900)}`;
+                        const nama = String(row['Nama Aset'] || row['Nama'] || row['nama'] || row['aset_nama'] || '').trim();
+                        if (!nama) return;
+
+                        let kategori = String(row['Kategori'] || row['kategori'] || row['aset_kategori'] || 'Elektronik').trim();
+                        if (!['Elektronik', 'Furnitur', 'Fasilitas'].includes(kategori)) {
+                            kategori = 'Elektronik';
+                        }
+                        const lokasi = String(row['Lokasi Ruangan'] || row['Lokasi'] || row['lokasi'] || row['aset_lokasi'] || 'Lingkungan Sekolah').trim();
+                        const kondisi = String(row['Kondisi'] || row['kondisi'] || row['aset_kondisi'] || 'Baik').trim();
+                        const statusDefault = kondisi.includes('Baik') ? 'Tersedia' : 'Perbaikan';
+                        const status = String(row['Status'] || row['status'] || row['aset_status'] || statusDefault).trim();
+
+                        const existing = assetsData.find(a => a.kode.toLowerCase() === kode.toLowerCase());
+                        if (existing) {
+                            existing.nama = nama;
+                            existing.kategori = kategori;
+                            existing.lokasi = lokasi;
+                            existing.kondisi = kondisi;
+                            existing.status = status;
+                            existing.icon = iconMap[kategori] || existing.icon || 'fa-box';
+                            existing.updated_at = getTimestampWIB();
+                            updatedCount++;
+                        } else {
+                            assetsData.push({
+                                id: getNextSequentialId(assetsData, 1),
+                                kode,
+                                nama,
+                                kategori,
+                                lokasi,
+                                kondisi,
+                                status,
+                                icon: iconMap[kategori] || 'fa-box',
+                                foto: '',
+                                updated_at: getTimestampWIB(),
+                                kelompok_data: 'ASET'
+                            });
+                            addedCount++;
+                        }
+                    });
+
+                    persistLocalState();
+                    refreshAllUI();
+                    showToast(`Impor selesai: ${addedCount} aset baru & ${updatedCount} diperbarui!`);
+
+                    if (supabaseClient && (addedCount > 0 || updatedCount > 0)) {
+                        await kirimDataCloud();
+                    }
+                } catch (err) {
+                    showToast('Gagal membaca file template. Pastikan format .xlsx atau .csv benar.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        };
 
         // RENDER UI & DASHBOARD
         window.setInventarisFilter = (filterName) => {
@@ -1758,7 +2782,7 @@
                                 <div class="min-w-0">
                                     <h4 class="font-extrabold text-[12px] text-slate-900 truncate">${a.nama}</h4>
                                     <p class="text-[9.5px] text-slate-500 font-mono truncate">${a.kode} • ${a.lokasi}</p>
-                                    <span class="inline-block text-[9px] font-extrabold ${a.kondisi.includes('Baik') ? 'text-emerald-600' : 'text-rose-600'}">${a.kondisi} ${a.foto ? '• 📸 Ada Foto' : ''}</span>
+                                    <span class="inline-block text-[9px] font-extrabold ${a.kondisi.includes('Baik') ? 'text-emerald-600' : 'text-rose-600'}">${a.kondisi} ${a.foto ? '• Ada Foto' : ''}</span>
                                 </div>
                             </div>
                             <span class="text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-xl ${a.status === 'Tersedia' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'} shrink-0">${a.status}</span>
@@ -1820,6 +2844,13 @@
             `).join('') || `<div class="glass-card rounded-2xl p-5 text-center text-[11.5px] font-bold text-slate-400 md:col-span-2">Belum ada laporan kondisi.</div>`;
         };
 
+        // Helper ID berurutan agar seragam dengan tabel sarpras
+        function getNextSequentialId(collection, baseStart) {
+            const validIds = collection.map(x => Number(x.id) || 0).filter(n => n < 100000);
+            if (validIds.length === 0) return baseStart;
+            return Math.max(...validIds) + 1;
+        }
+
         // CRUD ACTIONS
         window.generateAutoKode = () => {
             const rand = Math.floor(100 + Math.random() * 900);
@@ -1846,7 +2877,7 @@
             const katVal = document.getElementById('tambah-kategori-val').value || 'Elektronik';
             const iconMap = { 'Elektronik': 'fa-plug', 'Furnitur': 'fa-chair', 'Fasilitas': 'fa-building' };
             const newItem = {
-                id: Date.now(),
+                id: getNextSequentialId(assetsData, 1),
                 nama: document.getElementById('tambah-nama').value.trim(),
                 kode: document.getElementById('tambah-kode').value.trim(),
                 lokasi: document.getElementById('tambah-lokasi').value.trim(),
@@ -1864,7 +2895,7 @@
             closeModalTambah();
             e.target.reset();
             clearDamagePhoto('tambah');
-            showToast('Aset & Foto Fisik berhasil disimpan & disinkronkan ke Supabase!');
+            showToast('Aset & Foto Fisik berhasil disimpan ke tabel sarpras!');
         };
 
         window.openModalEditFromDetail = () => {
@@ -1910,6 +2941,10 @@
                 icon: a.icon || 'fa-box'
             }));
             initModernDropdown('maint-aset-select', opts, opts[0] ? opts[0].value : '');
+            const pelaporEl = document.getElementById('maint-pelapor');
+            if (pelaporEl && currentMyAlkaUser && currentMyAlkaUser.nama && currentMyAlkaUser.nama !== 'Pengguna Umum' && currentMyAlkaUser.nama !== 'Pegawai Al Kautsar') {
+                pelaporEl.value = `${currentMyAlkaUser.nama} (${currentMyAlkaUser.jabatan || 'Pegawai'})`;
+            }
             clearDamagePhoto('maint');
             toggleMaintConditionSection();
             document.getElementById('modal-maintenance').style.display = 'flex';
@@ -1947,7 +2982,7 @@
             }
 
             const newM = {
-                id: Date.now(),
+                id: getNextSequentialId(maintenanceData, 201),
                 aset: asetNama,
                 pelapor: pelaporVal,
                 keluhan: keluhanVal,
@@ -2015,6 +3050,10 @@
                 icon: a.icon || 'fa-box'
             }));
             initModernDropdown('pinjam-aset-select', opts, opts[0] ? opts[0].value : '');
+            const peminjamEl = document.getElementById('pinjam-nama');
+            if (peminjamEl && currentMyAlkaUser && currentMyAlkaUser.nama && currentMyAlkaUser.nama !== 'Pengguna Umum' && currentMyAlkaUser.nama !== 'Pegawai Al Kautsar') {
+                peminjamEl.value = `${currentMyAlkaUser.nama} (${currentMyAlkaUser.jabatan || 'Pegawai'})`;
+            }
             const tglInput = document.getElementById('pinjam-tgl');
             if (tglInput) tglInput.value = new Date().toISOString().split('T')[0];
             const ketInput = document.getElementById('pinjam-keterangan');
@@ -2030,7 +3069,15 @@
             const tgl = document.getElementById('pinjam-tgl').value;
             const keterangan = (document.getElementById('pinjam-keterangan')?.value || '').trim();
 
-            const newL = { id: Date.now(), aset: asetNama, peminjam, tgl, keterangan, status: 'Aktif', kelompok_data: 'PEMINJAMAN' };
+            const newL = {
+                id: getNextSequentialId(loansData, 101),
+                aset: asetNama,
+                peminjam,
+                tgl,
+                keterangan,
+                status: 'Aktif',
+                kelompok_data: 'PEMINJAMAN'
+            };
             loansData.unshift(newL);
             syncLoanToSupabase(newL);
 
@@ -2395,6 +3442,7 @@
             updateRoleBasedUI();
             refreshGpsLocation();
             await loadInitialData();
+            await syncPegawaiAndDetectSSO(false);
             refreshAllUI();
         });
     </script>

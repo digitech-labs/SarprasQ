@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="alka-app-name" content="SarprasQ - SDIT Muhammadiyah Al Kautsar">
     <title>SarprasQ - SDIT Muhammadiyah Al Kautsar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.tailwind = window.tailwind || {};
@@ -237,11 +238,17 @@
                     </button>
                 </nav>
 
-                <!-- GPS MAPS LOCATION PILL -->
-                <button onclick="refreshGpsLocation()" class="px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[10.5px] font-extrabold flex items-center gap-1.5 max-w-[190px] sm:max-w-[240px] truncate shrink-0 transition-all" title="Ketuk untuk perbarui titik lokasi GPS">
-                    <i class="fa-solid fa-location-dot text-rose-500 shrink-0"></i>
-                    <span id="header-gps-label" class="truncate">Mendeteksi...</span>
-                </button>
+                <!-- HEADER RIGHT PROFILE & GPS -->
+                <div class="flex items-center gap-2">
+                    <div id="alka-sso-profile-badge" class="hidden text-right">
+                        <div id="alka-sso-name" class="text-[11.5px] font-extrabold text-slate-900 truncate max-w-[130px]">Tamu</div>
+                        <div id="alka-sso-role" class="text-[9.5px] font-bold text-blue-600">Pengunjung</div>
+                    </div>
+                    <button onclick="refreshGpsLocation()" class="px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[10.5px] font-extrabold flex items-center gap-1.5 max-w-[160px] sm:max-w-[200px] truncate shrink-0 transition-all" title="Ketuk untuk perbarui titik lokasi GPS">
+                        <i class="fa-solid fa-location-dot text-rose-500 shrink-0"></i>
+                        <span id="header-gps-label" class="truncate">Mendeteksi...</span>
+                    </button>
+                </div>
             </header>
 
             <!-- MAIN SCROLLABLE CONTENT -->
@@ -1029,16 +1036,262 @@
     </div>
 
     <script>
-        // ==================== SUPABASE & STATE INITIALIZATION ====================
-        const SUPABASE_URL = 'https://qavefnbxagqllvtsfiyk.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhdmVmbmJ4YWdxbGx2dHNmaXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0NTE0MzIsImV4cCI6MjA1NjAyNzQzMn0.7X3_8b6v6jT1R6y8z5p_xK9qW2mN4vL8cR1tY5uJ0oE';
-        let supabaseClient = null;
-        try {
-            if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        } catch (err) {}
+        // ==================== ENGINE UNIVERSAL (ALKA ECOSYSTEM) ====================
+        const ALKA_SUPABASE_URL = 'https://vjgydzodhejzwlvwxbmu.supabase.co';
+        const ALKA_SUPABASE_KEY = 'sb_publishable_m_i6gSzO4cdebG975Vqthw_Gn-iT2Uv';
 
+        function resolveAutoAppIdentity() {
+            const metaEl = document.querySelector('meta[name="alka-app-name"]');
+            const h1El = document.querySelector('h1');
+            const rawName = (metaEl && metaEl.content) || document.title || (h1El && h1El.innerText) || window.location.pathname || 'alka_app';
+            const cleanSlug = String(rawName).toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'alka_custom_app';
+
+            let hash = 5381;
+            for (let i = 0; i < cleanSlug.length; i++) {
+                hash = ((hash << 5) + hash) + cleanSlug.charCodeAt(i);
+                hash = hash & 0x7fffffff;
+            }
+            const autoSheetId = (hash % 90000000) + 100000;
+            return {
+                appName: String(rawName).trim(),
+                appSlug: cleanSlug,
+                sheetId: autoSheetId
+            };
+        }
+
+        const ALKA_APP_IDENTITY = resolveAutoAppIdentity();
+        const APP_SHEET_ID = ALKA_APP_IDENTITY.sheetId;
+        const APP_NAME_SLUG = ALKA_APP_IDENTITY.appSlug;
+
+        window.alkaSupabase = window.supabase ? window.supabase.createClient(ALKA_SUPABASE_URL, ALKA_SUPABASE_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false }
+        }) : null;
+
+        window.AlkaEcosystem = {
+            identity: ALKA_APP_IDENTITY,
+            sso: null,
+            masterGuru: [],
+            masterSiswa: [],
+
+            readSsoFromUrl: function() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('alka_sso') !== '1') return null;
+                    const isLoggedIn = params.get('alka_logged_in') === '1';
+                    const isSuperAdmin = params.get('alka_is_super_admin') === '1';
+                    const isAdmin = params.get('alka_is_admin') === '1' || isSuperAdmin;
+                    const role = params.get('alka_role') || (isLoggedIn ? 'Umum' : 'Tamu');
+                    let userObj = {
+                        id: Number(params.get('alka_id') || 0),
+                        name: params.get('alka_user') || 'Tamu',
+                        namaLengkap: params.get('alka_full_name') || params.get('alka_user') || 'Tamu',
+                        role: role,
+                        nik: params.get('alka_nik') || '',
+                        nbm: params.get('alka_nbm') || '',
+                        nisn: params.get('alka_nisn') || '',
+                        kelas: params.get('alka_kelas') || '',
+                        waliKelas: params.get('alka_wali_kelas') || '',
+                        isLoggedIn: isLoggedIn,
+                        isSuperAdmin: isSuperAdmin,
+                        isAdmin: isAdmin
+                    };
+                    const b64 = params.get('alka_sso_b64');
+                    if (b64) {
+                        try {
+                            const decoded = JSON.parse(decodeURIComponent(escape(atob(b64))));
+                            userObj = { ...userObj, ...decoded };
+                        } catch (e) {}
+                    }
+                    return { type: 'ALKA_SSO_AUTH', isLoggedIn, isSuperAdmin, isAdmin, role, user: userObj };
+                } catch (err) { return null; }
+            },
+
+            readSsoFromStorage: function() {
+                try {
+                    const raw = localStorage.getItem('ALKA_SSO_AUTH') || sessionStorage.getItem('ALKA_SSO_AUTH');
+                    return raw ? JSON.parse(raw) : null;
+                } catch (err) { return null; }
+            },
+
+            applySsoSession: function(payload) {
+                if (!payload || !payload.user) return;
+                this.sso = payload;
+                window.CURRENT_ALKA_USER = payload.user;
+                window.IS_ALKA_LOGGED_IN = Boolean(payload.isLoggedIn);
+                window.IS_ALKA_ADMIN = Boolean(payload.isAdmin || payload.isSuperAdmin);
+                window.IS_ALKA_SUPER_ADMIN = Boolean(payload.isSuperAdmin);
+                if (typeof window.onAlkaSsoReady === 'function') {
+                    window.onAlkaSsoReady(payload.user, payload);
+                }
+            },
+
+            loadAppSheet: async function() {
+                const cacheKey = 'alka_sheet_cache_' + APP_NAME_SLUG;
+                let cachedData = null;
+                try {
+                    const raw = localStorage.getItem(cacheKey);
+                    if (raw) cachedData = JSON.parse(raw);
+                } catch (e) {}
+
+                if (!window.alkaSupabase) return cachedData;
+
+                try {
+                    const { data, error } = await window.alkaSupabase
+                        .from('portal_state')
+                        .select('data')
+                        .eq('id', APP_SHEET_ID)
+                        .maybeSingle();
+
+                    if (!error && data && data.data && data.data.payload !== undefined) {
+                        try { localStorage.setItem(cacheKey, JSON.stringify(data.data.payload)); } catch (e) {}
+                        return data.data.payload;
+                    }
+                } catch (err) {
+                    console.warn('[AlkaEcosystem] Menggunakan cache lokal untuk ' + APP_NAME_SLUG, err);
+                }
+                return cachedData;
+            },
+
+            saveAppSheet: async function(appDataPayload) {
+                const cacheKey = 'alka_sheet_cache_' + APP_NAME_SLUG;
+                try { localStorage.setItem(cacheKey, JSON.stringify(appDataPayload)); } catch (e) {}
+
+                if (!window.alkaSupabase) return false;
+
+                try {
+                    const sheetEnvelope = {
+                        app_name: ALKA_APP_IDENTITY.appName,
+                        app_slug: APP_NAME_SLUG,
+                        sheet_id: APP_SHEET_ID,
+                        updated_at: new Date().toISOString(),
+                        updated_by: window.CURRENT_ALKA_USER ? window.CURRENT_ALKA_USER.namaLengkap : 'Sistem',
+                        payload: appDataPayload
+                    };
+                    const { error } = await window.alkaSupabase
+                        .from('portal_state')
+                        .upsert({ id: APP_SHEET_ID, data: sheetEnvelope });
+                    if (error) throw error;
+                    return true;
+                } catch (err) {
+                    console.error('[AlkaEcosystem] Gagal simpan ke Sheet Supabase:', err);
+                    return false;
+                }
+            },
+
+            loadMasterGuruSiswa: async function() {
+                if (!window.alkaSupabase) return { guru: [], siswa: [] };
+                try {
+                    const { data } = await window.alkaSupabase
+                        .from('portal_state')
+                        .select('data')
+                        .eq('id', 1)
+                        .maybeSingle();
+                    if (data && data.data) {
+                        this.masterGuru = Array.isArray(data.data.guru) ? data.data.guru : [];
+                        this.masterSiswa = Array.isArray(data.data.siswa) ? data.data.siswa : [];
+                    }
+                } catch (e) {}
+                return { guru: this.masterGuru, siswa: this.masterSiswa };
+            },
+
+            init: async function() {
+                console.log(`[AlkaEcosystem] Aplikasi: "${ALKA_APP_IDENTITY.appName}" | Auto Sheet ID: ${APP_SHEET_ID} (${APP_NAME_SLUG})`);
+
+                const fromUrl = this.readSsoFromUrl();
+                if (fromUrl) this.applySsoSession(fromUrl);
+                if (!this.sso) {
+                    const fromStorage = this.readSsoFromStorage();
+                    if (fromStorage) this.applySsoSession(fromStorage);
+                }
+                window.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'ALKA_SSO_AUTH') {
+                        this.applySsoSession(event.data);
+                    }
+                });
+                if (window.parent && window.parent !== window) {
+                    try { window.parent.postMessage({ type: 'ALKA_REQUEST_SSO' }, '*'); } catch (e) {}
+                }
+
+                await this.loadMasterGuruSiswa();
+                const savedSheetData = await this.loadAppSheet();
+                if (savedSheetData && typeof window.onAlkaSheetLoaded === 'function') {
+                    window.onAlkaSheetLoaded(savedSheetData);
+                }
+
+                // Opsional WebSocket Realtime dengan pengaman try-catch untuk lingkungan sandbox/Canvas
+                if (window.alkaSupabase) {
+                    try {
+                        const channel = window.alkaSupabase.channel('sheet-channel-' + APP_SHEET_ID);
+                        if (channel && typeof channel.on === 'function') {
+                            channel.on('postgres_changes', {
+                                event: '*',
+                                schema: 'public',
+                                table: 'portal_state',
+                                filter: 'id=eq.' + APP_SHEET_ID
+                            }, (payload) => {
+                                const incoming = payload.new && payload.new.data && payload.new.data.payload;
+                                if (incoming !== undefined && typeof window.onAlkaSheetLoaded === 'function') {
+                                    window.onAlkaSheetLoaded(incoming);
+                                }
+                            });
+                            if (typeof channel.subscribe === 'function') {
+                                channel.subscribe((status) => {
+                                    // Abaikan jika WebSocket diblokir oleh sandbox Canvas
+                                    if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                                        console.info('[AlkaEcosystem] Realtime WebSocket dinonaktifkan di sandbox.');
+                                    }
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                }
+            }
+        };
+
+        // ==================== INTEGRASI KETENTUAN C (SSO & SHEET LOADED) ====================
+        window.onAlkaSsoReady = function(user, sso) {
+            if (sso.isSuperAdmin || sso.isAdmin) {
+                isAdminMode = true;
+                localStorage.setItem('sarprasq_admin_unlocked', 'true');
+            } else if (sso.isLoggedIn) {
+                // Login sebagai Pegawai atau Siswa/Wali, tetap akses umum kecuali dikunci
+                isAdminMode = false;
+                localStorage.removeItem('sarprasq_admin_unlocked');
+            }
+
+            const profileBadge = document.getElementById('alka-sso-profile-badge');
+            const nameEl = document.getElementById('alka-sso-name');
+            const roleEl = document.getElementById('alka-sso-role');
+            if (profileBadge && nameEl && roleEl) {
+                nameEl.textContent = user.namaLengkap || user.name || 'Pengguna';
+                roleEl.textContent = user.role || (sso.isAdmin ? 'Admin' : 'Pegawai');
+                profileBadge.classList.remove('hidden');
+            }
+            updateRoleBasedUI();
+        };
+
+        window.onAlkaSheetLoaded = function(cloudData) {
+            if (cloudData) {
+                if (Array.isArray(cloudData.assets)) assetsData = cloudData.assets;
+                if (Array.isArray(cloudData.loans)) loansData = cloudData.loans;
+                if (Array.isArray(cloudData.maintenance)) maintenanceData = cloudData.maintenance;
+                refreshAllUI();
+            }
+        };
+
+        function persistAndSyncCloudAppSheet() {
+            persistLocalState();
+            const payload = {
+                assets: assetsData,
+                loans: loansData,
+                maintenance: maintenanceData
+            };
+            if (window.AlkaEcosystem) {
+                window.AlkaEcosystem.saveAppSheet(payload);
+            }
+        }
+
+        // ==================== APP STATE & LOGIC ====================
         let isAdminMode = localStorage.getItem('sarprasq_admin_unlocked') === 'true';
         let detectedCloudAdminPasswords = ['alka2026', 'admin123', 'sarpras2026', 'alkautsar'];
         let knownSarprasColumns = null;
@@ -1064,13 +1317,12 @@
         let maintenanceData = [];
         let currentInventarisFilter = 'Semua';
 
-        // Pindai sandi admin dari tabel pegawai/pengguna di Supabase secara otomatis
         async function fetchAdminPasswordsFromSupabase() {
-            if (!supabaseClient) return;
+            if (!window.alkaSupabase) return;
             const candidateTables = ['pegawai', 'data_pegawai', 'users', 'akun', 'guru', 'profil', 'karyawan', 'sdm', 'user', 'admin'];
             for (const tbl of candidateTables) {
                 try {
-                    const { data } = await supabaseClient.from(tbl).select('*').limit(200);
+                    const { data } = await window.alkaSupabase.from(tbl).select('*').limit(200);
                     if (Array.isArray(data) && data.length > 0) {
                         data.forEach(r => {
                             const pwd = String(r.password || r.sandi || r.kata_sandi || r.pin || r.pass || '').trim();
@@ -1083,7 +1335,6 @@
             }
         }
 
-        // Helper untuk mengekstrak icon & foto apabila sebelumnya tersimpan sebagai JSON di kolom aset_icon / maint_tanggal
         function parseLegacyMeta(rawVal, defaultIcon) {
             if (!rawVal || typeof rawVal !== 'string') return { icon: defaultIcon || 'fa-box', foto: '', tanggal: '', keterangan: '' };
             const trimmed = rawVal.trim();
@@ -1101,7 +1352,6 @@
             return { icon: trimmed, foto: '', tanggal: trimmed, keterangan: '' };
         }
 
-        // Load data dari tabel Supabase 'sarpras' dengan sistem kelompok_data
         async function loadInitialData() {
             try {
                 const savedAssets = localStorage.getItem('sarprasq_assets_v5');
@@ -1115,10 +1365,10 @@
                 if (savedMaint) maintenanceData = JSON.parse(savedMaint);
             } catch (e) {}
 
-            if (supabaseClient) {
+            if (window.alkaSupabase) {
                 try {
                     await fetchAdminPasswordsFromSupabase();
-                    const { data, error } = await supabaseClient.from('sarpras').select('*').order('id', { ascending: true });
+                    const { data, error } = await window.alkaSupabase.from('sarpras').select('*').order('id', { ascending: true });
                     if (!error && data && data.length > 0) {
                         if (data[0]) knownSarprasColumns = Object.keys(data[0]);
                         const cloudAssets = data.filter(d => d.kelompok_data === 'ASET' || !d.kelompok_data);
@@ -1236,7 +1486,6 @@
             }, { enableHighAccuracy: true, timeout: 7000 });
         };
 
-        // Long-press brand trigger for Admin portal
         let brandPressTimer = null;
         window.startBrandPress = (e) => {
             clearTimeout(brandPressTimer);
@@ -1313,7 +1562,6 @@
             }
         }
 
-        // MODERN SEARCHABLE DROPDOWN ENGINE
         const modernDropdownRegistry = {};
         window.initModernDropdown = (inputId, optionsList, defaultVal) => {
             const hiddenInput = document.getElementById(inputId);
@@ -1404,7 +1652,6 @@
             }
         };
 
-        // SINKRONISASI CERDAS KE TABEL SUPABASE 'sarpras' (ANTI GAGAL / ADAPTIF KOLOM)
         function filterPayloadByKnownColumns(payloadObj) {
             if (!knownSarprasColumns || !Array.isArray(knownSarprasColumns) || knownSarprasColumns.length === 0) {
                 return { ...payloadObj };
@@ -1419,7 +1666,7 @@
         }
 
         async function safeUpsertGroupToSarpras(rowsArray) {
-            if (!supabaseClient || !Array.isArray(rowsArray) || rowsArray.length === 0) return true;
+            if (!window.alkaSupabase || !Array.isArray(rowsArray) || rowsArray.length === 0) return true;
             const allKeys = Array.from(new Set(rowsArray.flatMap(r => Object.keys(r))));
             let normalizedRows = rowsArray.map(r => {
                 const obj = {};
@@ -1428,7 +1675,7 @@
             });
 
             for (let attempt = 0; attempt < 4; attempt++) {
-                const { error } = await supabaseClient.from('sarpras').upsert(normalizedRows, { onConflict: 'id' });
+                const { error } = await window.alkaSupabase.from('sarpras').upsert(normalizedRows, { onConflict: 'id' });
                 if (!error) return true;
                 const msg = String(error.message || error.details || '');
                 const colMatch = msg.match(/Could not find the '([^']+)' column/i) || msg.match(/column "([^"]+)" of relation/i);
@@ -1446,16 +1693,16 @@
 
             let anySuccess = false;
             for (const row of normalizedRows) {
-                const { error: singleErr } = await supabaseClient.from('sarpras').upsert(row, { onConflict: 'id' });
+                const { error: singleErr } = await window.alkaSupabase.from('sarpras').upsert(row, { onConflict: 'id' });
                 if (!singleErr) {
                     anySuccess = true;
                 } else {
-                    const { data: exist } = await supabaseClient.from('sarpras').select('id').eq('id', row.id);
+                    const { data: exist } = await window.alkaSupabase.from('sarpras').select('id').eq('id', row.id);
                     if (exist && exist.length > 0) {
-                        const { error: updErr } = await supabaseClient.from('sarpras').update(row).eq('id', row.id);
+                        const { error: updErr } = await window.alkaSupabase.from('sarpras').update(row).eq('id', row.id);
                         if (!updErr) anySuccess = true;
                     } else {
-                        const { error: insErr } = await supabaseClient.from('sarpras').insert(row);
+                        const { error: insErr } = await window.alkaSupabase.from('sarpras').insert(row);
                         if (!insErr) anySuccess = true;
                     }
                 }
@@ -1509,25 +1756,33 @@
         }
 
         async function syncAssetToSupabase(asset) {
-            if (!supabaseClient || !asset) return;
-            try { await safeUpsertGroupToSarpras([buildAssetRowPayload(asset)]); } catch (e) {}
+            if (!window.alkaSupabase || !asset) return;
+            try {
+                await safeUpsertGroupToSarpras([buildAssetRowPayload(asset)]);
+                persistAndSyncCloudAppSheet();
+            } catch (e) {}
         }
         async function syncLoanToSupabase(loan) {
-            if (!supabaseClient || !loan) return;
-            try { await safeUpsertGroupToSarpras([buildLoanRowPayload(loan)]); } catch (e) {}
+            if (!window.alkaSupabase || !loan) return;
+            try {
+                await safeUpsertGroupToSarpras([buildLoanRowPayload(loan)]);
+                persistAndSyncCloudAppSheet();
+            } catch (e) {}
         }
         async function syncMaintToSupabase(m) {
-            if (!supabaseClient || !m) return;
-            try { await safeUpsertGroupToSarpras([buildMaintRowPayload(m)]); } catch (e) {}
+            if (!window.alkaSupabase || !m) return;
+            try {
+                await safeUpsertGroupToSarpras([buildMaintRowPayload(m)]);
+                persistAndSyncCloudAppSheet();
+            } catch (e) {}
         }
 
-        // FITUR TARIK & KIRIM DATA CLOUD + TEMPLATE EXCEL/CSV
         window.tarikDataCloud = async () => {
             const ind = document.getElementById('sync-status-indicator');
             if (ind) { ind.textContent = 'Menarik data...'; ind.className = 'text-[9.5px] font-bold text-blue-600 animate-pulse'; }
             showToast('Menarik data terbaru dari Cloud Supabase...');
 
-            if (!supabaseClient) {
+            if (!window.alkaSupabase) {
                 showToast('Koneksi Supabase belum aktif.');
                 if (ind) { ind.textContent = 'Mode Lokal'; ind.className = 'text-[9.5px] font-bold text-amber-600'; }
                 return;
@@ -1535,7 +1790,7 @@
 
             try {
                 await fetchAdminPasswordsFromSupabase();
-                const { data, error } = await supabaseClient.from('sarpras').select('*').order('id', { ascending: true });
+                const { data, error } = await window.alkaSupabase.from('sarpras').select('*').order('id', { ascending: true });
                 if (error) throw error;
 
                 if (data && data.length > 0) {
@@ -1592,7 +1847,7 @@
                         });
                     }
 
-                    persistLocalState();
+                    persistAndSyncCloudAppSheet();
                     refreshAllUI();
                     if (ind) { ind.textContent = `Tersinkron (${data.length} baris)`; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
                     showToast(`Berhasil menarik ${assetsData.length} aset, ${loansData.length} pinjaman & ${maintenanceData.length} laporan!`);
@@ -1608,9 +1863,9 @@
             if (ind) { ind.textContent = 'Mengirim data...'; ind.className = 'text-[9.5px] font-bold text-blue-600 animate-pulse'; }
             showToast('Mengirim seluruh data ke Cloud Supabase...');
 
-            persistLocalState();
+            persistAndSyncCloudAppSheet();
 
-            if (!supabaseClient) {
+            if (!window.alkaSupabase) {
                 if (ind) { ind.textContent = 'Tersimpan Lokal'; ind.className = 'text-[9.5px] font-bold text-emerald-700'; }
                 showToast('Data berhasil disimpan di perangkat.');
                 return;
@@ -1618,7 +1873,7 @@
 
             try {
                 if (!knownSarprasColumns) {
-                    const { data: sample } = await supabaseClient.from('sarpras').select('*').limit(1);
+                    const { data: sample } = await window.alkaSupabase.from('sarpras').select('*').limit(1);
                     if (sample && sample[0]) knownSarprasColumns = Object.keys(sample[0]);
                 }
 
@@ -1662,7 +1917,6 @@
             }
         });
 
-        // CAMERA & WATERMARK ENGINE
         let activePhotoTargetMode = 'tambah';
         let liveDocStream = null;
         let liveDocFacingMode = 'environment';
@@ -1826,7 +2080,7 @@
             } else if (mode === 'update_detail' && window.currentSelectedAsset) {
                 window.currentSelectedAsset.foto = dataUrl;
                 window.currentSelectedAsset.updated_at = getTimestampWIB();
-                persistLocalState();
+                persistAndSyncCloudAppSheet();
                 syncAssetToSupabase(window.currentSelectedAsset);
                 bukaDetailAset(window.currentSelectedAsset.id);
                 refreshAllUI();
@@ -2026,11 +2280,11 @@
                         }
                     });
 
-                    persistLocalState();
+                    persistAndSyncCloudAppSheet();
                     refreshAllUI();
                     showToast(`Impor selesai: ${addedCount} aset baru & ${updatedCount} diperbarui!`);
 
-                    if (supabaseClient && (addedCount > 0 || updatedCount > 0)) {
+                    if (window.alkaSupabase && (addedCount > 0 || updatedCount > 0)) {
                         await kirimDataCloud();
                     }
                 } catch (err) {
@@ -2040,7 +2294,6 @@
             reader.readAsArrayBuffer(file);
         };
 
-        // RENDER UI & DASHBOARD
         window.setInventarisFilter = (filterName) => {
             currentInventarisFilter = filterName;
             ['Semua', 'Tersedia', 'Dipinjam', 'Perbaikan'].forEach(f => {
@@ -2056,7 +2309,7 @@
         };
 
         window.refreshAllUI = () => {
-            persistLocalState();
+            persistAndSyncCloudAppSheet();
             updateRoleBasedUI();
 
             const total = assetsData.length;
@@ -2232,7 +2485,6 @@
             return Math.max(...validIds) + 1;
         }
 
-        // CRUD ACTIONS
         window.generateAutoKode = () => {
             const rand = Math.floor(100 + Math.random() * 900);
             const el = document.getElementById('tambah-kode');
@@ -2305,7 +2557,7 @@
                 target.lokasi = document.getElementById('edit-lokasi').value.trim();
                 target.kategori = document.getElementById('edit-kategori-val').value;
                 target.updated_at = getTimestampWIB();
-                persistLocalState();
+                persistAndSyncCloudAppSheet();
                 syncAssetToSupabase(target);
                 refreshAllUI();
                 closeModalEdit();
@@ -2528,9 +2780,10 @@
             if (!window.currentSelectedAsset) return;
             const targetId = window.currentSelectedAsset.id;
             assetsData = assetsData.filter(a => a.id !== targetId);
-            if (supabaseClient) {
-                try { await supabaseClient.from('sarpras').delete().eq('id', targetId); } catch (e) {}
+            if (window.alkaSupabase) {
+                try { await window.alkaSupabase.from('sarpras').delete().eq('id', targetId); } catch (e) {}
             }
+            persistAndSyncCloudAppSheet();
             closeModalDetail();
             refreshAllUI();
             showToast('Aset berhasil dihapus dari database.');
@@ -2567,7 +2820,6 @@
             else stopLiveQrScanner();
         };
 
-        // SCANNER ENGINE
         let qrStream = null;
         let qrScanInterval = null;
         let qrFacingMode = 'environment';
@@ -2681,7 +2933,6 @@
             if (found) { bukaDetailAset(found.id); } else { showToast(`Aset tidak ditemukan.`); }
         };
 
-        // PDF F4 GENERATOR
         let currentPdfPreviewList = [];
         let lastGeneratedPdfFilename = 'Label_Inventaris_SarprasQ_F4.pdf';
 
@@ -2813,6 +3064,7 @@
             updateRoleBasedUI();
             refreshGpsLocation();
             await loadInitialData();
+            await window.AlkaEcosystem.init();
             refreshAllUI();
         });
     </script>
